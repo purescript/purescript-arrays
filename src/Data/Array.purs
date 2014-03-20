@@ -180,6 +180,9 @@ instance eqArray :: (Eq a) => Eq [a] where
   (==) _ _ = false
   (/=) xs ys = not (xs == ys)
 
+instance semigroupArray :: Semigroup [a] where
+  (<>) = concat
+
 instance monadArray :: Monad [] where
   return = singleton
   (>>=) = flip concatMap
