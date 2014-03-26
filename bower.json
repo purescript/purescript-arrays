@@ -17,5 +17,9 @@
   ],
   "dependencies": {
     "purescript-maybe": "*"
+  },
+  "devDependencies": {
+    "purescript-exceptions": "*",
+    "purescript-tuples": "*"
   }
 }
