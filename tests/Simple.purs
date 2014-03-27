@@ -50,7 +50,6 @@ main = do
   assertEq (concat [1] nil) [1]
   assertEq (concat nil nil) nil
 
-  assertEq (join ["foo", "bar"]) "foobar"
   assertEq (joinWith ["foo", "bar"] " / ") "foo / bar"
 
   assertEq (reverse [1, 2, 3]) [3, 2, 1]

@@ -8,7 +8,6 @@ module Data.Array
   , indexOf
   , lastIndexOf
   , concat
-  , join
   , joinWith
   , reverse
   , drop
@@ -90,11 +89,6 @@ foreign import concat
   \    return l1.concat(l2);\
   \  };\
   \}" :: forall a. [a] -> [a] -> [a]
-
-foreign import join
-  "function join (l) {\
-  \  return l.join('');\
-  \}" :: [String] -> String
 
 foreign import joinWith
   "function joinWith (l) {\
