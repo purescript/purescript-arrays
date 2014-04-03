@@ -1,0 +1,3 @@
+:m bower_components/purescript-maybe/src/Data/Maybe.purs
+:m src/Data/Array.purs
+:i Data.Array
