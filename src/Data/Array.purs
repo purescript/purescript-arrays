@@ -232,12 +232,6 @@ foreign import sortJS
 instance showArray :: (Show a) => Show [a] where
   show xs = "[" ++ joinWith (map show xs) "," ++ "]"
 
-instance eqArray :: (Eq a) => Eq [a] where
-  (==) [] [] = true
-  (==) (x:xs) (y:ys) = x == y && xs == ys
-  (==) _ _ = false
-  (/=) xs ys = not (xs == ys)
-
 instance monadArray :: Monad [] where
   return = singleton
   (>>=) = flip concatMap

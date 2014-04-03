@@ -41,10 +41,10 @@ main = do
   assertEq (length nil) 0
   
   assertEq (indexOf [1, 2, 1] 1) 0
-  assertEq (indexOf [1, 2, 1] 4) -1
+  assertEq (indexOf [1, 2, 1] 4) (-1)
 
   assertEq (lastIndexOf [1, 2, 1] 1) 2
-  assertEq (lastIndexOf [1, 2, 1] 4) -1
+  assertEq (lastIndexOf [1, 2, 1] 4) (-1)
 
   assertEq (concat [1, 2] [3, 4]) [1, 2, 3, 4]
   assertEq (concat [1] nil) [1]
