@@ -235,6 +235,10 @@ instance showArray :: (Show a) => Show [a] where
 instance monadArray :: Monad [] where
   return = singleton
   (>>=) = flip concatMap
+  
+instance applicativeArray :: Applicative [] where
+  pure = return
+  (<*>) = ap
 
 instance functorArray :: Functor [] where
   (<$>) = map
