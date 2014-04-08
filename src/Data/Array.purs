@@ -195,7 +195,7 @@ foreign import zipWith
   "function zipWith (f) {\
   \  return function (xs) {\
   \    return function (ys) {\
-  \      var l = xs.length > ys.length ? xs.length : ys.length;\
+  \      var l = xs.length < ys.length ? xs.length : ys.length;\
   \      var result = new Array(l);\
   \      for (var i = 0; i < l; i++) {\
   \        result[i] = f(xs[i])(ys[i]);\
