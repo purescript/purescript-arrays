@@ -16,7 +16,8 @@
     "js"
   ],
   "dependencies": {
-    "purescript-maybe": "*"
+    "purescript-maybe": "*",
+    "purescript-monoid": "*"
   },
   "devDependencies": {
     "purescript-exceptions": "*",
