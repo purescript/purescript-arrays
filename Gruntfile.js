@@ -7,10 +7,10 @@ module.exports = function(grunt) {
     libFiles: [
       "src/**/*.purs",
       "bower_components/purescript-*/src/**/*.purs",
-      "bower_components/purescript-*/src/**/*.purs.hs"
     ],
 
     clean: {
+      dedupe: ["bower_components/purescript-arrays"],
       tests: ["tmp"],
       lib: ["js", "externs"]
     },
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-purescript");
   grunt.loadNpmTasks("grunt-execute");
 
-  grunt.registerTask("test", ["clean:tests", "purescript:tests", "execute:tests"]);
-  grunt.registerTask("lib", ["purescript-make:lib"]);
+  grunt.registerTask("test", ["clean:dedupe", "clean:tests", "purescript:tests", "execute:tests"]);
+  grunt.registerTask("lib",  ["clean:dedupe", "purescript-make:lib"]);
   grunt.registerTask("default", ["test", "lib"]);
 };
