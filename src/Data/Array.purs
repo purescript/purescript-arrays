@@ -1,5 +1,5 @@
 module Data.Array
-  ( (:)
+  ( (!!)
   , singleton
   , head
   , tail
@@ -28,11 +28,17 @@ module Data.Array
 
 import Data.Maybe
 import Data.Monoid
+import Prelude.Unsafe (unsafeIndex)
 
-infixr 6 :
+infixl 8 !!
 
-(:) :: forall a. a -> [a] -> [a]
-(:) a = concat [a]
+(!!) :: forall a. [a] -> Number -> Maybe a
+(!!) xs n =
+  if n < 0 || n >= (length xs) || isInt n
+    then Nothing
+    else Just (xs `unsafeIndex` n)
+  where
+  isInt n = n /= complement (complement n)
 
 singleton :: forall a. a -> [a]
 singleton a = [a]
@@ -228,9 +234,6 @@ foreign import sortJS
   \    });\
   \  };\
   \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
-
-instance showArray :: (Show a) => Show [a] where
-  show xs = "[" ++ joinWith (map show xs) "," ++ "]"
 
 instance functorArray :: Functor [] where
   (<$>) = map
