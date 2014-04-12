@@ -1,14 +1,19 @@
 module Data.Array
   ( (!!)
+  , snoc
   , singleton
   , head
+  , last
   , tail
+  , init
+  , null
   , map
   , length
-  , indexOf
-  , lastIndexOf
+  , elem
+  , elemIndex
+  , elemLastIndex
+  , append
   , concat
-  , joinWith
   , reverse
   , drop
   , take
@@ -18,7 +23,6 @@ module Data.Array
   , updateAt
   , concatMap
   , filter
-  , isEmpty
   , range
   , zipWith
   , nub
@@ -40,41 +44,44 @@ infixl 8 !!
   where
   isInt n = n /= complement (complement n)
 
+foreign import snoc
+  "function snoc(l) {\
+  \  return function (e) {\
+  \    var l1 = l.slice();\
+  \    l1.push(e); \
+  \    return l1;\
+  \  };\
+  \}" :: forall a. [a] -> a -> [a]
+
 singleton :: forall a. a -> [a]
 singleton a = [a]
 
 head :: forall a. [a] -> Maybe a
 head (x : _) = Just x
-head _ = Nothing
+head _       = Nothing
+
+last :: forall a. [a] -> Maybe a
+last (x : []) = Just x
+last (_ : xs) = last xs
+last _        = Nothing
 
 tail :: forall a. [a] -> Maybe [a]
 tail (_ : xs) = Just xs
-tail _ = Nothing
+tail _        = Nothing
 
-foreign import map
-  "function map (f) {\
-  \  return function (arr) {\
-  \    var l = arr.length;\
-  \    var result = new Array(l);\
-  \    for (var i = 0; i < l; i++) {\
-  \      result[i] = f(arr[i]);\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> b) -> [a] -> [b]
+init :: forall a. [a] -> Maybe [a]
+init [] = Nothing
+init xs = Just (slice 0 (length xs - 1) xs)
+
+null :: forall a. [a] -> Boolean
+null [] = true
+null _  = false
 
 foreign import length
   "function length (xs) {\
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
-
-foreign import indexOf
-  "function indexOf (l) {\
-  \  return function (e) {\
-  \    return l.indexOf(e);\
-  \  };\
-  \}" :: forall a. [a] -> a -> Number
-
+  
 foreign import elem
   "function elem(l) {\
   \  return function (e) {\
@@ -82,26 +89,35 @@ foreign import elem
   \  };\
   \}" :: forall a. [a] -> a -> Boolean
 
-foreign import lastIndexOf
-  "function lastIndexOf (l) {\
+foreign import elemIndex
+  "function elemIndex (l) {\
+  \  return function (e) {\
+  \    return l.indexOf(e);\
+  \  };\
+  \}" :: forall a. [a] -> a -> Number
+
+foreign import elemLastIndex
+  "function elemLastIndex (l) {\
   \  return function (e) {\
   \    return l.lastIndexOf(e);\
   \  };\
   \}" :: forall a. [a] -> a -> Number
-
-foreign import concat
-  "function concat (l1) {\
+  
+foreign import append
+  "function append (l1) {\
   \  return function (l2) {\
   \    return l1.concat(l2);\
   \  };\
   \}" :: forall a. [a] -> [a] -> [a]
 
-foreign import joinWith
-  "function joinWith (l) {\
-  \  return function (s) {\
-  \    return l.join(s);\
-  \  };\
-  \}" :: [String] -> String -> String
+foreign import concat
+  "function concat (xss) {\
+  \  var result = [];\
+  \  for (var i = 0, l = xss.length; i < l; i++) {\
+  \    result.push.apply(result, xss[i]);\
+  \  }\
+  \  return result;\
+  \}" :: forall a. [[a]] -> [a]
 
 foreign import reverse
   "function reverse (l) {\
@@ -174,6 +190,18 @@ foreign import concatMap
   \    return result;\
   \  };\
   \}" :: forall a b. (a -> [b]) -> [a] -> [b]
+  
+foreign import map
+  "function map (f) {\
+  \  return function (arr) {\
+  \    var l = arr.length;\
+  \    var result = new Array(l);\
+  \    for (var i = 0; i < l; i++) {\
+  \      result[i] = f(arr[i]);\
+  \    }\
+  \    return result;\
+  \  };\
+  \}" :: forall a b. (a -> b) -> [a] -> [b]
 
 foreign import filter
   "function filter (f) {\
@@ -188,10 +216,6 @@ foreign import filter
   \    return result;\
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
-
-isEmpty :: forall a. [a] -> Boolean
-isEmpty [] = true
-isEmpty _ = false
 
 range :: Number -> Number -> [Number]
 range lo hi | lo > hi = []
@@ -250,11 +274,11 @@ instance bindArray :: Bind [] where
 instance monadArray :: Monad []
 
 instance semigroupArray :: Semigroup [a] where
-  (<>) = concat
+  (<>) = append
 
 instance monoidArray :: Monoid [a] where
   mempty = []
 
 instance alternativeArray :: Alternative [] where
   empty = []
-  (<|>) = concat
+  (<|>) = append
