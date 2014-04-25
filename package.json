@@ -1,10 +1,9 @@
 {
   "name": "purescript-arrays",
-  "version": "0.0.0",
-  "devDependencies": {
+  "private": true,
+  "dependencies": {
     "grunt": "~0.4.4",
     "grunt-purescript": "~0.5.0",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-execute": "~0.1.5"
+    "grunt-contrib-clean": "~0.5.0"
   }
 }

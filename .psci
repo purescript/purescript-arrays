@@ -1,7 +1,3 @@
 :m src/Data/Array.purs
 :m src/Data/Array/Unsafe.purs
-:m bower_components/purescript-exceptions/src/Control/Monad/Eff/Exception.purs
 :m bower_components/purescript-maybe/src/Data/Maybe.purs
-:m bower_components/purescript-monoid/src/Data/Monoid.purs
-:m bower_components/purescript-monoid/src/Data/Monoid/First.purs
-:m bower_components/purescript-tuples/src/Data/Tuple.purs
