@@ -31,7 +31,6 @@ module Data.Array
   ) where
 
 import Data.Maybe
-import Data.Monoid
 import Prelude.Unsafe (unsafeIndex)
 
 infixl 8 !!
@@ -275,9 +274,6 @@ instance monadArray :: Monad []
 
 instance semigroupArray :: Semigroup [a] where
   (<>) = append
-
-instance monoidArray :: Monoid [a] where
-  mempty = []
 
 instance alternativeArray :: Alternative [] where
   empty = []

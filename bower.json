@@ -19,8 +19,7 @@
     "Gruntfile.json"
   ],
   "dependencies": {
-    "purescript-maybe": "*",
-    "purescript-monoid": "*"
+    "purescript-maybe": "*"
   },
   "devDependencies": {
     "purescript-exceptions": "*",
