@@ -1,5 +1,4 @@
 {
-  "name": "purescript-arrays",
   "private": true,
   "dependencies": {
     "grunt": "~0.4.4",
