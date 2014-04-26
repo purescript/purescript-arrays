@@ -80,7 +80,6 @@
     zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
 
-
 ## Module Data.Array.Unsafe
 
 ### Values
@@ -88,6 +87,3 @@
     head :: forall a. [a] -> a
 
     tail :: forall a. [a] -> [a]
-
-
-
