@@ -65,8 +65,6 @@
 
     singleton :: forall a. a -> [a]
 
-    slice :: forall a. Prim.Number -> Prim.Number -> [a] -> [a]
-
     snoc :: forall a. [a] -> a -> [a]
 
     sort :: forall a. (Ord a) => [a] -> [a]

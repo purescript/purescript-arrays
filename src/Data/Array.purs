@@ -17,7 +17,6 @@ module Data.Array
   , reverse
   , drop
   , take
-  , slice
   , insertAt
   , deleteAt
   , updateAt
@@ -130,12 +129,8 @@ foreign import drop
   \  };\
   \}" :: forall a. Number -> [a] -> [a]
 
-foreign import take
-  "function take (n) {\
-  \  return function (l) {\
-  \    return l.slice(0, n);\
-  \  };\
-  \}" :: forall a. Number -> [a] -> [a]
+take :: forall a. Number -> [a] -> [a]
+take n = slice 0 n
 
 foreign import slice
   "function slice (s) {\
