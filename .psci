@@ -1,3 +1,0 @@
-:m src/Data/Array.purs
-:m src/Data/Array/Unsafe.purs
-:m bower_components/purescript-maybe/src/Data/Maybe.purs
