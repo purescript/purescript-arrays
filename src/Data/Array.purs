@@ -167,8 +167,10 @@ foreign import updateAt
   "function updateAt (index) {\
   \  return function (a) {\
   \    return function (l) {\
+  \      var i = ~~index;\
+  \      if (i < 0 || i >= l.length) return l;\
   \      var l1 = l.slice();\
-  \      l1[index] = a;\
+  \      l1[i] = a;\
   \      return l1;\
   \    }; \
   \  };\
