@@ -213,9 +213,19 @@ foreign import filter
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
 
-range :: Number -> Number -> [Number]
-range lo hi | lo > hi = []
-range lo hi = lo : range (lo + 1) hi
+foreign import range
+  "function range (start) {\
+  \  return function (end) {\
+  \    var i = ~~start, e = ~~end;\
+  \    var step = i > e ? -1 : 1;\
+  \    var result = [i], n = 1;\
+  \    while (i !== e) {\
+  \      i += step;\
+  \      result[n++] = i;\
+  \    }\
+  \    return result;\
+  \  };\
+  \}" :: Number -> Number -> [Number]
 
 foreign import zipWith
   "function zipWith (f) {\
