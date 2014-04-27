@@ -82,25 +82,25 @@ foreign import length
   \}" :: forall a. [a] -> Number
   
 foreign import elem
-  "function elem(l) {\
-  \  return function (e) {\
+  "function elem(e) {\
+  \  return function (l) {\
   \    return l.indexOf(e) !== -1;\
   \  };\
-  \}" :: forall a. [a] -> a -> Boolean
+  \}" :: forall a. a -> [a] -> Boolean
 
 foreign import elemIndex
-  "function elemIndex (l) {\
-  \  return function (e) {\
+  "function elemIndex (e) {\
+  \  return function (l) {\
   \    return l.indexOf(e);\
   \  };\
-  \}" :: forall a. [a] -> a -> Number
+  \}" :: forall a. a -> [a] -> Number
 
 foreign import elemLastIndex
-  "function elemLastIndex (l) {\
-  \  return function (e) {\
+  "function elemLastIndex (e) {\
+  \  return function (l) {\
   \    return l.lastIndexOf(e);\
   \  };\
-  \}" :: forall a. [a] -> a -> Number
+  \}" :: forall a. a -> [a] -> Number
   
 foreign import append
   "function append (l1) {\

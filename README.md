@@ -33,11 +33,11 @@
 
     drop :: forall a. Prim.Number -> [a] -> [a]
 
-    elem :: forall a. [a] -> a -> Prim.Boolean
+    elem :: forall a. a -> [a] -> Prim.Boolean
 
-    elemIndex :: forall a. [a] -> a -> Prim.Number
+    elemIndex :: forall a. a -> [a] -> Prim.Number
 
-    elemLastIndex :: forall a. [a] -> a -> Prim.Number
+    elemLastIndex :: forall a. a -> [a] -> Prim.Number
 
     filter :: forall a. (a -> Prim.Boolean) -> [a] -> [a]
 
