@@ -8,6 +8,7 @@ module Data.Array
   , init
   , null
   , map
+  , mapMaybe
   , length
   , elem
   , elemIndex
@@ -79,7 +80,7 @@ foreign import length
   "function length (xs) {\
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
-  
+
 foreign import elem
   "function elem(e) {\
   \  return function (l) {\
@@ -100,7 +101,7 @@ foreign import elemLastIndex
   \    return l.lastIndexOf(e);\
   \  };\
   \}" :: forall a. a -> [a] -> Number
-  
+
 foreign import append
   "function append (l1) {\
   \  return function (l2) {\
@@ -186,7 +187,7 @@ foreign import concatMap
   \    return result;\
   \  };\
   \}" :: forall a b. (a -> [b]) -> [a] -> [b]
-  
+
 foreign import map
   "function map (f) {\
   \  return function (arr) {\
@@ -198,6 +199,21 @@ foreign import map
   \    return result;\
   \  };\
   \}" :: forall a b. (a -> b) -> [a] -> [b]
+
+foreign import mapMaybe
+  "function mapMaybe (f) {\
+  \  return function (arr) {\
+  \    var l = arr.length, n = 0;\
+  \    var result = new Array();\
+  \    for (var i = 0; i < l; i++) {\
+  \      var x = f(arr[i]);\
+  \      if (x.ctor === 'Data.Maybe.Just') {\
+  \        result[n++] = x.values[0];\
+  \      }\
+  \    }\
+  \    return result;\
+  \  };\
+  \}" :: forall a b. (a -> Maybe b) -> [a] -> [b]
 
 foreign import filter
   "function filter (f) {\
