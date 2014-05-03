@@ -200,20 +200,8 @@ foreign import map
   \  };\
   \}" :: forall a b. (a -> b) -> [a] -> [b]
 
-foreign import mapMaybe
-  "function mapMaybe (f) {\
-  \  return function (arr) {\
-  \    var l = arr.length, n = 0;\
-  \    var result = new Array();\
-  \    for (var i = 0; i < l; i++) {\
-  \      var x = f(arr[i]);\
-  \      if (x.ctor === 'Data.Maybe.Just') {\
-  \        result[n++] = x.values[0];\
-  \      }\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> Maybe b) -> [a] -> [b]
+mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
+mapMaybe f = concatMap (maybe [] singleton <<< f)
 
 foreign import filter
   "function filter (f) {\

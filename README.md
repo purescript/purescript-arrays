@@ -53,6 +53,8 @@
 
     map :: forall a b. (a -> b) -> [a] -> [b]
 
+    mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
+
     nub :: forall a. (Eq a) => [a] -> [a]
 
     nubBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [a]
