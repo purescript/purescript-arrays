@@ -23,6 +23,8 @@ module Data.Array
   , updateAt
   , concatMap
   , filter
+  , findIndex
+  , find
   , range
   , zipWith
   , nub
@@ -202,6 +204,21 @@ foreign import map
 
 mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
 mapMaybe f = concatMap (maybe [] singleton <<< f)
+
+foreign import findIndex
+  "function findIndex (f) {\
+  \  return function (arr) {\
+  \    for (var i = 0, l = arr.length; i < l; i++) {\
+  \      if (f(arr[i])) {\
+  \        return i;\
+  \      }\
+  \    }\
+  \    return -1;\
+  \  };\
+  \}" :: forall a. (a -> Boolean) -> [a] -> Number
+
+find :: forall a. (a -> Boolean) -> [a] -> Maybe a
+find f xs = xs !! findIndex f xs
 
 foreign import filter
   "function filter (f) {\
