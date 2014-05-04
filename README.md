@@ -41,6 +41,10 @@
 
     filter :: forall a. (a -> Prim.Boolean) -> [a] -> [a]
 
+    find :: forall a. (a -> Prim.Boolean) -> [a] -> Maybe a
+
+    findIndex :: forall a. (a -> Prim.Boolean) -> [a] -> Prim.Number
+
     head :: forall a. [a] -> Maybe a
 
     init :: forall a. [a] -> Maybe [a]
