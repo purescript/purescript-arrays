@@ -10,7 +10,6 @@ module Data.Array
   , map
   , mapMaybe
   , length
-  , elem
   , elemIndex
   , elemLastIndex
   , append
@@ -80,13 +79,6 @@ foreign import length
   "function length (xs) {\
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
-
-foreign import elem
-  "function elem(e) {\
-  \  return function (l) {\
-  \    return l.indexOf(e) !== -1;\
-  \  };\
-  \}" :: forall a. a -> [a] -> Boolean
 
 foreign import elemIndex
   "function elemIndex (e) {\
