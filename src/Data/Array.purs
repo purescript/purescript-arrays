@@ -10,7 +10,8 @@ module Data.Array
   , map
   , mapMaybe
   , length
-  , elem
+  , findIndex
+  , findLastIndex
   , elemIndex
   , elemLastIndex
   , append
@@ -81,26 +82,35 @@ foreign import length
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
 
-foreign import elem
-  "function elem(e) {\
-  \  return function (l) {\
-  \    return l.indexOf(e) !== -1;\
+foreign import findIndex
+  "function findIndex (f) {\
+  \  return function (arr) {\
+  \    for (var i = 0, l = arr.length; i < l; i++) {\
+  \      if (f(arr[i])) {\
+  \        return i;\
+  \      }\
+  \    }\
+  \    return -1;\
   \  };\
-  \}" :: forall a. a -> [a] -> Boolean
+  \}" :: forall a. (a -> Boolean) -> [a] -> Number
 
-foreign import elemIndex
-  "function elemIndex (e) {\
-  \  return function (l) {\
-  \    return l.indexOf(e);\
+foreign import findLastIndex
+  "function findLastIndex (f) {\
+  \  return function (arr) {\
+  \    for (var i = arr.length - 1; i >= 0; i--) {\
+  \      if (f(arr[i])) {\
+  \        return i;\
+  \      }\
+  \    }\
+  \    return -1;\
   \  };\
-  \}" :: forall a. a -> [a] -> Number
+  \}" :: forall a. (a -> Boolean) -> [a] -> Number
 
-foreign import elemLastIndex
-  "function elemLastIndex (e) {\
-  \  return function (l) {\
-  \    return l.lastIndexOf(e);\
-  \  };\
-  \}" :: forall a. a -> [a] -> Number
+elemIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemIndex x = findIndex ((==) x)
+
+elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemLastIndex x = findLastIndex ((==) x)
 
 foreign import append
   "function append (l1) {\
