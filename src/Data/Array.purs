@@ -106,19 +106,11 @@ foreign import findLastIndex
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> Number
 
-foreign import elemIndex
-  "function elemIndex (e) {\
-  \  return function (l) {\
-  \    return l.indexOf(e);\
-  \  };\
-  \}" :: forall a. a -> [a] -> Number
+elemIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemIndex x = findIndex ((==) x)
 
-foreign import elemLastIndex
-  "function elemLastIndex (e) {\
-  \  return function (l) {\
-  \    return l.lastIndexOf(e);\
-  \  };\
-  \}" :: forall a. a -> [a] -> Number
+elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemLastIndex x = findLastIndex ((==) x)
 
 foreign import append
   "function append (l1) {\
