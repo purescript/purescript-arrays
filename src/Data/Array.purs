@@ -11,6 +11,7 @@ module Data.Array
   , mapMaybe
   , length
   , findIndex
+  , findLastIndex
   , elemIndex
   , elemLastIndex
   , append
@@ -85,6 +86,18 @@ foreign import findIndex
   "function findIndex (f) {\
   \  return function (arr) {\
   \    for (var i = 0, l = arr.length; i < l; i++) {\
+  \      if (f(arr[i])) {\
+  \        return i;\
+  \      }\
+  \    }\
+  \    return -1;\
+  \  };\
+  \}" :: forall a. (a -> Boolean) -> [a] -> Number
+
+foreign import findLastIndex
+  "function findLastIndex (f) {\
+  \  return function (arr) {\
+  \    for (var i = arr.length - 1; i >= 0; i--) {\
   \      if (f(arr[i])) {\
   \        return i;\
   \      }\
