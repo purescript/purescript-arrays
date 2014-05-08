@@ -73,6 +73,8 @@
 
     sort :: forall a. (Ord a) => [a] -> [a]
 
+    sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
+
     tail :: forall a. [a] -> Maybe [a]
 
     take :: forall a. Prim.Number -> [a] -> [a]

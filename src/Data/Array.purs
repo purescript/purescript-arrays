@@ -29,6 +29,7 @@ module Data.Array
   , nub
   , nubBy
   , sort
+  , sortBy
   ) where
 
 import Data.Maybe
@@ -263,12 +264,15 @@ nubBy _ [] = []
 nubBy (==) (x:xs) = x : nubBy (==) (filter (\y -> not (x == y)) xs)
 
 sort :: forall a. (Ord a) => [a] -> [a]
-sort xs = sortJS comp xs
+sort xs = sortBy compare xs
+
+sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
+sortBy comp xs = sortJS comp' xs
   where
-  comp x y = case compare x y of
-    GT -> 1
-    EQ -> 0
-    LT -> -1
+    comp' x y = case comp x y of
+      GT -> 1
+      EQ -> 0
+      LT -> -1
 
 foreign import sortJS
   "function sortJS (f) {\
