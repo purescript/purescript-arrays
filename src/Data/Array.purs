@@ -31,6 +31,7 @@ module Data.Array
   , sort
   , sortBy
   , group
+  , group'
   , groupBy
   , span
   ) where
@@ -289,15 +290,48 @@ foreign import sortJS
 group :: forall a. (Eq a) => [a] -> [[a]]
 group xs = groupBy (==) xs
 
-groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
-groupBy _  []     =  []
-groupBy eq (x:xs) = case span (eq x) xs of
-  {init = ys, rest = zs} -> (x:ys) : groupBy eq zs
+-- | Performs a sorting first.
+group' :: forall a. (Ord a) => [a] -> [[a]]
+group' = group <<< sort
 
-span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
-span p (x:xs') | p x = case span p xs' of
-  {init = ys, rest = zs} -> {init: (x:ys), rest: zs}
-span _ xs            = {init: [], rest: xs}
+foreign import groupBy
+  "function groupBy (eq) {\
+  \  return function (arr) {\
+  \    if (arr.length == 0) {\
+  \      return [];\
+  \    } else {\
+  \      var res = [];\
+  \      var spanned = {init: [], rest: arr.slice()};\
+  \      while (true) {\
+  \        var x = spanned.rest[0];\
+  \        var xs = spanned.rest.slice(1);\
+  \        spanned = span(eq(x))(xs);\
+  \        spanned.init.unshift(x);\
+  \        res.push(spanned.init);\
+  \        if (spanned.rest.length == 0) {\
+  \          break;\
+  \        }\
+  \      }\
+  \      return res;\
+  \    }\
+  \  }\
+  \}" :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
+
+foreign import span
+  "function span (p) {\
+  \  return function (arr) {\
+  \    var res = {init: [], rest: []};\
+  \    for (var i = 0, len = arr.length; i < len; i++) {\
+  \      if (p(arr[i])) {\
+  \        res.init.push(arr[i]);\
+  \      } else {\
+  \        res.rest = arr.slice(i);\
+  \        break;\
+  \      }\
+  \    }\
+  \    return res;\
+  \  }\
+  \}" :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
 
 instance functorArray :: Functor [] where
   (<$>) = map

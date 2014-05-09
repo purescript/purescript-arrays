@@ -45,6 +45,8 @@
 
     group :: forall a. (Eq a) => [a] -> [[a]]
 
+    group' :: forall a. (Ord a) => [a] -> [[a]]
+
     groupBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [[a]]
 
     head :: forall a. [a] -> Maybe a
