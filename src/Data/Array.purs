@@ -294,44 +294,20 @@ group xs = groupBy (==) xs
 group' :: forall a. (Ord a) => [a] -> [[a]]
 group' = group <<< sort
 
-foreign import groupBy
-  "function groupBy (eq) {\
-  \  return function (arr) {\
-  \    if (arr.length == 0) {\
-  \      return [];\
-  \    } else {\
-  \      var res = [];\
-  \      var spanned = {init: [], rest: arr.slice()};\
-  \      while (true) {\
-  \        var x = spanned.rest[0];\
-  \        var xs = spanned.rest.slice(1);\
-  \        spanned = span(eq(x))(xs);\
-  \        spanned.init.unshift(x);\
-  \        res.push(spanned.init);\
-  \        if (spanned.rest.length == 0) {\
-  \          break;\
-  \        }\
-  \      }\
-  \      return res;\
-  \    }\
-  \  }\
-  \}" :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
+groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
+groupBy = go []
+  where
+  go :: forall a. [[a]] -> (a -> a -> Boolean) -> [a] -> [[a]]
+  go acc _  []     = reverse acc
+  go acc op (x:xs) = let sp = span (op x) xs in
+                     go ((x:sp.init):acc) op sp.rest
 
-foreign import span
-  "function span (p) {\
-  \  return function (arr) {\
-  \    var res = {init: [], rest: []};\
-  \    for (var i = 0, len = arr.length; i < len; i++) {\
-  \      if (p(arr[i])) {\
-  \        res.init.push(arr[i]);\
-  \      } else {\
-  \        res.rest = arr.slice(i);\
-  \        break;\
-  \      }\
-  \    }\
-  \    return res;\
-  \  }\
-  \}" :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+span = go []
+  where
+  go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+  go acc p (x:xs) | p x = go (x:acc) p xs
+  go acc _ xs           = { init: reverse acc, rest: xs }
 
 instance functorArray :: Functor [] where
   (<$>) = map
