@@ -30,6 +30,10 @@ module Data.Array
   , nubBy
   , sort
   , sortBy
+  , group
+  , group'
+  , groupBy
+  , span
   ) where
 
 import Data.Maybe
@@ -282,6 +286,28 @@ foreign import sortJS
   \    });\
   \  };\
   \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
+
+group :: forall a. (Eq a) => [a] -> [[a]]
+group xs = groupBy (==) xs
+
+-- | Performs a sorting first.
+group' :: forall a. (Ord a) => [a] -> [[a]]
+group' = group <<< sort
+
+groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
+groupBy = go []
+  where
+  go :: forall a. [[a]] -> (a -> a -> Boolean) -> [a] -> [[a]]
+  go acc _  []     = reverse acc
+  go acc op (x:xs) = let sp = span (op x) xs in
+                     go ((x:sp.init):acc) op sp.rest
+
+span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+span = go []
+  where
+  go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+  go acc p (x:xs) | p x = go (x:acc) p xs
+  go acc _ xs           = { init: reverse acc, rest: xs }
 
 instance functorArray :: Functor [] where
   (<$>) = map

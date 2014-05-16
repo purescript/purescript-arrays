@@ -43,6 +43,12 @@
 
     findLastIndex :: forall a. (a -> Prim.Boolean) -> [a] -> Prim.Number
 
+    group :: forall a. (Eq a) => [a] -> [[a]]
+
+    group' :: forall a. (Ord a) => [a] -> [[a]]
+
+    groupBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [[a]]
+
     head :: forall a. [a] -> Maybe a
 
     init :: forall a. [a] -> Maybe [a]
@@ -74,6 +80,8 @@
     sort :: forall a. (Ord a) => [a] -> [a]
 
     sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
+
+    span :: forall a. (a -> Prim.Boolean) -> [a] -> { rest :: [a], init :: [a] }
 
     tail :: forall a. [a] -> Maybe [a]
 
