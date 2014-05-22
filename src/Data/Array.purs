@@ -23,6 +23,9 @@ module Data.Array
   , insertAt
   , deleteAt
   , updateAt
+  , deleteBy
+  , delete
+  , (\\)
   , concatMap
   , filter
   , range
@@ -192,6 +195,24 @@ foreign import updateAt
   \    }; \
   \  };\
   \}":: forall a. Number -> a -> [a] -> [a]
+
+deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
+deleteBy _ _ [] = []
+deleteBy eq x ys = case findIndex (eq x) ys of
+  i | i < 0 -> ys
+  i -> deleteAt i 1 ys
+
+delete :: forall a. (Eq a) => a -> [a] -> [a]
+delete = deleteBy (==)
+
+infix 5 \\
+
+(\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
+(\\) xs ys = go xs ys
+  where
+  go [] ys = ys
+  go _  [] = []
+  go (x:xs) ys = go xs (delete x ys)
 
 foreign import concatMap
   "function concatMap (f) {\

@@ -23,6 +23,8 @@
 
     (!!) :: forall a. [a] -> Prim.Number -> Maybe a
 
+    (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
+
     append :: forall a. [a] -> [a] -> [a]
 
     catMaybes :: forall a. [Maybe a] -> [a]
@@ -31,7 +33,11 @@
 
     concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
 
+    delete :: forall a. (Eq a) => a -> [a] -> [a]
+
     deleteAt :: forall a. Prim.Number -> Prim.Number -> [a] -> [a]
+
+    deleteBy :: forall a. (a -> a -> Prim.Boolean) -> a -> [a] -> [a]
 
     drop :: forall a. Prim.Number -> [a] -> [a]
 
