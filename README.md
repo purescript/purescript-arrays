@@ -63,6 +63,10 @@
 
     insertAt :: forall a. Prim.Number -> a -> [a] -> [a]
 
+    intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
+
+    intersectBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [a] -> [a]
+
     last :: forall a. [a] -> Maybe a
 
     length :: forall a. [a] -> Prim.Number
@@ -105,5 +109,7 @@
 ### Values
 
     head :: forall a. [a] -> a
+
+    last :: forall a. [a] -> a
 
     tail :: forall a. [a] -> [a]

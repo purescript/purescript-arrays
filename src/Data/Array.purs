@@ -26,6 +26,8 @@ module Data.Array
   , deleteBy
   , delete
   , (\\)
+  , intersectBy
+  , intersect
   , concatMap
   , filter
   , range
@@ -213,6 +215,16 @@ infix 5 \\
   go [] ys = ys
   go _  [] = []
   go (x:xs) ys = go xs (delete x ys)
+
+intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
+intersectBy _  [] _  = []
+intersectBy _  _  [] = []
+intersectBy eq xs ys = filter el xs
+  where
+  el x = findIndex (eq x) ys >= 0
+
+intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
+intersect = intersectBy (==)
 
 foreign import concatMap
   "function concatMap (f) {\
