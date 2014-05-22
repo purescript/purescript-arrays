@@ -9,6 +9,7 @@ module Data.Array
   , null
   , map
   , mapMaybe
+  , catMaybes
   , length
   , findIndex
   , findLastIndex
@@ -217,6 +218,9 @@ foreign import map
 
 mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
 mapMaybe f = concatMap (maybe [] singleton <<< f)
+
+catMaybes :: forall a. [Maybe a] -> [a]
+catMaybes = concatMap (maybe [] singleton)
 
 foreign import filter
   "function filter (f) {\

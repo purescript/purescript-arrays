@@ -25,6 +25,8 @@
 
     append :: forall a. [a] -> [a] -> [a]
 
+    catMaybes :: forall a. [Maybe a] -> [a]
+
     concat :: forall a. [[a]] -> [a]
 
     concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
