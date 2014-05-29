@@ -110,6 +110,8 @@
 
     head :: forall a. [a] -> a
 
+    init :: forall a. [a] -> [a]
+
     last :: forall a. [a] -> a
 
     tail :: forall a. [a] -> [a]
