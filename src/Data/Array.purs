@@ -212,9 +212,9 @@ infix 5 \\
 (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 (\\) xs ys = go xs ys
   where
-  go [] ys = ys
-  go _  [] = []
-  go (x:xs) ys = go xs (delete x ys)
+  go xs [] = xs
+  go [] _  = []
+  go xs (y:ys) = go (delete y xs) ys
 
 intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 intersectBy _  [] _  = []
