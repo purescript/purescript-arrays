@@ -21,7 +21,7 @@
 
 ### Values
 
-    (!!) :: forall a. [a] -> Prim.Number -> Maybe a
+    (!!) :: forall a. [a] -> Number -> Maybe a
 
     (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 
@@ -35,41 +35,41 @@
 
     delete :: forall a. (Eq a) => a -> [a] -> [a]
 
-    deleteAt :: forall a. Prim.Number -> Prim.Number -> [a] -> [a]
+    deleteAt :: forall a. Number -> Number -> [a] -> [a]
 
-    deleteBy :: forall a. (a -> a -> Prim.Boolean) -> a -> [a] -> [a]
+    deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 
-    drop :: forall a. Prim.Number -> [a] -> [a]
+    drop :: forall a. Number -> [a] -> [a]
 
-    elemIndex :: forall a. (Eq a) => a -> [a] -> Prim.Number
+    elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 
-    elemLastIndex :: forall a. (Eq a) => a -> [a] -> Prim.Number
+    elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 
-    filter :: forall a. (a -> Prim.Boolean) -> [a] -> [a]
+    filter :: forall a. (a -> Boolean) -> [a] -> [a]
 
-    findIndex :: forall a. (a -> Prim.Boolean) -> [a] -> Prim.Number
+    findIndex :: forall a. (a -> Boolean) -> [a] -> Number
 
-    findLastIndex :: forall a. (a -> Prim.Boolean) -> [a] -> Prim.Number
+    findLastIndex :: forall a. (a -> Boolean) -> [a] -> Number
 
     group :: forall a. (Eq a) => [a] -> [[a]]
 
     group' :: forall a. (Ord a) => [a] -> [[a]]
 
-    groupBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [[a]]
+    groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
 
     head :: forall a. [a] -> Maybe a
 
     init :: forall a. [a] -> Maybe [a]
 
-    insertAt :: forall a. Prim.Number -> a -> [a] -> [a]
+    insertAt :: forall a. Number -> a -> [a] -> [a]
 
     intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 
-    intersectBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [a] -> [a]
+    intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 
     last :: forall a. [a] -> Maybe a
 
-    length :: forall a. [a] -> Prim.Number
+    length :: forall a. [a] -> Number
 
     map :: forall a b. (a -> b) -> [a] -> [b]
 
@@ -77,11 +77,11 @@
 
     nub :: forall a. (Eq a) => [a] -> [a]
 
-    nubBy :: forall a. (a -> a -> Prim.Boolean) -> [a] -> [a]
+    nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 
-    null :: forall a. [a] -> Prim.Boolean
+    null :: forall a. [a] -> Boolean
 
-    range :: Prim.Number -> Prim.Number -> [Prim.Number]
+    range :: Number -> Number -> [Number]
 
     reverse :: forall a. [a] -> [a]
 
@@ -93,13 +93,13 @@
 
     sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 
-    span :: forall a. (a -> Prim.Boolean) -> [a] -> { rest :: [a], init :: [a] }
+    span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
 
     tail :: forall a. [a] -> Maybe [a]
 
-    take :: forall a. Prim.Number -> [a] -> [a]
+    take :: forall a. Number -> [a] -> [a]
 
-    updateAt :: forall a. Prim.Number -> a -> [a] -> [a]
+    updateAt :: forall a. Number -> a -> [a] -> [a]
 
     zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
