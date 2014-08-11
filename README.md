@@ -4,6 +4,8 @@
 
 ### Type Class Instances
 
+    instance altArray :: Alt Prim.Array
+
     instance alternativeArray :: Alternative Prim.Array
 
     instance applicativeArray :: Applicative Prim.Array
@@ -15,6 +17,10 @@
     instance functorArray :: Functor Prim.Array
 
     instance monadArray :: Monad Prim.Array
+
+    instance monadPlusArray :: MonadPlus Prim.Array
+
+    instance plusArray :: Plus Prim.Array
 
     instance semigroupArray :: Semigroup [a]
 

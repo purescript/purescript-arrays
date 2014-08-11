@@ -42,6 +42,10 @@ module Data.Array
   , span
   ) where
 
+import Control.Alt
+import Control.Plus
+import Control.Alternative
+import Control.MonadPlus
 import Data.Maybe
 import Prelude.Unsafe (unsafeIndex)
 
@@ -363,6 +367,12 @@ instance monadArray :: Monad []
 instance semigroupArray :: Semigroup [a] where
   (<>) = append
 
-instance alternativeArray :: Alternative [] where
-  empty = []
+instance altArray :: Alt [] where
   (<|>) = append
+  
+instance plusArray :: Plus [] where
+  empty = []
+  
+instance alternativeArray :: Alternative []
+
+instance monadPlusArray :: MonadPlus []
