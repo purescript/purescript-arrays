@@ -29,6 +29,8 @@
 
     (!!) :: forall a. [a] -> Number -> Maybe a
 
+    (..) :: Number -> Number -> [Number]
+
     (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 
     append :: forall a. [a] -> [a] -> [a]

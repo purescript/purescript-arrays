@@ -1,5 +1,6 @@
 module Data.Array
   ( (!!)
+  , (..)
   , snoc
   , singleton
   , head
@@ -286,6 +287,9 @@ foreign import range
   \    return result;\
   \  };\
   \}" :: Number -> Number -> [Number]
+
+(..) :: Number -> Number -> [Number]
+(..) = range
 
 foreign import zipWith
   "function zipWith (f) {\
