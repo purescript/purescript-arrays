@@ -289,7 +289,7 @@ foreign import range
   \}" :: Number -> Number -> [Number]
 
 (..) :: Number -> Number -> [Number]
-(..) = Data.Array.range
+(..) = range
 
 foreign import zipWith
   "function zipWith (f) {\
