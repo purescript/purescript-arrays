@@ -130,7 +130,7 @@ elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemLastIndex x = findLastIndex ((==) x)
 
 elem :: forall a. (Eq a) => a -> [a] -> Boolean
-elem x xs = elemIndex x xs < 0
+elem x xs = elemIndex x xs >= 0
 
 foreign import append
   "function append (l1) {\
