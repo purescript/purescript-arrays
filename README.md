@@ -91,6 +91,8 @@
 
     range :: Number -> Number -> [Number]
 
+    replicate :: forall a. Number -> a -> [a]
+
     reverse :: forall a. [a] -> [a]
 
     singleton :: forall a. a -> [a]
