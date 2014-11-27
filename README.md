@@ -112,6 +112,26 @@
     zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
 
+## Module Data.Array.ST
+
+### Types
+
+    data STArray :: * -> * -> *
+
+
+### Values
+
+    emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
+
+    peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
+
+    pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
+
+    pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Unit
+
+    runSTArray :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff r [a]
+
+
 ## Module Data.Array.Unsafe
 
 ### Values
