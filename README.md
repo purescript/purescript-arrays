@@ -112,6 +112,16 @@
     zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
 
+## Module Data.Array.ST
+
+### Types
+
+    data STArray :: * -> * -> *
+
+
+### Values
+
+
 ## Module Data.Array.Unsafe
 
 ### Values
