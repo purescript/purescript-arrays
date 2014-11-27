@@ -121,7 +121,7 @@
 
 ### Values
 
-    emptySTArray :: forall a h r. Number -> a -> Eff (st :: ST h | r) (STArray h a)
+    emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
 
     peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) a
 

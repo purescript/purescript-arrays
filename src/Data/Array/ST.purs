@@ -19,7 +19,7 @@ foreign import runSTArray """
 foreign import emptySTArray """
   function emptySTArray() {
     return [];
-  }""" :: forall a h r. Number -> a -> Eff (st :: ST h | r) (STArray h a)
+  }""" :: forall a h r. Eff (st :: ST h | r) (STArray h a)
   
 foreign import peekSTArray """
   function peekSTArray(arr) {
