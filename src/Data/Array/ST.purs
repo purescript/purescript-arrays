@@ -1,6 +1,9 @@
 module Data.Array.ST 
   ( STArray(..)
-    
+  , runSTArray
+  , emptySTArray
+  , peekSTArray
+  , pokeSTArray  
   ) where
 
 import Control.Monad.Eff
