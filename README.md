@@ -35,6 +35,8 @@
 
     append :: forall a. [a] -> [a] -> [a]
 
+    break :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
+
     catMaybes :: forall a. [Maybe a] -> [a]
 
     concat :: forall a. [[a]] -> [a]
@@ -52,6 +54,8 @@
     elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 
     elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
+
+    fill :: forall a. Number -> a -> [a]
 
     filter :: forall a. (a -> Boolean) -> [a] -> [a]
 
@@ -71,9 +75,13 @@
 
     insertAt :: forall a. Number -> a -> [a] -> [a]
 
+    intercalate :: forall a. [a] -> [[a]] -> [a]
+
     intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 
     intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
+
+    intersperse :: forall a. a -> [a] -> [a]
 
     last :: forall a. [a] -> Maybe a
 
@@ -91,6 +99,8 @@
 
     range :: Number -> Number -> [Number]
 
+    replicate :: forall a. Number -> a -> [a]
+
     reverse :: forall a. [a] -> [a]
 
     singleton :: forall a. a -> [a]
@@ -102,6 +112,8 @@
     sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 
     span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
+
+    tabulate :: forall a. Number -> (Number -> a) -> [a]
 
     tail :: forall a. [a] -> Maybe [a]
 

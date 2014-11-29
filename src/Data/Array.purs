@@ -8,6 +8,9 @@ module Data.Array
   , tail
   , init
   , null
+  , fill
+  , tabulate
+  , replicate
   , map
   , mapMaybe
   , catMaybes
@@ -21,6 +24,8 @@ module Data.Array
   , reverse
   , drop
   , take
+  , intercalate
+  , intersperse
   , insertAt
   , deleteAt
   , updateAt
@@ -41,6 +46,7 @@ module Data.Array
   , group'
   , groupBy
   , span
+  , break
   ) where
 
 import Control.Alt
@@ -97,6 +103,35 @@ foreign import length
   "function length (xs) {\
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
+
+foreign import fill
+  """
+  function fill(size){
+    return function(elem){
+      var arr = new Array(size);
+      for(var i = 0; i < size; i++){
+        arr[i] = elem;
+      }
+      return arr;
+    }
+  }
+  """ :: forall a. Number -> a -> [a]
+
+foreign import tabulate
+  """
+  function tabulate(size){
+    return function(f){
+      var arr = new Array(size);
+      for(var i = 0; i < size; i++){
+        arr[i] = f(i);
+      }
+      return arr;
+    }
+  }
+  """ :: forall a. Number -> (Number -> a) -> [a]
+
+replicate :: forall a. Number -> a -> [a]
+replicate = fill
 
 foreign import findIndex
   "function findIndex (f) {\
@@ -167,6 +202,14 @@ foreign import slice
   \    };\
   \  };\
   \}" :: forall a. Number -> Number -> [a] -> [a]
+
+intercalate :: forall a. [a] -> [[a]] -> [a]
+intercalate sep [] = []
+intercalate sep (a:as) = a <> (concatMap (\e -> sep <> e) as)
+
+intersperse :: forall a. a -> [a] -> [a]
+intersperse sep [] = []
+intersperse sep (a:as) = a : (concatMap (\e -> [sep,e]) as)
 
 foreign import insertAt
   "function insertAt (index) {\
@@ -353,6 +396,9 @@ span = go []
   go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
   go acc p (x:xs) | p x = go (x:acc) p xs
   go acc _ xs           = { init: reverse acc, rest: xs }
+
+break :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+break p = span (\a -> not (p a))
 
 instance functorArray :: Functor [] where
   (<$>) = map
