@@ -59,8 +59,6 @@
 
     elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 
-    fill :: forall a. Number -> a -> [a]
-
     filter :: forall a. (a -> Boolean) -> [a] -> [a]
 
     findIndex :: forall a. (a -> Boolean) -> [a] -> Number

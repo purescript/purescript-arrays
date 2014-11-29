@@ -8,7 +8,6 @@ module Data.Array
   , tail
   , init
   , null
-  , fill
   , tabulate
   , replicate
   , map
@@ -106,9 +105,9 @@ foreign import length
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
 
-foreign import fill
+foreign import replicate
   """
-  function fill(size){
+  function replicate(size){
     return function(elem){
       var arr = new Array(size);
       for(var i = 0; i < size; i++){
@@ -131,9 +130,6 @@ foreign import tabulate
     }
   }
   """ :: forall a. Number -> (Number -> a) -> [a]
-
-replicate :: forall a. Number -> a -> [a]
-replicate = fill
 
 foreign import findIndex
   "function findIndex (f) {\
@@ -180,7 +176,7 @@ foreign import any
   """ :: forall a. (a -> Boolean) -> [a] -> Boolean
 
 all :: forall a. (a -> Boolean) -> [a] -> Boolean
-all p as = not (any (not <<< p) as) 
+all p as = not (any (not <<< p) as)
 
 foreign import append
   "function append (l1) {\
