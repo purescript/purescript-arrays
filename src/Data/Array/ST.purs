@@ -1,10 +1,10 @@
-module Data.Array.ST 
+module Data.Array.ST
   ( STArray(..)
   , runSTArray
   , emptySTArray
   , peekSTArray
-  , pokeSTArray  
-  , pushSTArray  
+  , pokeSTArray
+  , pushSTArray
   ) where
 
 import Data.Maybe
@@ -24,7 +24,7 @@ foreign import emptySTArray """
   function emptySTArray() {
     return [];
   }""" :: forall a h r. Eff (st :: ST h | r) (STArray h a)
-  
+
 foreign import peekSTArrayImpl """
   function peekSTArrayImpl(arr, i, s, f) {
     return function() {
@@ -35,12 +35,12 @@ foreign import peekSTArrayImpl """
         return f;
       }
     };
-  }""" :: forall a h e r. Fn4 (STArray h a) 
-                              Number 
+  }""" :: forall a h e r. Fn4 (STArray h a)
+                              Number
                               (a -> r)
                               r
                               (Eff (st :: ST h | e) r)
-  
+
 peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
 peekSTArray arr i = runFn4 peekSTArrayImpl arr i Just Nothing
 
@@ -58,7 +58,7 @@ foreign import pokeSTArrayImpl """
                             Number
                             a
                             (Eff (st :: ST h | e) Boolean)
-  
+
 pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
 pokeSTArray arr i a = runFn3 pokeSTArrayImpl arr i a
 
@@ -71,6 +71,6 @@ foreign import pushSTArrayImpl """
   }""" :: forall a h e. Fn2 (STArray h a)
                             a
                             (Eff (st :: ST h | e) Unit)
-                            
+
 pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Unit
 pushSTArray arr a = runFn2 pushSTArrayImpl arr a
