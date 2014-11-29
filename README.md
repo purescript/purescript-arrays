@@ -33,6 +33,10 @@
 
     (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 
+    all :: forall a. (a -> Boolean) -> [a] -> Boolean
+
+    any :: forall a. (a -> Boolean) -> [a] -> Boolean
+
     append :: forall a. [a] -> [a] -> [a]
 
     break :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }

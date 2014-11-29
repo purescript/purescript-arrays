@@ -19,6 +19,8 @@ module Data.Array
   , findLastIndex
   , elemIndex
   , elemLastIndex
+  , any
+  , all
   , append
   , concat
   , reverse
@@ -162,6 +164,23 @@ elemIndex x = findIndex ((==) x)
 
 elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemLastIndex x = findLastIndex ((==) x)
+
+foreign import any
+  """
+  function any(p){
+    return function(as){
+      for(var i = 0; i < as.length; i++){
+        if(p(as[i])){
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+  """ :: forall a. (a -> Boolean) -> [a] -> Boolean
+
+all :: forall a. (a -> Boolean) -> [a] -> Boolean
+all p as = not (any (not <<< p) as) 
 
 foreign import append
   "function append (l1) {\
