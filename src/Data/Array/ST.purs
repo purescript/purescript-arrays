@@ -1,10 +1,15 @@
-module Data.Array.ST 
+module Data.Array.ST
   ( STArray(..)
+  , Assoc()
   , runSTArray
   , emptySTArray
   , peekSTArray
-  , pokeSTArray  
-  , pushSTArray  
+  , pokeSTArray
+  , pushSTArray
+  , pushAllSTArray
+  , spliceSTArray
+  , freeze, thaw
+  , toAssocArray
   ) where
 
 import Data.Maybe
@@ -15,6 +20,8 @@ import Control.Monad.ST (ST())
 
 foreign import data STArray :: * -> * -> *
 
+type Assoc a = { value :: a, index :: Number }
+
 foreign import runSTArray """
   function runSTArray(f) {
     return f;
@@ -24,7 +31,7 @@ foreign import emptySTArray """
   function emptySTArray() {
     return [];
   }""" :: forall a h r. Eff (st :: ST h | r) (STArray h a)
-  
+
 foreign import peekSTArrayImpl """
   function peekSTArrayImpl(arr, i, s, f) {
     return function() {
@@ -35,12 +42,12 @@ foreign import peekSTArrayImpl """
         return f;
       }
     };
-  }""" :: forall a h e r. Fn4 (STArray h a) 
-                              Number 
+  }""" :: forall a h e r. Fn4 (STArray h a)
+                              Number
                               (a -> r)
                               r
                               (Eff (st :: ST h | e) r)
-  
+
 peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
 peekSTArray arr i = runFn4 peekSTArrayImpl arr i Just Nothing
 
@@ -58,19 +65,67 @@ foreign import pokeSTArrayImpl """
                             Number
                             a
                             (Eff (st :: ST h | e) Boolean)
-  
+
 pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
 pokeSTArray arr i a = runFn3 pokeSTArrayImpl arr i a
 
-foreign import pushSTArrayImpl """
-  function pushSTArrayImpl(arr, a) {
-    return function() {
-      arr.push(a);
-      return {};
+foreign import pushAllSTArrayImpl """
+  function pushAllSTArrayImpl(arr, as) {
+    return function(){
+      return arr.push.apply(arr, as);
     };
-  }""" :: forall a h e. Fn2 (STArray h a)
-                            a
-                            (Eff (st :: ST h | e) Unit)
-                            
-pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Unit
-pushSTArray arr a = runFn2 pushSTArrayImpl arr a
+  }""" :: forall a h r. Fn2 (STArray h a)
+                            [a]
+                            (Eff (st :: ST h | r) Number)
+
+pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Number
+pushAllSTArray = runFn2 pushAllSTArrayImpl
+
+pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Number
+pushSTArray arr a = pushAllSTArray arr [a]
+
+foreign import spliceSTArrayImpl """
+  function spliceSTArrayImpl(arr, index, howMany, bs) {
+    return function(){
+      return arr.splice.apply(arr, [index, howMany].concat(bs));
+    };
+  }""" :: forall a h r. Fn4 (STArray h a)
+                            Number
+                            Number
+                            [a]
+                            (Eff (st :: ST h | r) [a])
+
+spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
+spliceSTArray = runFn4 spliceSTArrayImpl
+
+foreign import copyImpl """
+  function copyImpl(arr) {
+    return function(){
+      var as = [];
+      var i = -1;
+      var n = arr.length;
+      while(++i < n) {
+        as[i] = arr[i];
+      }
+      return as;
+    };
+  }""" :: forall a b h r. a -> Eff (st :: ST h | r) b
+
+freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
+freeze = copyImpl
+
+thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
+thaw = copyImpl
+
+foreign import toAssocArray """
+  function toAssocArray(arr) {
+    return function(){
+      var as = [];
+      var i = -1;
+      var n = arr.length;
+      while(++i < n) {
+        as[i] = {value: arr[i], index: i};
+      }
+      return as;
+    };
+  }""" :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
