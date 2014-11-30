@@ -8,8 +8,8 @@ module Data.Array.ST
   , pushSTArray
   , pushAllSTArray
   , spliceSTArray
-  , getElems
-  , getAssocs
+  , freeze, thaw
+  , toAssocArray
   ) where
 
 import Data.Maybe
@@ -98,8 +98,8 @@ foreign import spliceSTArrayImpl """
 spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
 spliceSTArray = runFn4 spliceSTArrayImpl
 
-foreign import getElems """
-  function getElems(arr) {
+foreign import copyImpl """
+  function copyImpl(arr) {
     return function(){
       var as = [];
       var i = -1;
@@ -109,10 +109,16 @@ foreign import getElems """
       }
       return as;
     };
-  }""" :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
+  }""" :: forall a b h r. a -> Eff (st :: ST h | r) b
 
-foreign import getAssocs """
-  function getAssocs(arr) {
+freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
+freeze = copyImpl
+
+thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
+thaw = copyImpl
+
+foreign import toAssocArray """
+  function toAssocArray(arr) {
     return function(){
       var as = [];
       var i = -1;

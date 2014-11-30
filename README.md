@@ -125,9 +125,7 @@
 
     emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
 
-    getAssocs :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
-
-    getElems :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
+    freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
 
     peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
 
@@ -140,6 +138,10 @@
     runSTArray :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff r [a]
 
     spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
+
+    thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
+
+    toAssocArray :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
 
 
 ## Module Data.Array.Unsafe
