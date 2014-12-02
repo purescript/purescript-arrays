@@ -8,6 +8,8 @@ module Data.Array
   , tail
   , init
   , null
+  , tabulate
+  , replicate
   , map
   , mapMaybe
   , catMaybes
@@ -16,11 +18,15 @@ module Data.Array
   , findLastIndex
   , elemIndex
   , elemLastIndex
+  , any
+  , all
   , append
   , concat
   , reverse
   , drop
   , take
+  , intercalate
+  , intersperse
   , insertAt
   , deleteAt
   , updateAt
@@ -41,6 +47,7 @@ module Data.Array
   , group'
   , groupBy
   , span
+  , break
   ) where
 
 import Control.Alt
@@ -98,6 +105,32 @@ foreign import length
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
 
+foreign import replicate
+  """
+  function replicate(size){
+    return function(elem){
+      var arr = new Array(size);
+      for(var i = 0; i < size; i++){
+        arr[i] = elem;
+      }
+      return arr;
+    }
+  }
+  """ :: forall a. Number -> a -> [a]
+
+foreign import tabulate
+  """
+  function tabulate(size){
+    return function(f){
+      var arr = new Array(size);
+      for(var i = 0; i < size; i++){
+        arr[i] = f(i);
+      }
+      return arr;
+    }
+  }
+  """ :: forall a. Number -> (Number -> a) -> [a]
+
 foreign import findIndex
   "function findIndex (f) {\
   \  return function (arr) {\
@@ -127,6 +160,23 @@ elemIndex x = findIndex ((==) x)
 
 elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemLastIndex x = findLastIndex ((==) x)
+
+foreign import any
+  """
+  function any(p){
+    return function(as){
+      for(var i = 0; i < as.length; i++){
+        if(p(as[i])){
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+  """ :: forall a. (a -> Boolean) -> [a] -> Boolean
+
+all :: forall a. (a -> Boolean) -> [a] -> Boolean
+all p as = not (any (not <<< p) as)
 
 foreign import append
   "function append (l1) {\
@@ -167,6 +217,14 @@ foreign import slice
   \    };\
   \  };\
   \}" :: forall a. Number -> Number -> [a] -> [a]
+
+intercalate :: forall a. [a] -> [[a]] -> [a]
+intercalate sep [] = []
+intercalate sep (a:as) = a <> (concatMap (\e -> sep <> e) as)
+
+intersperse :: forall a. a -> [a] -> [a]
+intersperse sep [] = []
+intersperse sep (a:as) = a : (concatMap (\e -> [sep,e]) as)
 
 foreign import insertAt
   "function insertAt (index) {\
@@ -353,6 +411,9 @@ span = go []
   go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
   go acc p (x:xs) | p x = go (x:acc) p xs
   go acc _ xs           = { init: reverse acc, rest: xs }
+
+break :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+break p = span (\a -> not (p a))
 
 instance functorArray :: Functor [] where
   (<$>) = map
