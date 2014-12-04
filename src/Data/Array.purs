@@ -41,6 +41,7 @@ module Data.Array
   , group'
   , groupBy
   , span
+  , replicate
   ) where
 
 import Control.Alt
@@ -353,6 +354,13 @@ span = go []
   go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
   go acc p (x:xs) | p x = go (x:acc) p xs
   go acc _ xs           = { init: reverse acc, rest: xs }
+
+
+replicate :: forall a. Number -> a -> [a]
+replicate n x =
+  if n > 0
+     then map (const x) (1..n)
+     else []
 
 instance functorArray :: Functor [] where
   (<$>) = map
