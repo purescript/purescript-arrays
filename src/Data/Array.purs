@@ -51,7 +51,7 @@ import Control.Alternative
 import Control.MonadPlus
 import Data.Maybe
 import Prelude.Unsafe (unsafeIndex)
-import qulified Array.Unsafe as Unsafe (slice)
+import qualified Array.Unsafe as Unsafe (slice)
 
 infixl 8 !!
 
