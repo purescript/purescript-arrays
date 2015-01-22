@@ -35,6 +35,7 @@ module Data.Array
   , zipWith
   , nub
   , nubBy
+  , slice
   , sort
   , sortBy
   , group
@@ -49,6 +50,7 @@ import Control.Alternative
 import Control.MonadPlus
 import Data.Maybe
 import Prelude.Unsafe (unsafeIndex)
+import qulified Array.Unsafe as Unsafe (slice)
 
 infixl 8 !!
 
@@ -312,6 +314,16 @@ nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 nubBy _ [] = []
 nubBy (==) (x:xs) = x : nubBy (==) (filter (\y -> not (x == y)) xs)
 
+-- The slice method returns the selected elements in an array, as a new array object.
+-- It selects the elements starting at the given (1-based) start argument, and ends at,
+-- but does not include, the given end argument.
+
+slice :: forall a. Number -> Number -> [a] -> Maybe [a]
+slice from to array =
+  if from < 1 || from >= to || to > length array + 1
+    then Nothing
+    else Just (Unsafe.slice from to array)
+
 sort :: forall a. (Ord a) => [a] -> [a]
 sort xs = sortBy compare xs
 
@@ -373,10 +385,10 @@ instance semigroupArray :: Semigroup [a] where
 
 instance altArray :: Alt [] where
   (<|>) = append
-  
+
 instance plusArray :: Plus [] where
   empty = []
-  
+
 instance alternativeArray :: Alternative []
 
 instance monadPlusArray :: MonadPlus []
