@@ -41,6 +41,8 @@ module Data.Array
   , group'
   , groupBy
   , span
+  , dropWhile
+  , takeWhile
   ) where
 
 import Control.Alt
@@ -353,6 +355,12 @@ span = go []
   go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
   go acc p (x:xs) | p x = go (x:acc) p xs
   go acc _ xs           = { init: reverse acc, rest: xs }
+
+takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
+takeWhile p xs = (span p xs).init
+
+dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
+dropWhile p xs = (span p xs).rest
 
 instance functorArray :: Functor [] where
   (<$>) = map
