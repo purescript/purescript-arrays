@@ -49,6 +49,8 @@
 
     drop :: forall a. Number -> [a] -> [a]
 
+    dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
+
     elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 
     elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
@@ -106,6 +108,8 @@
     tail :: forall a. [a] -> Maybe [a]
 
     take :: forall a. Number -> [a] -> [a]
+
+    takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 
     updateAt :: forall a. Number -> a -> [a] -> [a]
 
