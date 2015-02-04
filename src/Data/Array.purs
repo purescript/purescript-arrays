@@ -35,7 +35,6 @@ module Data.Array
   , zipWith
   , nub
   , nubBy
-  , replicate
   , slice
   , sort
   , sortBy
@@ -359,20 +358,6 @@ groupBy = go []
   go acc _  []     = reverse acc
   go acc op (x:xs) = let sp = span (op x) xs in
                      go ((x:sp.init):acc) op sp.rest
-
--- Creates a list of length given by the first argument and the items having value of the second argument
-foreign import replicate
-"""
-function replicate(len) {
-  function (val) {
-    var rv = new Array(len);
-    while (--len >= 0) {
-        rv[len] = val;
-    }
-    return rv;
-  }
-}
-""" :: forall a. Number -> a -> [a]
 
 span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
 span = go []
