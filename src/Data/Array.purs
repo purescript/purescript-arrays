@@ -50,7 +50,6 @@ import Control.Alternative
 import Control.MonadPlus
 import Data.Maybe
 import Prelude.Unsafe (unsafeIndex)
-import qualified Array.Unsafe as Unsafe (slice)
 
 infixl 8 !!
 
@@ -89,7 +88,7 @@ tail _        = Nothing
 
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
-init xs = Just (slice 0 (length xs - 1) xs)
+init xs = Just (sliceUnsafe 0 (length xs - 1) xs)
 
 null :: forall a. [a] -> Boolean
 null [] = true
@@ -159,10 +158,10 @@ foreign import drop
   \}" :: forall a. Number -> [a] -> [a]
 
 take :: forall a. Number -> [a] -> [a]
-take n = slice 0 n
+take n = sliceUnsafe 0 n
 
-foreign import slice
-  "function slice (s) {\
+foreign import sliceUnsafe
+  "function sliceUnsafe (s) {\
   \  return function (e) {\
   \    return function (l) {\
   \      return l.slice(s, e);\
@@ -322,7 +321,7 @@ slice :: forall a. Number -> Number -> [a] -> Maybe [a]
 slice from to array =
   if from < 1 || from >= to || to > length array + 1
     then Nothing
-    else Just (Unsafe.slice from to array)
+    else Just (sliceUnsafe from to array)
 
 sort :: forall a. (Ord a) => [a] -> [a]
 sort xs = sortBy compare xs
