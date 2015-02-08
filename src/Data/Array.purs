@@ -229,16 +229,8 @@ intersectBy eq xs ys = filter el xs
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 intersect = intersectBy (==)
 
-foreign import concatMap
-  "function concatMap (f) {\
-  \  return function (arr) {\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      Array.prototype.push.apply(result, f(arr[i]));\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> [b]) -> [a] -> [b]
+concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
+concatMap f xs = concat $ map f xs
 
 foreign import map
   "function map (f) {\
