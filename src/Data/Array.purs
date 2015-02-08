@@ -139,11 +139,7 @@ foreign import append
 
 foreign import concat
   "function concat (xss) {\
-  \  var result = [];\
-  \  for (var i = 0, l = xss.length; i < l; i++) {\
-  \    result.push.apply(result, xss[i]);\
-  \  }\
-  \  return result;\
+  \  return Array.prototype.concat.apply([], xss);\
   \}" :: forall a. [[a]] -> [a]
 
 foreign import reverse
