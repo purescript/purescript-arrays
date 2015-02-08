@@ -243,12 +243,7 @@ foreign import concatMap
 foreign import map
   "function map (f) {\
   \  return function (arr) {\
-  \    var l = arr.length;\
-  \    var result = new Array(l);\
-  \    for (var i = 0; i < l; i++) {\
-  \      result[i] = f(arr[i]);\
-  \    }\
-  \    return result;\
+  \    return arr.map(f);\
   \  };\
   \}" :: forall a b. (a -> b) -> [a] -> [b]
 
