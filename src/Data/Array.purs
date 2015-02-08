@@ -263,14 +263,12 @@ foreign import filter
 foreign import range
   "function range (start) {\
   \  return function (end) {\
-  \    var i = ~~start, e = ~~end;\
-  \    var step = i > e ? -1 : 1;\
-  \    var result = [i], n = 1;\
-  \    while (i !== e) {\
-  \      i += step;\
-  \      result[n++] = i;\
-  \    }\
-  \    return result;\
+  \    var s = 0|start, e = 0|end, step = 0|(s > e? -1 : 1);\
+  \    var len = 0|(1 + Math.abs(e-s));\
+  \    var r = new Array(len);\
+  \    for (var i = 0, n = s; i < len; i++, n += step)\
+  \      r[i] = n;\
+  \    return r;\
   \  };\
   \}" :: Number -> Number -> [Number]
 
