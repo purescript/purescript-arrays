@@ -256,14 +256,7 @@ catMaybes = concatMap (maybe [] singleton)
 foreign import filter
   "function filter (f) {\
   \  return function (arr) {\
-  \    var n = 0;\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      if (f(arr[i])) {\
-  \        result[n++] = arr[i];\
-  \      }\
-  \    }\
-  \    return result;\
+  \    return arr.filter(f);\
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
 
