@@ -89,7 +89,8 @@ tail _        = Nothing
 
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
-init xs = Just (slice 0 (length xs - 1) xs)
+init xs = ixs xs
+ixs = Just <<< slice 0 (-1)
 
 null :: forall a. [a] -> Boolean
 null [] = true
@@ -154,12 +155,13 @@ foreign import reverse
 foreign import drop
   "function drop (n) {\
   \  return function (l) {\
-  \    return l.slice(n);\
+  \    return l.slice(n<0?0:n);\
   \  };\
   \}" :: forall a. Number -> [a] -> [a]
 
 take :: forall a. Number -> [a] -> [a]
-take n = slice 0 n
+take = (slice 0) <<< max0
+foreign import max0 "function max0(n) { return n<0?0:n; }" :: Number -> Number
 
 foreign import slice
   "function slice (s) {\
