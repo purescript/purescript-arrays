@@ -290,6 +290,7 @@ foreign import range
   \  };\
   \}" :: Number -> Number -> [Number]
 
+infix 8 ..
 (..) :: Number -> Number -> [Number]
 (..) = range
 
