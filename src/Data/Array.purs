@@ -139,11 +139,7 @@ foreign import append
 
 foreign import concat
   "function concat (xss) {\
-  \  var result = [];\
-  \  for (var i = 0, l = xss.length; i < l; i++) {\
-  \    result.push.apply(result, xss[i]);\
-  \  }\
-  \  return result;\
+  \  return Array.prototype.concat.apply([], xss);\
   \}" :: forall a. [[a]] -> [a]
 
 foreign import reverse
@@ -233,26 +229,13 @@ intersectBy eq xs ys = filter el xs
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 intersect = intersectBy (==)
 
-foreign import concatMap
-  "function concatMap (f) {\
-  \  return function (arr) {\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      Array.prototype.push.apply(result, f(arr[i]));\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> [b]) -> [a] -> [b]
+concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
+concatMap f xs = concat $ map f xs
 
 foreign import map
   "function map (f) {\
   \  return function (arr) {\
-  \    var l = arr.length;\
-  \    var result = new Array(l);\
-  \    for (var i = 0; i < l; i++) {\
-  \      result[i] = f(arr[i]);\
-  \    }\
-  \    return result;\
+  \    return arr.map(f);\
   \  };\
   \}" :: forall a b. (a -> b) -> [a] -> [b]
 
@@ -265,28 +248,19 @@ catMaybes = concatMap (maybe [] singleton)
 foreign import filter
   "function filter (f) {\
   \  return function (arr) {\
-  \    var n = 0;\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      if (f(arr[i])) {\
-  \        result[n++] = arr[i];\
-  \      }\
-  \    }\
-  \    return result;\
+  \    return arr.filter(f);\
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
 
 foreign import range
   "function range (start) {\
   \  return function (end) {\
-  \    var i = ~~start, e = ~~end;\
-  \    var step = i > e ? -1 : 1;\
-  \    var result = [i], n = 1;\
-  \    while (i !== e) {\
-  \      i += step;\
-  \      result[n++] = i;\
-  \    }\
-  \    return result;\
+  \    var s = 0|start, e = 0|end, step = 0|(s > e? -1 : 1);\
+  \    var len = 0|(1 + Math.abs(e-s));\
+  \    var r = new Array(len);\
+  \    for (var i = 0, n = s; i < len; i++, n += step)\
+  \      r[i] = n;\
+  \    return r;\
   \  };\
   \}" :: Number -> Number -> [Number]
 
