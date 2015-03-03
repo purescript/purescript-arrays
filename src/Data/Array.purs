@@ -75,13 +75,10 @@ singleton :: forall a. a -> [a]
 singleton a = [a]
 
 head :: forall a. [a] -> Maybe a
-head (x : _) = Just x
-head _       = Nothing
+head xs = xs !! 0
 
 last :: forall a. [a] -> Maybe a
-last (x : []) = Just x
-last (_ : xs) = last xs
-last _        = Nothing
+last xs = xs !! (length xs - 1)
 
 tail :: forall a. [a] -> Maybe [a]
 tail (_ : xs) = Just xs

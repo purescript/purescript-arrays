@@ -5,7 +5,7 @@ import Data.Maybe.Unsafe
 import qualified Data.Array as A
 
 head :: forall a. [a] -> a
-head (x : _) = x
+head xs = unsafeIndex xs 0
 
 tail :: forall a. [a] -> [a]
 tail (_ : xs) = xs
