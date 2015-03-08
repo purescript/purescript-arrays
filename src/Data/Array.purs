@@ -24,6 +24,7 @@ module Data.Array
   , insertAt
   , deleteAt
   , updateAt
+  , modifyAt
   , deleteBy
   , delete
   , (\\)
@@ -204,6 +205,11 @@ foreign import updateAt
   \    }; \
   \  };\
   \}":: forall a. Number -> a -> [a] -> [a]
+
+modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
+modifyAt i f xs = case xs !! i of
+                    Just x -> updateAt i (f x) xs
+                    Nothing -> xs
 
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 deleteBy _ _ [] = []
