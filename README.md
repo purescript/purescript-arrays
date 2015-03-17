@@ -2,12 +2,27 @@
 
 ## Module Data.Array
 
+
+Helper functions for working with immutable Javascript arrays.
+
+_Note_: Depending on your use-case, you may prefer to use `Data.List` or
+`Data.Sequence` instead, which might give better performance for certain
+use cases. This module is useful when integrating with JavaScript libraries
+which use arrays, but immutable arrays are not a practical data structure
+for many use cases due to their poor asymptotics.
+
 #### `(!!)`
 
 ``` purescript
 (!!) :: forall a. [a] -> Number -> Maybe a
 ```
 
+This operator provides a safe way to read a value at a particular index from an array.
+
+This function returns `Nothing` if the index is out-of-bounds.
+
+`Data.Array.Unsafe` provides the `unsafeIndex` function, which is an unsafe version of
+this function without bounds checking.
 
 #### `snoc`
 
@@ -15,6 +30,7 @@
 snoc :: forall a. [a] -> a -> [a]
 ```
 
+Append an element to the end of an array, creating a new array.
 
 #### `singleton`
 
@@ -22,6 +38,7 @@ snoc :: forall a. [a] -> a -> [a]
 singleton :: forall a. a -> [a]
 ```
 
+Create an array of one element
 
 #### `head`
 
@@ -29,6 +46,7 @@ singleton :: forall a. a -> [a]
 head :: forall a. [a] -> Maybe a
 ```
 
+Get the first element in an array, or `Nothing` if the array is empty
 
 #### `last`
 
@@ -36,6 +54,9 @@ head :: forall a. [a] -> Maybe a
 last :: forall a. [a] -> Maybe a
 ```
 
+Get the last element in an array, or `Nothing` if the array is empty
+
+Running time: `O(n)` where `n` is the length of the array
 
 #### `tail`
 
@@ -43,6 +64,9 @@ last :: forall a. [a] -> Maybe a
 tail :: forall a. [a] -> Maybe [a]
 ```
 
+Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
+
+Running time: `O(n)` where `n` is the length of the array
 
 #### `init`
 
@@ -50,6 +74,9 @@ tail :: forall a. [a] -> Maybe [a]
 init :: forall a. [a] -> Maybe [a]
 ```
 
+Get all but the last element of an array, creating a new array, or `Nothing` if the array is empty.
+
+Running time: `O(n)` where `n` is the length of the array
 
 #### `null`
 
@@ -57,6 +84,7 @@ init :: forall a. [a] -> Maybe [a]
 null :: forall a. [a] -> Boolean
 ```
 
+Test whether an array is empty.
 
 #### `length`
 
@@ -64,6 +92,7 @@ null :: forall a. [a] -> Boolean
 length :: forall a. [a] -> Number
 ```
 
+Get the number of elements in an array
 
 #### `findIndex`
 
@@ -71,6 +100,8 @@ length :: forall a. [a] -> Number
 findIndex :: forall a. (a -> Boolean) -> [a] -> Number
 ```
 
+Find the first index for which a predicate holds,
+or `-1` if no such element exists
 
 #### `findLastIndex`
 
@@ -78,6 +109,8 @@ findIndex :: forall a. (a -> Boolean) -> [a] -> Number
 findLastIndex :: forall a. (a -> Boolean) -> [a] -> Number
 ```
 
+Find the last index for which a predicate holds,
+or `-1` if no such element exists
 
 #### `elemIndex`
 
@@ -85,6 +118,8 @@ findLastIndex :: forall a. (a -> Boolean) -> [a] -> Number
 elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 ```
 
+Find the index of the first element equal to the specified element,
+or `-1` if no such element exists
 
 #### `elemLastIndex`
 
@@ -92,6 +127,8 @@ elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 ```
 
+Find the index of the last element equal to the specified element,
+or `-1` if no such element exists
 
 #### `append`
 
@@ -99,6 +136,7 @@ elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 append :: forall a. [a] -> [a] -> [a]
 ```
 
+Concatenate two arrays, creating a new array
 
 #### `concat`
 
@@ -106,6 +144,7 @@ append :: forall a. [a] -> [a] -> [a]
 concat :: forall a. [[a]] -> [a]
 ```
 
+Flatten an array of arrays, creating a new array
 
 #### `reverse`
 
@@ -113,6 +152,7 @@ concat :: forall a. [[a]] -> [a]
 reverse :: forall a. [a] -> [a]
 ```
 
+Reverse an array, creating a copy
 
 #### `drop`
 
@@ -120,6 +160,7 @@ reverse :: forall a. [a] -> [a]
 drop :: forall a. Number -> [a] -> [a]
 ```
 
+Drop a number of elements from the start of an array, creating a new array.
 
 #### `take`
 
@@ -127,6 +168,7 @@ drop :: forall a. Number -> [a] -> [a]
 take :: forall a. Number -> [a] -> [a]
 ```
 
+Keep only a number of elements from the start of an array, creating a new array.
 
 #### `insertAt`
 
@@ -134,6 +176,7 @@ take :: forall a. Number -> [a] -> [a]
 insertAt :: forall a. Number -> a -> [a] -> [a]
 ```
 
+Insert an element at the specified index, creating a new array.
 
 #### `deleteAt`
 
@@ -141,6 +184,7 @@ insertAt :: forall a. Number -> a -> [a] -> [a]
 deleteAt :: forall a. Number -> Number -> [a] -> [a]
 ```
 
+Delete the element at the specified index, creating a new array.
 
 #### `updateAt`
 
@@ -148,6 +192,7 @@ deleteAt :: forall a. Number -> Number -> [a] -> [a]
 updateAt :: forall a. Number -> a -> [a] -> [a]
 ```
 
+Change the element at the specified index, creating a new array.
 
 #### `modifyAt`
 
@@ -155,6 +200,7 @@ updateAt :: forall a. Number -> a -> [a] -> [a]
 modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
 ```
 
+Apply a function to the element at the specified index, creating a new array.
 
 #### `deleteBy`
 
@@ -162,6 +208,8 @@ modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 ```
 
+Delete the first element of an array which matches the specified value, under the
+equivalence relation provided in the first argument, creating a new array.
 
 #### `delete`
 
@@ -169,6 +217,8 @@ deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 delete :: forall a. (Eq a) => a -> [a] -> [a]
 ```
 
+Delete the first element of an array which is equal to the specified value,
+creating a new array.
 
 #### `(\\)`
 
@@ -176,6 +226,8 @@ delete :: forall a. (Eq a) => a -> [a] -> [a]
 (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 ```
 
+Delete the first occurrence of each element in the second array from the first array, 
+creating a new array.
 
 #### `intersectBy`
 
@@ -183,6 +235,8 @@ delete :: forall a. (Eq a) => a -> [a] -> [a]
 intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 ```
 
+Calculate the intersection of two arrays, using the specified equivalence relation
+to compare elements, creating a new array.
 
 #### `intersect`
 
@@ -190,6 +244,7 @@ intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 ```
 
+Calculate the intersection of two arrays, creating a new array.
 
 #### `concatMap`
 
@@ -197,6 +252,8 @@ intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
 ```
 
+Apply a function to each element in an array, and flatten the results 
+into a single, new array.
 
 #### `map`
 
@@ -204,6 +261,7 @@ concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
 map :: forall a b. (a -> b) -> [a] -> [b]
 ```
 
+Apply a function to each element in an array, creating a new array.
 
 #### `mapMaybe`
 
@@ -211,6 +269,8 @@ map :: forall a b. (a -> b) -> [a] -> [b]
 mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
 ```
 
+Apply a function to each element in an array, keeping only the results which
+contain a value, creating a new array.
 
 #### `catMaybes`
 
@@ -218,6 +278,8 @@ mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
 catMaybes :: forall a. [Maybe a] -> [a]
 ```
 
+Filter an array of optional values, keeping only the elements which contain
+a value, creating a new array.
 
 #### `filter`
 
@@ -225,6 +287,8 @@ catMaybes :: forall a. [Maybe a] -> [a]
 filter :: forall a. (a -> Boolean) -> [a] -> [a]
 ```
 
+Filter an array, keeping the elements which satisfy a predicate function, 
+creating a new array.
 
 #### `range`
 
@@ -232,6 +296,7 @@ filter :: forall a. (a -> Boolean) -> [a] -> [a]
 range :: Number -> Number -> [Number]
 ```
 
+Create an array containing a range of numbers, including both endpoints.
 
 #### `(..)`
 
@@ -239,6 +304,7 @@ range :: Number -> Number -> [Number]
 (..) :: Number -> Number -> [Number]
 ```
 
+An infix synonym for `range`.
 
 #### `zipWith`
 
@@ -246,6 +312,16 @@ range :: Number -> Number -> [Number]
 zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 ```
 
+Apply a function to pairs of elements at the same index in two arrays, 
+collecting the results in a new array.
+
+If one array is longer, elements will be discarded from the longer array.
+
+For example
+
+```purescript
+zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
+```
 
 #### `nub`
 
@@ -253,6 +329,7 @@ zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 nub :: forall a. (Eq a) => [a] -> [a]
 ```
 
+Remove the duplicates from an array, creating a new array.
 
 #### `nubBy`
 
@@ -260,6 +337,8 @@ nub :: forall a. (Eq a) => [a] -> [a]
 nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 ```
 
+Remove the duplicates from an array, where element equality is determined by the 
+specified equivalence relation, creating a new array.
 
 #### `sort`
 
@@ -267,6 +346,7 @@ nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 sort :: forall a. (Ord a) => [a] -> [a]
 ```
 
+Sort the elements of an array in increasing order, creating a new array.
 
 #### `sortBy`
 
@@ -274,6 +354,8 @@ sort :: forall a. (Ord a) => [a] -> [a]
 sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 ```
 
+Sort the elements of an array in increasing order, where elements are compared using
+the specified partial ordering, creating a new array.
 
 #### `group`
 
@@ -281,6 +363,13 @@ sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 group :: forall a. (Eq a) => [a] -> [[a]]
 ```
 
+Group equal, consecutive elements of an array into arrays.
+
+For example,
+
+```purescript
+group [1,1,2,2,1] == [[1,1],[2,2],[1]]
+```
 
 #### `group'`
 
@@ -288,7 +377,13 @@ group :: forall a. (Eq a) => [a] -> [[a]]
 group' :: forall a. (Ord a) => [a] -> [[a]]
 ```
 
-Performs a sorting first.
+Sort and group the elements of an array into arrays.
+
+For example,
+
+```purescript
+group [1,1,2,2,1] == [[1,1,1],[2,2]]
+```
 
 #### `groupBy`
 
@@ -296,6 +391,8 @@ Performs a sorting first.
 groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
 ```
 
+Group equal, consecutive elements of an array into arrays, using the specified
+equivalence relation to detemine equality.
 
 #### `span`
 
@@ -303,6 +400,16 @@ groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
 span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
 ```
 
+Split an array into two parts: 
+
+1. the longest initial subarray for which all element satisfy the specified predicate
+2. the remaining elements
+
+For example,
+
+```purescript
+span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
+```
 
 #### `takeWhile`
 
@@ -310,6 +417,8 @@ span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
 takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 ```
 
+Calculate the longest initial subarray for which all element satisfy the specified predicate,
+creating a new array.
 
 #### `dropWhile`
 
@@ -317,6 +426,8 @@ takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 ```
 
+Remove the longest initial subarray for which all element satisfy the specified predicate,
+creating a new array.
 
 #### `functorArray`
 
@@ -391,12 +502,24 @@ instance monadPlusArray :: MonadPlus Prim.Array
 
 ## Module Data.Array.ST
 
+
+Helper functions for working with mutable arrays using the `ST` effect.
+
+This module can be used when performance is important and mutation is a local effect.
+
 #### `STArray`
 
 ``` purescript
 data STArray :: * -> * -> *
 ```
 
+A reference to a mutable array.
+
+The first type parameter represents the memory region which the array belongs to.
+The second type parameter defines the type of elements of the mutable array.
+
+The runtime representation of a value of type `STArray h a` is the same as that of `[a]`,
+except that mutation is allowed.
 
 #### `Assoc`
 
@@ -404,6 +527,7 @@ data STArray :: * -> * -> *
 type Assoc a = { index :: Number, value :: a }
 ```
 
+An element and its index
 
 #### `runSTArray`
 
@@ -411,6 +535,10 @@ type Assoc a = { index :: Number, value :: a }
 runSTArray :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff r [a]
 ```
 
+Freeze a mutable array, creating an immutable array. Use this function as you would use
+`runST` to freeze a mutable reference.
+
+The rank-2 type prevents the reference from escaping the scope of `runSTArray`.
 
 #### `emptySTArray`
 
@@ -418,6 +546,7 @@ runSTArray :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff 
 emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
 ```
 
+Create an empty mutable array.
 
 #### `peekSTArray`
 
@@ -425,6 +554,7 @@ emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
 peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
 ```
 
+Read the value at the specified index in a mutable array.
 
 #### `pokeSTArray`
 
@@ -432,6 +562,7 @@ peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Mayb
 pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
 ```
 
+Change the value at the specified index in a mutable array.
 
 #### `pushAllSTArray`
 
@@ -439,6 +570,7 @@ pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) 
 pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Number
 ```
 
+Append the values in an immutable array to the end of a mutable array.
 
 #### `pushSTArray`
 
@@ -446,6 +578,7 @@ pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Numbe
 pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Number
 ```
 
+Append an element to the end of a mutable array.
 
 #### `spliceSTArray`
 
@@ -453,6 +586,7 @@ pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Number
 spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
 ```
 
+Remove and/or insert elements from/into a mutable array at the specified index.
 
 #### `freeze`
 
@@ -460,6 +594,7 @@ spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st
 freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
 ```
 
+Create an immutable copy of a mutable array.
 
 #### `thaw`
 
@@ -467,6 +602,7 @@ freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
 thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
 ```
 
+Create a mutable copy of an immutable array.
 
 #### `toAssocArray`
 
@@ -474,9 +610,17 @@ thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
 toAssocArray :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
 ```
 
+Create an immutable copy of a mutable array, where each element
+is labelled with its index in the original array.
 
 
 ## Module Data.Array.Unsafe
+
+
+Unsafe helper functions for working with immutable arrays.
+
+_Note_: these functions should be used with care, and may result in unspecified
+behavior.
 
 #### `head`
 
@@ -484,6 +628,7 @@ toAssocArray :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
 head :: forall a. [a] -> a
 ```
 
+Get the first element of a non-empty array.
 
 #### `tail`
 
@@ -491,6 +636,7 @@ head :: forall a. [a] -> a
 tail :: forall a. [a] -> [a]
 ```
 
+Get all but the first element of a non-empty array.
 
 #### `last`
 
@@ -498,9 +644,12 @@ tail :: forall a. [a] -> [a]
 last :: forall a. [a] -> a
 ```
 
+Get the last element of a non-empty array.
 
 #### `init`
 
 ``` purescript
 init :: forall a. [a] -> [a]
 ```
+
+Get all but the last element of a non-empty array.

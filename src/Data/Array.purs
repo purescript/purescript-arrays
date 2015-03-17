@@ -1,3 +1,10 @@
+-- | Helper functions for working with immutable Javascript arrays.
+-- |
+-- | _Note_: Depending on your use-case, you may prefer to use `Data.List` or
+-- | `Data.Sequence` instead, which might give better performance for certain
+-- | use cases. This module is useful when integrating with JavaScript libraries
+-- | which use arrays, but immutable arrays are not a practical data structure
+-- | for many use cases due to their poor asymptotics.
 module Data.Array
   ( (!!)
   , (..)
@@ -55,6 +62,12 @@ import Prelude.Unsafe (unsafeIndex)
 
 infixl 8 !!
 
+-- | This operator provides a safe way to read a value at a particular index from an array.
+-- |
+-- | This function returns `Nothing` if the index is out-of-bounds.
+-- |
+-- | `Data.Array.Unsafe` provides the `unsafeIndex` function, which is an unsafe version of
+-- | this function without bounds checking.
 (!!) :: forall a. [a] -> Number -> Maybe a
 (!!) xs n =
   if n < 0 || n >= (length xs) || isInt n
@@ -63,6 +76,7 @@ infixl 8 !!
   where
   isInt n = n /= complement (complement n)
 
+-- | Append an element to the end of an array, creating a new array.
 foreign import snoc
   "function snoc(l) {\
   \  return function (e) {\
@@ -72,35 +86,50 @@ foreign import snoc
   \  };\
   \}" :: forall a. [a] -> a -> [a]
 
+-- | Create an array of one element
 singleton :: forall a. a -> [a]
 singleton a = [a]
 
+-- | Get the first element in an array, or `Nothing` if the array is empty
 head :: forall a. [a] -> Maybe a
 head (x : _) = Just x
 head _       = Nothing
 
+-- | Get the last element in an array, or `Nothing` if the array is empty
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 last :: forall a. [a] -> Maybe a
 last (x : []) = Just x
 last (_ : xs) = last xs
 last _        = Nothing
 
+-- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 tail :: forall a. [a] -> Maybe [a]
 tail (_ : xs) = Just xs
 tail _        = Nothing
 
+-- | Get all but the last element of an array, creating a new array, or `Nothing` if the array is empty.
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
 init xs = Just (slice 0 (length xs - 1) xs)
 
+-- | Test whether an array is empty.
 null :: forall a. [a] -> Boolean
 null [] = true
 null _  = false
 
+-- | Get the number of elements in an array
 foreign import length
   "function length (xs) {\
   \  return xs.length;\
   \}" :: forall a. [a] -> Number
 
+-- | Find the first index for which a predicate holds,
+-- | or `-1` if no such element exists
 foreign import findIndex
   "function findIndex (f) {\
   \  return function (arr) {\
@@ -113,6 +142,8 @@ foreign import findIndex
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> Number
 
+-- | Find the last index for which a predicate holds,
+-- | or `-1` if no such element exists
 foreign import findLastIndex
   "function findLastIndex (f) {\
   \  return function (arr) {\
@@ -125,12 +156,17 @@ foreign import findLastIndex
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> Number
 
+-- | Find the index of the first element equal to the specified element,
+-- | or `-1` if no such element exists
 elemIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemIndex x = findIndex ((==) x)
 
+-- | Find the index of the last element equal to the specified element,
+-- | or `-1` if no such element exists
 elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
 elemLastIndex x = findLastIndex ((==) x)
 
+-- | Concatenate two arrays, creating a new array
 foreign import append
   "function append (l1) {\
   \  return function (l2) {\
@@ -138,6 +174,7 @@ foreign import append
   \  };\
   \}" :: forall a. [a] -> [a] -> [a]
 
+-- | Flatten an array of arrays, creating a new array
 foreign import concat
   "function concat (xss) {\
   \  var result = [];\
@@ -147,11 +184,13 @@ foreign import concat
   \  return result;\
   \}" :: forall a. [[a]] -> [a]
 
+-- | Reverse an array, creating a copy
 foreign import reverse
   "function reverse (l) {\
   \  return l.slice().reverse();\
   \}" :: forall a. [a] -> [a]
 
+-- | Drop a number of elements from the start of an array, creating a new array.
 foreign import drop
   "function drop (n) {\
   \  return function (l) {\
@@ -159,9 +198,11 @@ foreign import drop
   \  };\
   \}" :: forall a. Number -> [a] -> [a]
 
+-- | Keep only a number of elements from the start of an array, creating a new array.
 take :: forall a. Number -> [a] -> [a]
 take n = slice 0 n
 
+-- | Create a copy of a subarray
 foreign import slice
   "function slice (s) {\
   \  return function (e) {\
@@ -171,6 +212,7 @@ foreign import slice
   \  };\
   \}" :: forall a. Number -> Number -> [a] -> [a]
 
+-- | Insert an element at the specified index, creating a new array.
 foreign import insertAt
   "function insertAt (index) {\
   \  return function (a) {\
@@ -182,6 +224,7 @@ foreign import insertAt
   \  };\
   \}":: forall a. Number -> a -> [a] -> [a]
 
+-- | Delete the element at the specified index, creating a new array.
 foreign import deleteAt
   "function deleteAt (index) {\
   \  return function (n) {\
@@ -193,6 +236,7 @@ foreign import deleteAt
   \  };\
   \}":: forall a. Number -> Number -> [a] -> [a]
 
+-- | Change the element at the specified index, creating a new array.
 foreign import updateAt
   "function updateAt (index) {\
   \  return function (a) {\
@@ -206,22 +250,29 @@ foreign import updateAt
   \  };\
   \}":: forall a. Number -> a -> [a] -> [a]
 
+-- | Apply a function to the element at the specified index, creating a new array.
 modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
 modifyAt i f xs = case xs !! i of
                     Just x -> updateAt i (f x) xs
                     Nothing -> xs
 
+-- | Delete the first element of an array which matches the specified value, under the
+-- | equivalence relation provided in the first argument, creating a new array.
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 deleteBy _ _ [] = []
 deleteBy eq x ys = case findIndex (eq x) ys of
   i | i < 0 -> ys
   i -> deleteAt i 1 ys
 
+-- | Delete the first element of an array which is equal to the specified value,
+-- | creating a new array.
 delete :: forall a. (Eq a) => a -> [a] -> [a]
 delete = deleteBy (==)
 
 infix 5 \\
 
+-- | Delete the first occurrence of each element in the second array from the first array, 
+-- | creating a new array.
 (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 (\\) xs ys = go xs ys
   where
@@ -229,6 +280,8 @@ infix 5 \\
   go [] _  = []
   go xs (y:ys) = go (delete y xs) ys
 
+-- | Calculate the intersection of two arrays, using the specified equivalence relation
+-- | to compare elements, creating a new array.
 intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 intersectBy _  [] _  = []
 intersectBy _  _  [] = []
@@ -236,9 +289,12 @@ intersectBy eq xs ys = filter el xs
   where
   el x = findIndex (eq x) ys >= 0
 
+-- | Calculate the intersection of two arrays, creating a new array.
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 intersect = intersectBy (==)
 
+-- | Apply a function to each element in an array, and flatten the results 
+-- | into a single, new array.
 foreign import concatMap
   "function concatMap (f) {\
   \  return function (arr) {\
@@ -250,6 +306,7 @@ foreign import concatMap
   \  };\
   \}" :: forall a b. (a -> [b]) -> [a] -> [b]
 
+-- | Apply a function to each element in an array, creating a new array.
 foreign import map
   "function map (f) {\
   \  return function (arr) {\
@@ -262,12 +319,18 @@ foreign import map
   \  };\
   \}" :: forall a b. (a -> b) -> [a] -> [b]
 
+-- | Apply a function to each element in an array, keeping only the results which
+-- | contain a value, creating a new array.
 mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
 mapMaybe f = concatMap (maybe [] singleton <<< f)
 
+-- | Filter an array of optional values, keeping only the elements which contain
+-- | a value, creating a new array.
 catMaybes :: forall a. [Maybe a] -> [a]
 catMaybes = concatMap (maybe [] singleton)
 
+-- | Filter an array, keeping the elements which satisfy a predicate function, 
+-- | creating a new array.
 foreign import filter
   "function filter (f) {\
   \  return function (arr) {\
@@ -282,6 +345,7 @@ foreign import filter
   \  };\
   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
 
+-- | Create an array containing a range of numbers, including both endpoints.
 foreign import range
   "function range (start) {\
   \  return function (end) {\
@@ -297,9 +361,21 @@ foreign import range
   \}" :: Number -> Number -> [Number]
 
 infix 8 ..
+
+-- | An infix synonym for `range`.
 (..) :: Number -> Number -> [Number]
 (..) = range
 
+-- | Apply a function to pairs of elements at the same index in two arrays, 
+-- | collecting the results in a new array.
+-- |
+-- | If one array is longer, elements will be discarded from the longer array.
+-- |
+-- | For example
+-- |
+-- | ```purescript
+-- | zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
+-- | ```
 foreign import zipWith
   "function zipWith (f) {\
   \  return function (xs) {\
@@ -314,16 +390,22 @@ foreign import zipWith
   \  };\
   \}" :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
+-- | Remove the duplicates from an array, creating a new array.
 nub :: forall a. (Eq a) => [a] -> [a]
 nub = nubBy (==)
 
+-- | Remove the duplicates from an array, where element equality is determined by the 
+-- | specified equivalence relation, creating a new array.
 nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 nubBy _ [] = []
 nubBy (==) (x:xs) = x : nubBy (==) (filter (\y -> not (x == y)) xs)
 
+-- | Sort the elements of an array in increasing order, creating a new array.
 sort :: forall a. (Ord a) => [a] -> [a]
 sort xs = sortBy compare xs
 
+-- | Sort the elements of an array in increasing order, where elements are compared using
+-- | the specified partial ordering, creating a new array.
 sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 sortBy comp xs = sortJS comp' xs
   where
@@ -341,13 +423,28 @@ foreign import sortJS
   \  };\
   \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
 
+-- | Group equal, consecutive elements of an array into arrays.
+-- | 
+-- | For example,
+-- | 
+-- | ```purescript
+-- | group [1,1,2,2,1] == [[1,1],[2,2],[1]]
+-- | ```
 group :: forall a. (Eq a) => [a] -> [[a]]
 group xs = groupBy (==) xs
 
--- | Performs a sorting first.
+-- | Sort and group the elements of an array into arrays.
+-- | 
+-- | For example,
+-- | 
+-- | ```purescript
+-- | group [1,1,2,2,1] == [[1,1,1],[2,2]]
+-- | ```
 group' :: forall a. (Ord a) => [a] -> [[a]]
 group' = group <<< sort
 
+-- | Group equal, consecutive elements of an array into arrays, using the specified
+-- | equivalence relation to detemine equality.
 groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
 groupBy = go []
   where
@@ -356,6 +453,16 @@ groupBy = go []
   go acc op (x:xs) = let sp = span (op x) xs in
                      go ((x:sp.init):acc) op sp.rest
 
+-- | Split an array into two parts: 
+-- | 
+-- | 1. the longest initial subarray for which all element satisfy the specified predicate
+-- | 2. the remaining elements
+-- | 
+-- | For example,
+-- | 
+-- | ```purescript
+-- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
+-- | ```
 span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
 span = go []
   where
@@ -363,9 +470,13 @@ span = go []
   go acc p (x:xs) | p x = go (x:acc) p xs
   go acc _ xs           = { init: reverse acc, rest: xs }
 
+-- | Calculate the longest initial subarray for which all element satisfy the specified predicate,
+-- | creating a new array.
 takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 takeWhile p xs = (span p xs).init
 
+-- | Remove the longest initial subarray for which all element satisfy the specified predicate,
+-- | creating a new array.
 dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 dropWhile p xs = (span p xs).rest
 
