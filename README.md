@@ -620,7 +620,7 @@ is labelled with its index in the original array.
 Unsafe helper functions for working with immutable arrays.
 
 _Note_: these functions should be used with care, and may result in unspecified
-behavior.
+behavior, including runtime exceptions.
 
 #### `head`
 
