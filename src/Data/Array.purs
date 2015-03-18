@@ -91,12 +91,14 @@ singleton :: forall a. a -> [a]
 singleton a = [a]
 
 -- | Get the first element in an array, or `Nothing` if the array is empty
+-- |
+-- | Running time: `O(1)`.
 head :: forall a. [a] -> Maybe a
 head xs = xs !! 0
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
--- | Running time: `O(n)` where `n` is the length of the array
+-- | Running time: `O(1)`.
 last :: forall a. [a] -> Maybe a
 last xs = xs !! (length xs - 1)
 
@@ -268,7 +270,7 @@ delete = deleteBy (==)
 
 infix 5 \\
 
--- | Delete the first occurrence of each element in the second array from the first array, 
+-- | Delete the first occurrence of each element in the second array from the first array,
 -- | creating a new array.
 (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 (\\) xs ys = go xs ys
@@ -290,7 +292,7 @@ intersectBy eq xs ys = filter el xs
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
 intersect = intersectBy (==)
 
--- | Apply a function to each element in an array, and flatten the results 
+-- | Apply a function to each element in an array, and flatten the results
 -- | into a single, new array.
 foreign import concatMap
   "function concatMap (f) {\
@@ -326,7 +328,7 @@ mapMaybe f = concatMap (maybe [] singleton <<< f)
 catMaybes :: forall a. [Maybe a] -> [a]
 catMaybes = concatMap (maybe [] singleton)
 
--- | Filter an array, keeping the elements which satisfy a predicate function, 
+-- | Filter an array, keeping the elements which satisfy a predicate function,
 -- | creating a new array.
 foreign import filter
   "function filter (f) {\
@@ -363,7 +365,7 @@ infix 8 ..
 (..) :: Number -> Number -> [Number]
 (..) = range
 
--- | Apply a function to pairs of elements at the same index in two arrays, 
+-- | Apply a function to pairs of elements at the same index in two arrays,
 -- | collecting the results in a new array.
 -- |
 -- | If one array is longer, elements will be discarded from the longer array.
@@ -391,7 +393,7 @@ foreign import zipWith
 nub :: forall a. (Eq a) => [a] -> [a]
 nub = nubBy (==)
 
--- | Remove the duplicates from an array, where element equality is determined by the 
+-- | Remove the duplicates from an array, where element equality is determined by the
 -- | specified equivalence relation, creating a new array.
 nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 nubBy _ [] = []
@@ -421,9 +423,9 @@ foreign import sortJS
   \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
 
 -- | Group equal, consecutive elements of an array into arrays.
--- | 
+-- |
 -- | For example,
--- | 
+-- |
 -- | ```purescript
 -- | group [1,1,2,2,1] == [[1,1],[2,2],[1]]
 -- | ```
@@ -431,9 +433,9 @@ group :: forall a. (Eq a) => [a] -> [[a]]
 group xs = groupBy (==) xs
 
 -- | Sort and group the elements of an array into arrays.
--- | 
+-- |
 -- | For example,
--- | 
+-- |
 -- | ```purescript
 -- | group [1,1,2,2,1] == [[1,1,1],[2,2]]
 -- | ```
@@ -450,13 +452,13 @@ groupBy = go []
   go acc op (x:xs) = let sp = span (op x) xs in
                      go ((x:sp.init):acc) op sp.rest
 
--- | Split an array into two parts: 
--- | 
+-- | Split an array into two parts:
+-- |
 -- | 1. the longest initial subarray for which all element satisfy the specified predicate
 -- | 2. the remaining elements
--- | 
+-- |
 -- | For example,
--- | 
+-- |
 -- | ```purescript
 -- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
 -- | ```
@@ -496,10 +498,10 @@ instance semigroupArray :: Semigroup [a] where
 
 instance altArray :: Alt [] where
   (<|>) = append
-  
+
 instance plusArray :: Plus [] where
   empty = []
-  
+
 instance alternativeArray :: Alternative []
 
 instance monadPlusArray :: MonadPlus []
