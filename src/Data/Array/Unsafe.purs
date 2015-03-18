@@ -11,7 +11,7 @@ import qualified Data.Array as A
 
 -- | Get the first element of a non-empty array.
 head :: forall a. [a] -> a
-head (x : _) = x
+head xs = unsafeIndex xs 0
 
 -- | Get all but the first element of a non-empty array.
 tail :: forall a. [a] -> [a]

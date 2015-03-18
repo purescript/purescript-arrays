@@ -92,16 +92,13 @@ singleton a = [a]
 
 -- | Get the first element in an array, or `Nothing` if the array is empty
 head :: forall a. [a] -> Maybe a
-head (x : _) = Just x
-head _       = Nothing
+head xs = xs !! 0
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 last :: forall a. [a] -> Maybe a
-last (x : []) = Just x
-last (_ : xs) = last xs
-last _        = Nothing
+last xs = xs !! (length xs - 1)
 
 -- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
 -- |
