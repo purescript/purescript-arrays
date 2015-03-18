@@ -48,6 +48,8 @@ head :: forall a. [a] -> Maybe a
 
 Get the first element in an array, or `Nothing` if the array is empty
 
+Running time: `O(1)`.
+
 #### `last`
 
 ``` purescript
@@ -56,7 +58,7 @@ last :: forall a. [a] -> Maybe a
 
 Get the last element in an array, or `Nothing` if the array is empty
 
-Running time: `O(n)` where `n` is the length of the array
+Running time: `O(1)`.
 
 #### `tail`
 
@@ -226,7 +228,7 @@ creating a new array.
 (\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
 ```
 
-Delete the first occurrence of each element in the second array from the first array, 
+Delete the first occurrence of each element in the second array from the first array,
 creating a new array.
 
 #### `intersectBy`
@@ -252,7 +254,7 @@ Calculate the intersection of two arrays, creating a new array.
 concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
 ```
 
-Apply a function to each element in an array, and flatten the results 
+Apply a function to each element in an array, and flatten the results
 into a single, new array.
 
 #### `map`
@@ -287,7 +289,7 @@ a value, creating a new array.
 filter :: forall a. (a -> Boolean) -> [a] -> [a]
 ```
 
-Filter an array, keeping the elements which satisfy a predicate function, 
+Filter an array, keeping the elements which satisfy a predicate function,
 creating a new array.
 
 #### `range`
@@ -312,7 +314,7 @@ An infix synonym for `range`.
 zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 ```
 
-Apply a function to pairs of elements at the same index in two arrays, 
+Apply a function to pairs of elements at the same index in two arrays,
 collecting the results in a new array.
 
 If one array is longer, elements will be discarded from the longer array.
@@ -337,7 +339,7 @@ Remove the duplicates from an array, creating a new array.
 nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 ```
 
-Remove the duplicates from an array, where element equality is determined by the 
+Remove the duplicates from an array, where element equality is determined by the
 specified equivalence relation, creating a new array.
 
 #### `sort`
@@ -400,7 +402,7 @@ equivalence relation to detemine equality.
 span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
 ```
 
-Split an array into two parts: 
+Split an array into two parts:
 
 1. the longest initial subarray for which all element satisfy the specified predicate
 2. the remaining elements
@@ -630,6 +632,8 @@ head :: forall a. [a] -> a
 
 Get the first element of a non-empty array.
 
+Running time: `O(1)`.
+
 #### `tail`
 
 ``` purescript
@@ -637,6 +641,8 @@ tail :: forall a. [a] -> [a]
 ```
 
 Get all but the first element of a non-empty array.
+
+Running time: `O(n)`, where `n` is the length of the array.
 
 #### `last`
 
@@ -646,6 +652,8 @@ last :: forall a. [a] -> a
 
 Get the last element of a non-empty array.
 
+Running time: `O(1)`.
+
 #### `init`
 
 ``` purescript
@@ -653,3 +661,5 @@ init :: forall a. [a] -> [a]
 ```
 
 Get all but the last element of a non-empty array.
+
+Running time: `O(n)`, where `n` is the length of the array.
