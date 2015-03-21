@@ -50,34 +50,31 @@ foreign import emptySTArray """
   }""" :: forall a h r. Eff (st :: ST h | r) (STArray h a)
 
 foreign import peekSTArrayImpl """
-  function peekSTArrayImpl(arr, i, s, f) {
+  function peekSTArrayImpl(just, nothing, arr, i) {
     return function() {
-      var index = ~~i;
-      if (0 <= index && index < arr.length) {
-        return s(arr[index]);
-      } else {
-        return f;
-      }
+      var index = i >>> 0;
+      var len = arr.length >>> 0;
+      return index < len? just(arr[index]) : nothing;
     };
-  }""" :: forall a h e r. Fn4 (STArray h a)
-                              Number
-                              (a -> r)
+  }""" :: forall a h e r. Fn4 (a -> r)
                               r
+                              (STArray h a)
+                              Number
                               (Eff (st :: ST h | e) r)
 
 -- | Read the value at the specified index in a mutable array.
 peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
-peekSTArray arr i = runFn4 peekSTArrayImpl arr i Just Nothing
+peekSTArray = runFn4 peekSTArrayImpl Just Nothing
 
 foreign import pokeSTArrayImpl """
   function pokeSTArrayImpl(arr, i, a) {
     return function() {
-      var index = ~~i;
-      if (0 <= index && index <= arr.length) {
+      var index = i >>> 0;
+      var len = arr.length >>> 0;
+      var ret = index < len;
+      if (ret)
         arr[index] = a;
-        return true;
-      }
-      return false;
+      return ret;
     };
   }""" :: forall a h e. Fn3 (STArray h a)
                             Number
@@ -86,7 +83,7 @@ foreign import pokeSTArrayImpl """
 
 -- | Change the value at the specified index in a mutable array.
 pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
-pokeSTArray arr i a = runFn3 pokeSTArrayImpl arr i a
+pokeSTArray = runFn3 pokeSTArrayImpl
 
 foreign import pushAllSTArrayImpl """
   function pushAllSTArrayImpl(arr, as) {
@@ -123,12 +120,10 @@ spliceSTArray = runFn4 spliceSTArrayImpl
 foreign import copyImpl """
   function copyImpl(arr) {
     return function(){
-      var as = [];
-      var i = -1;
-      var n = arr.length;
-      while(++i < n) {
+      var n = arr.length >>> 0;
+      var as = new Array(n);
+      for (var i = 0 >>> 0; i < n; i++)
         as[i] = arr[i];
-      }
       return as;
     };
   }""" :: forall a b h r. a -> Eff (st :: ST h | r) b
@@ -146,12 +141,10 @@ thaw = copyImpl
 foreign import toAssocArray """
   function toAssocArray(arr) {
     return function(){
-      var as = [];
-      var i = -1;
-      var n = arr.length;
-      while(++i < n) {
+      var n = arr.length >>> 0;
+      var as = new Array(n);
+      for (var i = 0 >>> 0; i < n; i++)
         as[i] = {value: arr[i], index: i};
-      }
       return as;
     };
   }""" :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
