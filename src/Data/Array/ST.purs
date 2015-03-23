@@ -53,8 +53,7 @@ foreign import peekSTArrayImpl """
   function peekSTArrayImpl(just, nothing, arr, i) {
     return function() {
       var index = i >>> 0;
-      var len = arr.length >>> 0;
-      return index < len? just(arr[index]) : nothing;
+      return index < arr.length? just(arr[index]) : nothing;
     };
   }""" :: forall a h e r. Fn4 (a -> r)
                               r
@@ -70,8 +69,7 @@ foreign import pokeSTArrayImpl """
   function pokeSTArrayImpl(arr, i, a) {
     return function() {
       var index = i >>> 0;
-      var len = arr.length >>> 0;
-      var ret = index < len;
+      var ret = index < arr.length;
       if (ret)
         arr[index] = a;
       return ret;
@@ -120,9 +118,9 @@ spliceSTArray = runFn4 spliceSTArrayImpl
 foreign import copyImpl """
   function copyImpl(arr) {
     return function(){
-      var n = arr.length >>> 0;
+      var n = arr.length;
       var as = new Array(n);
-      for (var i = 0 >>> 0; i < n; i++)
+      for (var i = 0; i < n; i++)
         as[i] = arr[i];
       return as;
     };
@@ -141,9 +139,9 @@ thaw = copyImpl
 foreign import toAssocArray """
   function toAssocArray(arr) {
     return function(){
-      var n = arr.length >>> 0;
+      var n = arr.length;
       var as = new Array(n);
-      for (var i = 0 >>> 0; i < n; i++)
+      for (var i = 0; i < n; i++)
         as[i] = {value: arr[i], index: i};
       return as;
     };
