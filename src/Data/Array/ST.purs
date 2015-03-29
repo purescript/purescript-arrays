@@ -118,11 +118,7 @@ spliceSTArray = runFn4 spliceSTArrayImpl
 foreign import copyImpl """
   function copyImpl(arr) {
     return function(){
-      var n = arr.length;
-      var as = new Array(n);
-      for (var i = 0; i < n; i++)
-        as[i] = arr[i];
-      return as;
+      return arr.slice();
     };
   }""" :: forall a b h r. a -> Eff (st :: ST h | r) b
 
