@@ -51,6 +51,7 @@ module Data.Array
   , span
   , dropWhile
   , takeWhile
+  , replicate
   ) where
 
 import Control.Alt
@@ -478,6 +479,21 @@ takeWhile p xs = (span p xs).init
 -- | creating a new array.
 dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 dropWhile p xs = (span p xs).rest
+
+
+-- | Create an array with repeated instances of a value.
+foreign import replicate
+"""
+function replicate(nn) {
+  return function(v) {
+    var n = nn > 0? nn : 0;
+    var r = new Array(n);
+    for (var i = 0; i < n; i++)
+      r[i] = v;
+    return r;
+   };
+}
+""" :: forall a. Number -> a -> [a]
 
 instance functorArray :: Functor [] where
   (<$>) = map
