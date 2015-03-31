@@ -89,8 +89,7 @@ tail _        = Nothing
 
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
-init xs = ixs xs
-ixs = Just <<< slice 0 (-1)
+init xs = Just $ slice 0 (-1) xs
 
 null :: forall a. [a] -> Boolean
 null [] = true
