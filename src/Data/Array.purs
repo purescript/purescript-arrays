@@ -398,7 +398,7 @@ nub = nubBy (==)
 -- | specified equivalence relation, creating a new array.
 nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
 nubBy _ [] = []
-nubBy (==) (x:xs) = x : nubBy (==) (filter (\y -> not (x == y)) xs)
+nubBy f (x:xs) = x : nubBy f (filter (not <<< f x) xs)
 
 -- | Sort the elements of an array in increasing order, creating a new array.
 sort :: forall a. (Ord a) => [a] -> [a]
