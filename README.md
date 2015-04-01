@@ -431,6 +431,14 @@ dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 Remove the longest initial subarray for which all element satisfy the specified predicate,
 creating a new array.
 
+#### `replicate`
+
+``` purescript
+replicate :: forall a. Number -> a -> [a]
+```
+
+Create an array with repeated instances of a value.
+
 #### `functorArray`
 
 ``` purescript
@@ -663,3 +671,6 @@ init :: forall a. [a] -> [a]
 Get all but the last element of a non-empty array.
 
 Running time: `O(n)`, where `n` is the length of the array.
+
+
+
