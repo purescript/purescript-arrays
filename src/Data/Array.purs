@@ -115,7 +115,7 @@ tail _        = Nothing
 -- | Running time: `O(n)` where `n` is the length of the array
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
-init xs = Just (slice 0 (length xs - 1) xs)
+init xs = Just $ slice 0 (-1) xs
 
 -- | Test whether an array is empty.
 null :: forall a. [a] -> Boolean
@@ -194,13 +194,14 @@ foreign import reverse
 foreign import drop
   "function drop (n) {\
   \  return function (l) {\
-  \    return l.slice(n);\
+  \    return l.slice(n<0?0:n);\
   \  };\
   \}" :: forall a. Number -> [a] -> [a]
 
 -- | Keep only a number of elements from the start of an array, creating a new array.
 take :: forall a. Number -> [a] -> [a]
-take n = slice 0 n
+take = (slice 0) <<< max0
+foreign import max0 "function max0(n) { return n<0?0:n; }" :: Number -> Number
 
 -- | Create a copy of a subarray
 foreign import slice
