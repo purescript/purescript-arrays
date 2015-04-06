@@ -32,11 +32,11 @@ module Data.Array
   , deleteAt
   , updateAt
   , modifyAt
-  , deleteBy
   , delete
+  , deleteBy
   , (\\)
-  , intersectBy
   , intersect
+  , intersectBy
   , concatMap
   , filter
   , range
@@ -132,9 +132,10 @@ findIndex f xs = runFn4 findIndexJS Just Nothing f xs
 
 foreign import findIndexJS
   """
-  function findIndexJS (just, nothing, f, arr) {
+  function findIndexJS(just, nothing, f, arr) {
     for (var i = 0, l = arr.length; i < l; i++) {
       if (f(arr[i])) return just(i);
+    }
     return nothing;
   };
   """ :: forall a. Fn4 (Int -> Maybe Int) (Maybe Int) (a -> Boolean) [a] (Maybe Int)
@@ -145,7 +146,7 @@ findLastIndex f xs = runFn4 findLastIndexJS Just Nothing f xs
 
 foreign import findLastIndexJS
   """
-  function findLastIndex (just, nothing, f, arr) {
+  function findLastIndexJS(just, nothing, f, arr) {
     for (var i = arr.length - 1; i >= 0; i--) {
       if (f(arr[i])) return just(i);
     }
@@ -264,16 +265,16 @@ foreign import updateAt
 modifyAt :: forall a. Int -> (a -> a) -> [a] -> [a]
 modifyAt i f xs = maybe xs (\x -> updateAt i (f x) xs) (xs !! i)
 
+-- | Delete the first element of an array which is equal to the specified value,
+-- | creating a new array.
+delete :: forall a. (Eq a) => a -> [a] -> [a]
+delete = deleteBy (==)
+
 -- | Delete the first element of an array which matches the specified value, under the
 -- | equivalence relation provided in the first argument, creating a new array.
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 deleteBy _ _ [] = []
 deleteBy eq x ys = maybe ys (\i -> deleteAt i one ys) (findIndex (eq x) ys)
-
--- | Delete the first element of an array which is equal to the specified value,
--- | creating a new array.
-delete :: forall a. (Eq a) => a -> [a] -> [a]
-delete = deleteBy (==)
 
 infix 5 \\
 
@@ -286,16 +287,16 @@ infix 5 \\
   go [] _  = []
   go xs (y:ys) = go (delete y xs) ys
 
+-- | Calculate the intersection of two arrays, creating a new array.
+intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
+intersect = intersectBy (==)
+
 -- | Calculate the intersection of two arrays, using the specified equivalence relation
 -- | to compare elements, creating a new array.
 intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 intersectBy _  [] _  = []
 intersectBy _  _  [] = []
 intersectBy eq xs ys = filter (\x -> isJust (findIndex (eq x) ys)) xs
-
--- | Calculate the intersection of two arrays, creating a new array.
-intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
-intersect = intersectBy (==)
 
 -- | Apply a function to each element in an array, and flatten the results
 -- | into a single, new array.

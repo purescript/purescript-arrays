@@ -196,15 +196,6 @@ modifyAt :: forall a. Int -> (a -> a) -> [a] -> [a]
 
 Apply a function to the element at the specified index, creating a new array.
 
-#### `deleteBy`
-
-``` purescript
-deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
-```
-
-Delete the first element of an array which matches the specified value, under the
-equivalence relation provided in the first argument, creating a new array.
-
 #### `delete`
 
 ``` purescript
@@ -213,6 +204,15 @@ delete :: forall a. (Eq a) => a -> [a] -> [a]
 
 Delete the first element of an array which is equal to the specified value,
 creating a new array.
+
+#### `deleteBy`
+
+``` purescript
+deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
+```
+
+Delete the first element of an array which matches the specified value, under the
+equivalence relation provided in the first argument, creating a new array.
 
 #### `(\\)`
 
@@ -223,6 +223,14 @@ creating a new array.
 Delete the first occurrence of each element in the second array from the first array,
 creating a new array.
 
+#### `intersect`
+
+``` purescript
+intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
+```
+
+Calculate the intersection of two arrays, creating a new array.
+
 #### `intersectBy`
 
 ``` purescript
@@ -231,14 +239,6 @@ intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 
 Calculate the intersection of two arrays, using the specified equivalence relation
 to compare elements, creating a new array.
-
-#### `intersect`
-
-``` purescript
-intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
-```
-
-Calculate the intersection of two arrays, creating a new array.
 
 #### `concatMap`
 
@@ -663,3 +663,6 @@ init :: forall a. [a] -> [a]
 Get all but the last element of a non-empty array.
 
 Running time: `O(n)`, where `n` is the length of the array.
+
+
+
