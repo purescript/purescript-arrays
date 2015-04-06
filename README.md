@@ -14,15 +14,11 @@ for many use cases due to their poor asymptotics.
 #### `(!!)`
 
 ``` purescript
-(!!) :: forall a. [a] -> Number -> Maybe a
+(!!) :: forall a. [a] -> Int -> Maybe a
 ```
 
-This operator provides a safe way to read a value at a particular index from an array.
-
-This function returns `Nothing` if the index is out-of-bounds.
-
-`Data.Array.Unsafe` provides the `unsafeIndex` function, which is an unsafe version of
-this function without bounds checking.
+This operator provides a safe way to read a value at a particular index
+from an array.
 
 #### `snoc`
 
@@ -91,46 +87,42 @@ Test whether an array is empty.
 #### `length`
 
 ``` purescript
-length :: forall a. [a] -> Number
+length :: forall a. [a] -> Int
 ```
 
-Get the number of elements in an array
+Get the number of elements in an array.
 
 #### `findIndex`
 
 ``` purescript
-findIndex :: forall a. (a -> Boolean) -> [a] -> Number
+findIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
 ```
 
-Find the first index for which a predicate holds,
-or `-1` if no such element exists
+Find the first index for which a predicate holds.
 
 #### `findLastIndex`
 
 ``` purescript
-findLastIndex :: forall a. (a -> Boolean) -> [a] -> Number
+findLastIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
 ```
 
-Find the last index for which a predicate holds,
-or `-1` if no such element exists
+Find the last index for which a predicate holds.
 
 #### `elemIndex`
 
 ``` purescript
-elemIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
 ```
 
-Find the index of the first element equal to the specified element,
-or `-1` if no such element exists
+Find the index of the first element equal to the specified element.
 
 #### `elemLastIndex`
 
 ``` purescript
-elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
+elemLastIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
 ```
 
-Find the index of the last element equal to the specified element,
-or `-1` if no such element exists
+Find the index of the last element equal to the specified element.
 
 #### `append`
 
@@ -138,7 +130,7 @@ or `-1` if no such element exists
 append :: forall a. [a] -> [a] -> [a]
 ```
 
-Concatenate two arrays, creating a new array
+Concatenate two arrays, creating a new array.
 
 #### `concat`
 
@@ -146,7 +138,7 @@ Concatenate two arrays, creating a new array
 concat :: forall a. [[a]] -> [a]
 ```
 
-Flatten an array of arrays, creating a new array
+Flatten an array of arrays, creating a new array.
 
 #### `reverse`
 
@@ -159,7 +151,7 @@ Reverse an array, creating a copy
 #### `drop`
 
 ``` purescript
-drop :: forall a. Number -> [a] -> [a]
+drop :: forall a. Int -> [a] -> [a]
 ```
 
 Drop a number of elements from the start of an array, creating a new array.
@@ -167,7 +159,7 @@ Drop a number of elements from the start of an array, creating a new array.
 #### `take`
 
 ``` purescript
-take :: forall a. Number -> [a] -> [a]
+take :: forall a. Int -> [a] -> [a]
 ```
 
 Keep only a number of elements from the start of an array, creating a new array.
@@ -175,7 +167,7 @@ Keep only a number of elements from the start of an array, creating a new array.
 #### `insertAt`
 
 ``` purescript
-insertAt :: forall a. Number -> a -> [a] -> [a]
+insertAt :: forall a. Int -> a -> [a] -> [a]
 ```
 
 Insert an element at the specified index, creating a new array.
@@ -183,7 +175,7 @@ Insert an element at the specified index, creating a new array.
 #### `deleteAt`
 
 ``` purescript
-deleteAt :: forall a. Number -> Number -> [a] -> [a]
+deleteAt :: forall a. Int -> Int -> [a] -> [a]
 ```
 
 Delete the element at the specified index, creating a new array.
@@ -191,7 +183,7 @@ Delete the element at the specified index, creating a new array.
 #### `updateAt`
 
 ``` purescript
-updateAt :: forall a. Number -> a -> [a] -> [a]
+updateAt :: forall a. Int -> a -> [a] -> [a]
 ```
 
 Change the element at the specified index, creating a new array.
@@ -199,7 +191,7 @@ Change the element at the specified index, creating a new array.
 #### `modifyAt`
 
 ``` purescript
-modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
+modifyAt :: forall a. Int -> (a -> a) -> [a] -> [a]
 ```
 
 Apply a function to the element at the specified index, creating a new array.
@@ -434,7 +426,7 @@ creating a new array.
 #### `replicate`
 
 ``` purescript
-replicate :: forall a. Number -> a -> [a]
+replicate :: forall a. Int -> a -> [a]
 ```
 
 Create an array with repeated instances of a value.
@@ -534,7 +526,7 @@ except that mutation is allowed.
 #### `Assoc`
 
 ``` purescript
-type Assoc a = { index :: Number, value :: a }
+type Assoc a = { index :: Int, value :: a }
 ```
 
 An element and its index
@@ -561,7 +553,7 @@ Create an empty mutable array.
 #### `peekSTArray`
 
 ``` purescript
-peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
+peekSTArray :: forall a h r. STArray h a -> Int -> Eff (st :: ST h | r) (Maybe a)
 ```
 
 Read the value at the specified index in a mutable array.
@@ -569,7 +561,7 @@ Read the value at the specified index in a mutable array.
 #### `pokeSTArray`
 
 ``` purescript
-pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
+pokeSTArray :: forall a h r. STArray h a -> Int -> a -> Eff (st :: ST h | r) Boolean
 ```
 
 Change the value at the specified index in a mutable array.
@@ -577,7 +569,7 @@ Change the value at the specified index in a mutable array.
 #### `pushAllSTArray`
 
 ``` purescript
-pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Number
+pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Int
 ```
 
 Append the values in an immutable array to the end of a mutable array.
@@ -585,7 +577,7 @@ Append the values in an immutable array to the end of a mutable array.
 #### `pushSTArray`
 
 ``` purescript
-pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Number
+pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int
 ```
 
 Append an element to the end of a mutable array.
@@ -593,7 +585,7 @@ Append an element to the end of a mutable array.
 #### `spliceSTArray`
 
 ``` purescript
-spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
+spliceSTArray :: forall a h r. STArray h a -> Int -> Int -> [a] -> Eff (st :: ST h | r) [a]
 ```
 
 Remove and/or insert elements from/into a mutable array at the specified index.
@@ -671,6 +663,3 @@ init :: forall a. [a] -> [a]
 Get all but the last element of a non-empty array.
 
 Running time: `O(n)`, where `n` is the length of the array.
-
-
-

@@ -5,8 +5,9 @@
 
 module Data.Array.Unsafe where
 
-import Prelude.Unsafe
-import Data.Maybe.Unsafe
+import Data.Int (Int(), toNumber)
+import Data.Maybe.Unsafe (fromJust)
+import Prelude.Unsafe (unsafeIndex)
 import qualified Data.Array as A
 
 -- | Get the first element of a non-empty array.
@@ -25,7 +26,7 @@ tail (_ : xs) = xs
 -- |
 -- | Running time: `O(1)`.
 last :: forall a. [a] -> a
-last xs = unsafeIndex xs (A.length xs - 1)
+last xs = unsafeIndex xs (toNumber (A.length xs - one))
 
 -- | Get all but the last element of a non-empty array.
 -- |

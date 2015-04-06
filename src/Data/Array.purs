@@ -54,38 +54,34 @@ module Data.Array
   , replicate
   ) where
 
-import Control.Alt
-import Control.Plus
-import Control.Alternative
-import Control.MonadPlus
-import Data.Maybe
+import Control.Alt (Alt)
+import Control.Plus (Plus)
+import Control.Alternative (Alternative)
+import Control.MonadPlus (MonadPlus)
+import Data.Maybe (Maybe(..), maybe, isJust)
+import Data.Function (Fn4(), runFn4)
+import Data.Int (Int(), toNumber)
 import Prelude.Unsafe (unsafeIndex)
 
 infixl 8 !!
 
--- | This operator provides a safe way to read a value at a particular index from an array.
--- |
--- | This function returns `Nothing` if the index is out-of-bounds.
--- |
--- | `Data.Array.Unsafe` provides the `unsafeIndex` function, which is an unsafe version of
--- | this function without bounds checking.
-(!!) :: forall a. [a] -> Number -> Maybe a
-(!!) xs n =
-  if n < 0 || n >= (length xs) || isInt n
-    then Nothing
-    else Just (xs `unsafeIndex` n)
-  where
-  isInt n = n /= complement (complement n)
+-- | This operator provides a safe way to read a value at a particular index
+-- | from an array.
+(!!) :: forall a. [a] -> Int -> Maybe a
+(!!) xs n | n < zero || n >= length xs = Nothing
+          | otherwise = Just (xs `unsafeIndex` toNumber n)
 
 -- | Append an element to the end of an array, creating a new array.
 foreign import snoc
-  "function snoc(l) {\
-  \  return function (e) {\
-  \    var l1 = l.slice();\
-  \    l1.push(e); \
-  \    return l1;\
-  \  };\
-  \}" :: forall a. [a] -> a -> [a]
+  """
+  function snoc(l) {
+    return function (e) {
+      var l1 = l.slice();
+      l1.push(e);
+      return l1;
+    };
+  }
+  """ :: forall a. [a] -> a -> [a]
 
 -- | Create an array of one element
 singleton :: forall a. a -> [a]
@@ -95,13 +91,13 @@ singleton a = [a]
 -- |
 -- | Running time: `O(1)`.
 head :: forall a. [a] -> Maybe a
-head xs = xs !! 0
+head xs = xs !! zero
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
 -- | Running time: `O(1)`.
 last :: forall a. [a] -> Maybe a
-last xs = xs !! (length xs - 1)
+last xs = xs !! (length xs - one)
 
 -- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
 -- |
@@ -115,154 +111,164 @@ tail _        = Nothing
 -- | Running time: `O(n)` where `n` is the length of the array
 init :: forall a. [a] -> Maybe [a]
 init [] = Nothing
-init xs = Just (slice 0 (length xs - 1) xs)
+init xs = Just (slice zero (length xs - one) xs)
 
 -- | Test whether an array is empty.
 null :: forall a. [a] -> Boolean
 null [] = true
 null _  = false
 
--- | Get the number of elements in an array
+-- | Get the number of elements in an array.
 foreign import length
-  "function length (xs) {\
-  \  return xs.length;\
-  \}" :: forall a. [a] -> Number
+  """
+  function length (xs) {
+    return xs.length;
+  }
+  """ :: forall a. [a] -> Int
 
--- | Find the first index for which a predicate holds,
--- | or `-1` if no such element exists
-foreign import findIndex
-  "function findIndex (f) {\
-  \  return function (arr) {\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      if (f(arr[i])) {\
-  \        return i;\
-  \      }\
-  \    }\
-  \    return -1;\
-  \  };\
-  \}" :: forall a. (a -> Boolean) -> [a] -> Number
+-- | Find the first index for which a predicate holds.
+findIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
+findIndex f xs = runFn4 findIndexJS Just Nothing f xs
 
--- | Find the last index for which a predicate holds,
--- | or `-1` if no such element exists
-foreign import findLastIndex
-  "function findLastIndex (f) {\
-  \  return function (arr) {\
-  \    for (var i = arr.length - 1; i >= 0; i--) {\
-  \      if (f(arr[i])) {\
-  \        return i;\
-  \      }\
-  \    }\
-  \    return -1;\
-  \  };\
-  \}" :: forall a. (a -> Boolean) -> [a] -> Number
+foreign import findIndexJS
+  """
+  function findIndexJS (just, nothing, f, arr) {
+    for (var i = 0, l = arr.length; i < l; i++) {
+      if (f(arr[i])) return just(i);
+    return nothing;
+  };
+  """ :: forall a. Fn4 (Int -> Maybe Int) (Maybe Int) (a -> Boolean) [a] (Maybe Int)
 
--- | Find the index of the first element equal to the specified element,
--- | or `-1` if no such element exists
-elemIndex :: forall a. (Eq a) => a -> [a] -> Number
+-- | Find the last index for which a predicate holds.
+findLastIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
+findLastIndex f xs = runFn4 findLastIndexJS Just Nothing f xs
+
+foreign import findLastIndexJS
+  """
+  function findLastIndex (just, nothing, f, arr) {
+    for (var i = arr.length - 1; i >= 0; i--) {
+      if (f(arr[i])) return just(i);
+    }
+    return nothing;
+  }
+  """ :: forall a. Fn4 (Int -> Maybe Int) (Maybe Int) (a -> Boolean) [a] (Maybe Int)
+
+-- | Find the index of the first element equal to the specified element.
+elemIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
 elemIndex x = findIndex ((==) x)
 
--- | Find the index of the last element equal to the specified element,
--- | or `-1` if no such element exists
-elemLastIndex :: forall a. (Eq a) => a -> [a] -> Number
+-- | Find the index of the last element equal to the specified element.
+elemLastIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
 elemLastIndex x = findLastIndex ((==) x)
 
--- | Concatenate two arrays, creating a new array
+-- | Concatenate two arrays, creating a new array.
 foreign import append
-  "function append (l1) {\
-  \  return function (l2) {\
-  \    return l1.concat(l2);\
-  \  };\
-  \}" :: forall a. [a] -> [a] -> [a]
+  """
+  function append (l1) {
+    return function (l2) {
+      return l1.concat(l2);
+    };
+  }
+  """ :: forall a. [a] -> [a] -> [a]
 
--- | Flatten an array of arrays, creating a new array
+-- | Flatten an array of arrays, creating a new array.
 foreign import concat
-  "function concat (xss) {\
-  \  var result = [];\
-  \  for (var i = 0, l = xss.length; i < l; i++) {\
-  \    result.push.apply(result, xss[i]);\
-  \  }\
-  \  return result;\
-  \}" :: forall a. [[a]] -> [a]
+  """
+  function concat (xss) {
+    var result = [];
+    for (var i = 0, l = xss.length; i < l; i++) {
+      result.push.apply(result, xss[i]);
+    }
+    return result;
+  }
+  """ :: forall a. [[a]] -> [a]
 
 -- | Reverse an array, creating a copy
 foreign import reverse
-  "function reverse (l) {\
-  \  return l.slice().reverse();\
-  \}" :: forall a. [a] -> [a]
+  """
+  function reverse (l) {
+    return l.slice().reverse();
+  }
+  """ :: forall a. [a] -> [a]
 
 -- | Drop a number of elements from the start of an array, creating a new array.
 foreign import drop
-  "function drop (n) {\
-  \  return function (l) {\
-  \    return l.slice(n);\
-  \  };\
-  \}" :: forall a. Number -> [a] -> [a]
+  """
+  function drop (n) {
+    return function (l) {
+      return l.slice(n);
+    };
+  }
+  """ :: forall a. Int -> [a] -> [a]
 
 -- | Keep only a number of elements from the start of an array, creating a new array.
-take :: forall a. Number -> [a] -> [a]
-take n = slice 0 n
+take :: forall a. Int -> [a] -> [a]
+take n = slice zero n
 
 -- | Create a copy of a subarray
 foreign import slice
-  "function slice (s) {\
-  \  return function (e) {\
-  \    return function (l) {\
-  \      return l.slice(s, e);\
-  \    };\
-  \  };\
-  \}" :: forall a. Number -> Number -> [a] -> [a]
+  """
+  function slice (s) {
+    return function (e) {
+      return function (l) {
+        return l.slice(s, e);
+      };
+    };
+  }
+  """ :: forall a. Int -> Int -> [a] -> [a]
 
 -- | Insert an element at the specified index, creating a new array.
 foreign import insertAt
-  "function insertAt (index) {\
-  \  return function (a) {\
-  \    return function (l) {\
-  \      var l1 = l.slice();\
-  \      l1.splice(index, 0, a);\
-  \      return l1;\
-  \    }; \
-  \  };\
-  \}":: forall a. Number -> a -> [a] -> [a]
+  """
+  function insertAt (index) {
+    return function (a) {
+      return function (l) {
+        var l1 = l.slice();
+        l1.splice(index, 0, a);
+        return l1;
+      };
+    };
+  }
+  """ :: forall a. Int -> a -> [a] -> [a]
 
 -- | Delete the element at the specified index, creating a new array.
 foreign import deleteAt
-  "function deleteAt (index) {\
-  \  return function (n) {\
-  \    return function (l) {\
-  \      var l1 = l.slice();\
-  \      l1.splice(index, n);\
-  \      return l1;\
-  \    }; \
-  \  };\
-  \}":: forall a. Number -> Number -> [a] -> [a]
+  """
+  function deleteAt (index) {
+    return function (n) {
+      return function (l) {
+        var l1 = l.slice();
+        l1.splice(index, n);
+        return l1;
+      };
+    };
+  }
+  """ :: forall a. Int -> Int -> [a] -> [a]
 
 -- | Change the element at the specified index, creating a new array.
 foreign import updateAt
-  "function updateAt (index) {\
-  \  return function (a) {\
-  \    return function (l) {\
-  \      var i = ~~index;\
-  \      if (i < 0 || i >= l.length) return l;\
-  \      var l1 = l.slice();\
-  \      l1[i] = a;\
-  \      return l1;\
-  \    }; \
-  \  };\
-  \}":: forall a. Number -> a -> [a] -> [a]
+  """
+  function updateAt (i) {
+    return function (a) {
+      return function (l) {
+        if (i < 0 || i >= l.length) return l;
+        var l1 = l.slice();
+        l1[i] = a;
+        return l1;
+      };
+    };
+  }
+  """ :: forall a. Int -> a -> [a] -> [a]
 
 -- | Apply a function to the element at the specified index, creating a new array.
-modifyAt :: forall a. Number -> (a -> a) -> [a] -> [a]
-modifyAt i f xs = case xs !! i of
-                    Just x -> updateAt i (f x) xs
-                    Nothing -> xs
+modifyAt :: forall a. Int -> (a -> a) -> [a] -> [a]
+modifyAt i f xs = maybe xs (\x -> updateAt i (f x) xs) (xs !! i)
 
 -- | Delete the first element of an array which matches the specified value, under the
 -- | equivalence relation provided in the first argument, creating a new array.
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
 deleteBy _ _ [] = []
-deleteBy eq x ys = case findIndex (eq x) ys of
-  i | i < 0 -> ys
-  i -> deleteAt i 1 ys
+deleteBy eq x ys = maybe ys (\i -> deleteAt i one ys) (findIndex (eq x) ys)
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.
@@ -285,9 +291,7 @@ infix 5 \\
 intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
 intersectBy _  [] _  = []
 intersectBy _  _  [] = []
-intersectBy eq xs ys = filter el xs
-  where
-  el x = findIndex (eq x) ys >= 0
+intersectBy eq xs ys = filter (\x -> isJust (findIndex (eq x) ys)) xs
 
 -- | Calculate the intersection of two arrays, creating a new array.
 intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
@@ -296,28 +300,32 @@ intersect = intersectBy (==)
 -- | Apply a function to each element in an array, and flatten the results
 -- | into a single, new array.
 foreign import concatMap
-  "function concatMap (f) {\
-  \  return function (arr) {\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      Array.prototype.push.apply(result, f(arr[i]));\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> [b]) -> [a] -> [b]
+  """
+  function concatMap (f) {
+    return function (arr) {
+      var result = [];
+      for (var i = 0, l = arr.length; i < l; i++) {
+        Array.prototype.push.apply(result, f(arr[i]));
+      }
+      return result;
+    };
+  }
+  """ :: forall a b. (a -> [b]) -> [a] -> [b]
 
 -- | Apply a function to each element in an array, creating a new array.
 foreign import map
-  "function map (f) {\
-  \  return function (arr) {\
-  \    var l = arr.length;\
-  \    var result = new Array(l);\
-  \    for (var i = 0; i < l; i++) {\
-  \      result[i] = f(arr[i]);\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a b. (a -> b) -> [a] -> [b]
+  """
+  function map (f) {
+    return function (arr) {
+      var l = arr.length;
+      var result = new Array(l);
+      for (var i = 0; i < l; i++) {
+        result[i] = f(arr[i]);
+      }
+      return result;
+    };
+  }
+  """ :: forall a b. (a -> b) -> [a] -> [b]
 
 -- | Apply a function to each element in an array, keeping only the results which
 -- | contain a value, creating a new array.
@@ -332,33 +340,35 @@ catMaybes = concatMap (maybe [] singleton)
 -- | Filter an array, keeping the elements which satisfy a predicate function,
 -- | creating a new array.
 foreign import filter
-  "function filter (f) {\
-  \  return function (arr) {\
-  \    var n = 0;\
-  \    var result = [];\
-  \    for (var i = 0, l = arr.length; i < l; i++) {\
-  \      if (f(arr[i])) {\
-  \        result[n++] = arr[i];\
-  \      }\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: forall a. (a -> Boolean) -> [a] -> [a]
+  """
+  function filter (f) {
+    return function (arr) {
+      var n = 0;
+      var result = [];
+      for (var i = 0, l = arr.length; i < l; i++) {
+        if (f(arr[i])) result[n++] = arr[i];
+      }
+      return result;
+    };
+  }
+  """ :: forall a. (a -> Boolean) -> [a] -> [a]
 
 -- | Create an array containing a range of numbers, including both endpoints.
 foreign import range
-  "function range (start) {\
-  \  return function (end) {\
-  \    var i = ~~start, e = ~~end;\
-  \    var step = i > e ? -1 : 1;\
-  \    var result = [i], n = 1;\
-  \    while (i !== e) {\
-  \      i += step;\
-  \      result[n++] = i;\
-  \    }\
-  \    return result;\
-  \  };\
-  \}" :: Number -> Number -> [Number]
+  """
+  function range (start) {
+    return function (end) {
+      var i = ~~start, e = ~~end;
+      var step = i > e ? -1 : 1;
+      var result = [i], n = 1;
+      while (i !== e) {
+        i += step;
+        result[n++] = i;
+      }
+      return result;
+    };
+  }
+  """ :: Number -> Number -> [Number]
 
 infix 8 ..
 
@@ -377,18 +387,20 @@ infix 8 ..
 -- | zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
 -- | ```
 foreign import zipWith
-  "function zipWith (f) {\
-  \  return function (xs) {\
-  \    return function (ys) {\
-  \      var l = xs.length < ys.length ? xs.length : ys.length;\
-  \      var result = new Array(l);\
-  \      for (var i = 0; i < l; i++) {\
-  \        result[i] = f(xs[i])(ys[i]);\
-  \      }\
-  \      return result;\
-  \    };\
-  \  };\
-  \}" :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
+  """
+  function zipWith (f) {
+    return function (xs) {
+      return function (ys) {
+        var l = xs.length < ys.length ? xs.length : ys.length;
+        var result = new Array(l);
+        for (var i = 0; i < l; i++) {
+          result[i] = f(xs[i])(ys[i]);
+        }
+        return result;
+      };
+    };
+  }
+  """ :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
 
 -- | Remove the duplicates from an array, creating a new array.
 nub :: forall a. (Eq a) => [a] -> [a]
@@ -409,19 +421,21 @@ sort xs = sortBy compare xs
 sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
 sortBy comp xs = sortJS comp' xs
   where
-    comp' x y = case comp x y of
-      GT -> 1
-      EQ -> 0
-      LT -> -1
+  comp' x y = case comp x y of
+    GT -> 1
+    EQ -> 0
+    LT -> -1
 
 foreign import sortJS
-  "function sortJS (f) {\
-  \  return function (l) {\
-  \    return l.slice().sort(function (x, y) {\
-  \      return f(x)(y);\
-  \    });\
-  \  };\
-  \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
+  """
+  function sortJS (f) {
+    return function (l) {
+      return l.slice().sort(function (x, y) {
+        return f(x)(y);
+      });
+    };
+  }
+  """ :: forall a. (a -> a -> Number) -> [a] -> [a]
 
 -- | Group equal, consecutive elements of an array into arrays.
 -- |
@@ -450,8 +464,8 @@ groupBy = go []
   where
   go :: forall a. [[a]] -> (a -> a -> Boolean) -> [a] -> [[a]]
   go acc _  []     = reverse acc
-  go acc op (x:xs) = let sp = span (op x) xs in
-                     go ((x:sp.init):acc) op sp.rest
+  go acc op (x:xs) = let sp = span (op x) xs
+                     in go ((x:sp.init):acc) op sp.rest
 
 -- | Split an array into two parts:
 -- |
@@ -480,20 +494,18 @@ takeWhile p xs = (span p xs).init
 dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
 dropWhile p xs = (span p xs).rest
 
-
 -- | Create an array with repeated instances of a value.
 foreign import replicate
-"""
-function replicate(nn) {
-  return function(v) {
-    var n = nn > 0? nn : 0;
-    var r = new Array(n);
-    for (var i = 0; i < n; i++)
-      r[i] = v;
-    return r;
-   };
-}
-""" :: forall a. Number -> a -> [a]
+  """
+  function replicate(nn) {
+    return function(v) {
+      var n = nn > 0 ? nn : 0;
+      var r = new Array(n);
+      for (var i = 0; i < n; i++) r[i] = v;
+      return r;
+     };
+  }
+  """ :: forall a. Int -> a -> [a]
 
 instance functorArray :: Functor [] where
   (<$>) = map

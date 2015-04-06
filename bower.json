@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "purescript-maybe": "~0.2.0",
-    "purescript-control": "~0.2.0"
+    "purescript-control": "~0.2.0",
+    "purescript-integers": "~0.1.0"
   }
 }
