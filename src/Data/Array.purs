@@ -26,8 +26,11 @@ module Data.Array
   , append
   , concat
   , reverse
+  , span
   , drop
+  , dropWhile
   , take
+  , takeWhile
   , insertAt
   , deleteAt
   , updateAt
@@ -48,9 +51,6 @@ module Data.Array
   , group
   , group'
   , groupBy
-  , span
-  , dropWhile
-  , takeWhile
   , replicate
   ) where
 
@@ -192,6 +192,23 @@ foreign import reverse
   }
   """ :: forall a. [a] -> [a]
 
+-- | Split an array into two parts:
+-- |
+-- | 1. the longest initial subarray for which all element satisfy the specified predicate
+-- | 2. the remaining elements
+-- |
+-- | For example,
+-- |
+-- | ```purescript
+-- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
+-- | ```
+span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+span = go []
+  where
+  go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
+  go acc p (x:xs) | p x = go (x:acc) p xs
+  go acc _ xs           = { init: reverse acc, rest: xs }
+
 -- | Drop a number of elements from the start of an array, creating a new array.
 foreign import drop
   """
@@ -202,9 +219,19 @@ foreign import drop
   }
   """ :: forall a. Int -> [a] -> [a]
 
+-- | Remove the longest initial subarray for which all element satisfy the specified predicate,
+-- | creating a new array.
+dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
+dropWhile p xs = (span p xs).rest
+
 -- | Keep only a number of elements from the start of an array, creating a new array.
 take :: forall a. Int -> [a] -> [a]
 take n = slice zero n
+
+-- | Calculate the longest initial subarray for which all element satisfy the specified predicate,
+-- | creating a new array.
+takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
+takeWhile p xs = (span p xs).init
 
 -- | Create a copy of a subarray
 foreign import slice
@@ -467,33 +494,6 @@ groupBy = go []
   go acc _  []     = reverse acc
   go acc op (x:xs) = let sp = span (op x) xs
                      in go ((x:sp.init):acc) op sp.rest
-
--- | Split an array into two parts:
--- |
--- | 1. the longest initial subarray for which all element satisfy the specified predicate
--- | 2. the remaining elements
--- |
--- | For example,
--- |
--- | ```purescript
--- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
--- | ```
-span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
-span = go []
-  where
-  go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
-  go acc p (x:xs) | p x = go (x:acc) p xs
-  go acc _ xs           = { init: reverse acc, rest: xs }
-
--- | Calculate the longest initial subarray for which all element satisfy the specified predicate,
--- | creating a new array.
-takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
-takeWhile p xs = (span p xs).init
-
--- | Remove the longest initial subarray for which all element satisfy the specified predicate,
--- | creating a new array.
-dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
-dropWhile p xs = (span p xs).rest
 
 -- | Create an array with repeated instances of a value.
 foreign import replicate

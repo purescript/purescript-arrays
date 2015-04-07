@@ -100,15 +100,30 @@ testArray = do
   assert $ (reverse [1, 2, 3]) == [3, 2, 1]
   assert $ (reverse nil) == nil
 
+  trace "span should split an array in two based on a predicate"
+  let spanResult = span (< 4) [1, 2, 3, 4, 5, 6, 7]
+  assert $ spanResult.init == [1, 2, 3]
+  assert $ spanResult.rest == [4, 5, 6, 7]
+
   trace "drop should remove the specified number of items from the front of an array"
   assert $ (drop (fromNumber 1) [1, 2, 3]) == [2, 3]
   assert $ (drop (fromNumber 2) [1, 2, 3]) == [3]
   assert $ (drop (fromNumber 1) nil) == nil
 
+  trace "dropWhile should remove all values that match a predicate from the front of an array"
+  assert $ (dropWhile (/= 1) [1, 2, 3]) == [1, 2, 3]
+  assert $ (dropWhile (/= 2) [1, 2, 3]) == [2, 3]
+  assert $ (dropWhile (/= 1) nil) == nil
+
   trace "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (take (fromNumber 1) [1, 2, 3]) == [1]
   assert $ (take (fromNumber 2) [1, 2, 3]) == [1, 2]
   assert $ (take (fromNumber 1) nil) == nil
+
+  trace "takeWhile should keep all values that match a predicate from the front of an array"
+  assert $ (takeWhile (/= 2) [1, 2, 3]) == [1]
+  assert $ (takeWhile (/= 3) [1, 2, 3]) == [1, 2]
+  assert $ (takeWhile (/= 1) nil) == nil
 
   trace "insertAt should add an item at the specified index"
   assert $ (insertAt (fromNumber 0) 1 [2, 3]) == [1, 2, 3]
@@ -136,7 +151,7 @@ testArray = do
   assert $ deleteBy (/=) 2 [1, 2, 1] == [2, 1]
   assert $ deleteBy (/=) 1 [1, 2, 1] == [1, 1]
 
-  trace "(\\) should return the difference between two lists"
+  trace "(\\\\) should return the difference between two lists"
   assert $ [1, 2, 3, 4, 3, 2, 1] \\ [1, 1, 2, 3] == [4, 3, 2]
 
   trace "intersect should return the intersection of two arrays"
@@ -164,8 +179,8 @@ testArray = do
   assert $ range 0 5 == [0, 1, 2, 3, 4, 5]
   assert $ range 2 (-3) == [2, 1, 0, -1, -2, -3]
 
-  -- trace "zipWith should use the specified function to zip two lists together"
-  -- assert $ zipWith  [1, 2, 3] ["a", "b", "c"] == [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]
+  trace "zipWith should use the specified function to zip two lists together"
+  assert $ zipWith (\x y -> [show x, y]) [1, 2, 3] ["a", "b", "c"] == [["1", "a"], ["2", "b"], ["3", "c"]]
 
   trace "nub should remove duplicate items from the list"
   assert $ nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
@@ -177,16 +192,23 @@ testArray = do
   trace "sort should reorder a list into ascending order based on the result of compare"
   assert $ sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
 
-  -- sortBy
+  trace "sortBy should reorder a list into ascending order based on the result of a comparison function"
+  assert $ sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
-  -- group
-  -- group'
-  -- groupBy
+  trace "group should group consecutive equal elements into arrays"
+  assert $ group [1, 2, 2, 3, 3, 3, 1] == [[1], [2, 2], [3, 3, 3], [1]]
 
-  -- span
-  -- takeWhile
-  -- dropWhile
-  -- replicate
+  trace "group' should sort then group consecutive equal elements into arrays"
+  assert $ group' [1, 2, 2, 3, 3, 3, 1] == [[1, 1], [2, 2], [3, 3, 3]]
+
+  trace "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
+  assert $ groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [[1, 1], [2], [2], [3, 3]]
+
+  trace "replicate should produce an array containg an item a specified number of times"
+  assert $ replicate (fromNumber 3) true == [true, true, true]
+  assert $ replicate (fromNumber 1) "foo" == ["foo"]
+  assert $ replicate (fromNumber 0) "foo" == []
+  assert $ replicate (fromNumber (-1)) "foo" == []
 
 nil :: [Number]
 nil = []
