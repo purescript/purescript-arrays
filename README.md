@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/purescript/purescript-arrays.svg?branch=master)](https://travis-ci.org/purescript/purescript-arrays)
 
-Optional values.
+Instances and utility functions for the `Array` type - JavaScript's native arrays.
 
 ## Installation
 
@@ -12,4 +12,6 @@ bower install purescript-arrays
 
 ## Module documentation
 
-[`docs/MODULE.md`](docs/MODULE.md)
+- [Data.Array](docs/Data.Array.md)
+- [Data.Array.ST](docs/Data.Array.ST.md)
+- [Data.Array.Unsafe](docs/Data.Array.Unsafe.md)
