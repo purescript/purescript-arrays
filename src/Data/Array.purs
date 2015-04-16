@@ -214,7 +214,7 @@ foreign import drop
   """
   function drop (n) {
     return function (l) {
-      return l.slice(n);
+      return n < 1 ? l : l.slice(n);
     };
   }
   """ :: forall a. Int -> [a] -> [a]
@@ -226,7 +226,8 @@ dropWhile p xs = (span p xs).rest
 
 -- | Keep only a number of elements from the start of an array, creating a new array.
 take :: forall a. Int -> [a] -> [a]
-take n = slice zero n
+take n xs | n < one = []
+          | otherwise = slice zero n xs
 
 -- | Calculate the longest initial subarray for which all element satisfy the specified predicate,
 -- | creating a new array.
@@ -381,27 +382,27 @@ foreign import filter
   }
   """ :: forall a. (a -> Boolean) -> [a] -> [a]
 
--- | Create an array containing a range of numbers, including both endpoints.
+-- | Create an array containing a range of integers, including both endpoints.
 foreign import range
   """
   function range (start) {
     return function (end) {
-      var i = ~~start, e = ~~end;
+      var i = start;
       var step = i > e ? -1 : 1;
       var result = [i], n = 1;
-      while (i !== e) {
+      while (i !== end) {
         i += step;
         result[n++] = i;
       }
       return result;
     };
   }
-  """ :: Number -> Number -> [Number]
+  """ :: Int -> Int -> [Int]
 
 infix 8 ..
 
 -- | An infix synonym for `range`.
-(..) :: Number -> Number -> [Number]
+(..) :: Int -> Int -> [Int]
 (..) = range
 
 -- | Apply a function to pairs of elements at the same index in two arrays,
