@@ -388,7 +388,7 @@ foreign import range
   function range (start) {
     return function (end) {
       var i = start;
-      var step = i > e ? -1 : 1;
+      var step = i > end ? -1 : 1;
       var result = [i], n = 1;
       while (i !== end) {
         i += step;

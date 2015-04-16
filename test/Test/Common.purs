@@ -2,7 +2,7 @@ module Test.Common where
 
 import Control.Monad.Eff (Eff())
 
-foreign import data Assert :: !
+foreign import data ASSERT :: !
 
 foreign import assert
   """
@@ -12,4 +12,4 @@ foreign import assert
       throw new Error("Assertion failed");
     };
   }
-  """ :: forall e. Boolean -> Eff (assert :: Assert | e) Unit
+  """ :: forall e. Boolean -> Eff (assert :: ASSERT | e) Unit

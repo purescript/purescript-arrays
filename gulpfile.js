@@ -28,7 +28,7 @@ gulp.task("docs", function () {
   return gulp.src("src/**/*.purs")
     .pipe(plumber())
     .pipe(purescript.pscDocs())
-    .pipe(gulp.dest("README.md"));
+    .pipe(gulp.dest("docs/MODULE.md"));
 });
 
 gulp.task("test", function() {
