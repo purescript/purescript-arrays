@@ -16,11 +16,11 @@ module Data.Array.ST
   , toAssocArray
   ) where
 
-import Data.Maybe
-import Data.Function
-
-import Control.Monad.Eff
+import Control.Monad.Eff (Eff())
 import Control.Monad.ST (ST())
+import Data.Function (Fn2(), runFn2, Fn3(), runFn3, Fn4(), runFn4)
+import Data.Int (Int())
+import Data.Maybe (Maybe(..))
 
 -- | A reference to a mutable array.
 -- |
@@ -32,7 +32,7 @@ import Control.Monad.ST (ST())
 foreign import data STArray :: * -> * -> *
 
 -- | An element and its index
-type Assoc a = { value :: a, index :: Number }
+type Assoc a = { value :: a, index :: Int }
 
 -- | Freeze a mutable array, creating an immutable array. Use this function as you would use
 -- | `runST` to freeze a mutable reference.
@@ -58,11 +58,11 @@ foreign import peekSTArrayImpl """
   }""" :: forall a h e r. Fn4 (a -> r)
                               r
                               (STArray h a)
-                              Number
+                              Int
                               (Eff (st :: ST h | e) r)
 
 -- | Read the value at the specified index in a mutable array.
-peekSTArray :: forall a h r. STArray h a -> Number -> Eff (st :: ST h | r) (Maybe a)
+peekSTArray :: forall a h r. STArray h a -> Int -> Eff (st :: ST h | r) (Maybe a)
 peekSTArray = runFn4 peekSTArrayImpl Just Nothing
 
 foreign import pokeSTArrayImpl """
@@ -75,12 +75,12 @@ foreign import pokeSTArrayImpl """
       return ret;
     };
   }""" :: forall a h e. Fn3 (STArray h a)
-                            Number
+                            Int
                             a
                             (Eff (st :: ST h | e) Boolean)
 
 -- | Change the value at the specified index in a mutable array.
-pokeSTArray :: forall a h r. STArray h a -> Number -> a -> Eff (st :: ST h | r) Boolean
+pokeSTArray :: forall a h r. STArray h a -> Int -> a -> Eff (st :: ST h | r) Boolean
 pokeSTArray = runFn3 pokeSTArrayImpl
 
 foreign import pushAllSTArrayImpl """
@@ -90,14 +90,14 @@ foreign import pushAllSTArrayImpl """
     };
   }""" :: forall a h r. Fn2 (STArray h a)
                             [a]
-                            (Eff (st :: ST h | r) Number)
+                            (Eff (st :: ST h | r) Int)
 
 -- | Append the values in an immutable array to the end of a mutable array.
-pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Number
+pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Int
 pushAllSTArray = runFn2 pushAllSTArrayImpl
 
 -- | Append an element to the end of a mutable array.
-pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Number
+pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int
 pushSTArray arr a = pushAllSTArray arr [a]
 
 foreign import spliceSTArrayImpl """
@@ -106,13 +106,13 @@ foreign import spliceSTArrayImpl """
       return arr.splice.apply(arr, [index, howMany].concat(bs));
     };
   }""" :: forall a h r. Fn4 (STArray h a)
-                            Number
-                            Number
+                            Int
+                            Int
                             [a]
                             (Eff (st :: ST h | r) [a])
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
-spliceSTArray :: forall a h r. STArray h a -> Number -> Number -> [a] -> Eff (st :: ST h | r) [a]
+spliceSTArray :: forall a h r. STArray h a -> Int -> Int -> [a] -> Eff (st :: ST h | r) [a]
 spliceSTArray = runFn4 spliceSTArrayImpl
 
 foreign import copyImpl """
