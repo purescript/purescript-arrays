@@ -48,4 +48,4 @@ gulp.task("test", function() {
     .pipe(run("node"));
 });
 
-gulp.task("default", ["jsvalidate", "docs"]);
+gulp.task("default", ["jsvalidate", "docs", "test"]);
