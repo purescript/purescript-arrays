@@ -473,6 +473,13 @@ instance semigroupArray :: Semigroup [a]
 ```
 
 
+#### `monoidArray`
+
+``` purescript
+instance monoidArray :: Monoid [a]
+```
+
+
 #### `altArray`
 
 ``` purescript

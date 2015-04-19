@@ -55,12 +55,13 @@ module Data.Array
   ) where
 
 import Control.Alt (Alt)
-import Control.Plus (Plus)
 import Control.Alternative (Alternative)
 import Control.MonadPlus (MonadPlus)
-import Data.Maybe (Maybe(..), maybe, isJust)
+import Control.Plus (Plus)
 import Data.Function (Fn4(), runFn4)
 import Data.Int (Int(), toNumber)
+import Data.Maybe (Maybe(..), maybe, isJust)
+import Data.Monoid (Monoid)
 import Prelude.Unsafe (unsafeIndex)
 
 infixl 8 !!
@@ -525,6 +526,9 @@ instance monadArray :: Monad []
 
 instance semigroupArray :: Semigroup [a] where
   (<>) = append
+
+instance monoidArray :: Monoid [a] where
+  mempty = []
 
 instance altArray :: Alt [] where
   (<|>) = append
