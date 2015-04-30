@@ -8,6 +8,8 @@
 module Data.Array
   ( (!!)
   , (..)
+  , cons
+  , (:)
   , snoc
   , singleton
   , head
@@ -71,6 +73,30 @@ infixl 8 !!
 (!!) :: forall a. [a] -> Int -> Maybe a
 (!!) xs n | n < zero || n >= length xs = Nothing
           | otherwise = Just (xs `unsafeIndex` toNumber n)
+
+-- | Attaches an element to the front of an array, creating a new array.
+-- |
+-- | ```purescript
+-- | cons 1 [2, 3, 4] = [1, 2, 3, 4]
+-- | ```
+-- |
+-- | Note, the running time of this function is `O(n)`.
+foreign import cons
+  """
+  function cons(e) {
+    return function(l) {
+      return [e].concat(l);
+    };
+  }
+  """ :: forall a. a -> [a] -> [a]
+
+infixr 6 :
+
+-- | An infix alias for `cons`.
+-- |
+-- | Note, the running time of this function is `O(n)`.
+(:) :: forall a. a -> [a] -> [a]
+(:) = cons
 
 -- | Append an element to the end of an array, creating a new array.
 foreign import snoc

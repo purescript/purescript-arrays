@@ -20,6 +20,30 @@ for many use cases due to their poor asymptotics.
 This operator provides a safe way to read a value at a particular index
 from an array.
 
+#### `cons`
+
+``` purescript
+cons :: forall a. a -> [a] -> [a]
+```
+
+Attaches an element to the front of an array, creating a new array.
+
+```purescript
+cons 1 [2, 3, 4] = [1, 2, 3, 4]
+```
+
+Note, the running time of this function is `O(n)`.
+
+#### `(:)`
+
+``` purescript
+(:) :: forall a. a -> [a] -> [a]
+```
+
+An infix alias for `cons`.
+
+Note, the running time of this function is `O(n)`.
+
 #### `snoc`
 
 ``` purescript
