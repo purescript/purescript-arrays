@@ -19,7 +19,6 @@ module Data.Array.ST
 import Control.Monad.Eff (Eff())
 import Control.Monad.ST (ST())
 import Data.Function (Fn2(), runFn2, Fn3(), runFn3, Fn4(), runFn4)
-import Data.Int (Int())
 import Data.Maybe (Maybe(..))
 
 -- | A reference to a mutable array.
@@ -41,7 +40,7 @@ type Assoc a = { value :: a, index :: Int }
 foreign import runSTArray """
   function runSTArray(f) {
     return f;
-  }""" :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff r [a]
+  }""" :: forall a r. (forall h. Eff (st :: ST h | r) (STArray h a)) -> Eff r (Array a)
 
 -- | Create an empty mutable array.
 foreign import emptySTArray """
@@ -89,11 +88,11 @@ foreign import pushAllSTArrayImpl """
       return arr.push.apply(arr, as);
     };
   }""" :: forall a h r. Fn2 (STArray h a)
-                            [a]
+                            (Array a)
                             (Eff (st :: ST h | r) Int)
 
 -- | Append the values in an immutable array to the end of a mutable array.
-pushAllSTArray :: forall a h r. STArray h a -> [a] -> Eff (st :: ST h | r) Int
+pushAllSTArray :: forall a h r. STArray h a -> Array a -> Eff (st :: ST h | r) Int
 pushAllSTArray = runFn2 pushAllSTArrayImpl
 
 -- | Append an element to the end of a mutable array.
@@ -108,11 +107,11 @@ foreign import spliceSTArrayImpl """
   }""" :: forall a h r. Fn4 (STArray h a)
                             Int
                             Int
-                            [a]
-                            (Eff (st :: ST h | r) [a])
+                            (Array a)
+                            (Eff (st :: ST h | r) (Array a))
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
-spliceSTArray :: forall a h r. STArray h a -> Int -> Int -> [a] -> Eff (st :: ST h | r) [a]
+spliceSTArray :: forall a h r. STArray h a -> Int -> Int -> Array a -> Eff (st :: ST h | r) (Array a)
 spliceSTArray = runFn4 spliceSTArrayImpl
 
 foreign import copyImpl """
@@ -123,11 +122,11 @@ foreign import copyImpl """
   }""" :: forall a b h r. a -> Eff (st :: ST h | r) b
 
 -- | Create an immutable copy of a mutable array.
-freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) [a]
+freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) (Array a)
 freeze = copyImpl
 
 -- | Create a mutable copy of an immutable array.
-thaw :: forall a h r. [a] -> Eff (st :: ST h | r) (STArray h a)
+thaw :: forall a h r. Array a -> Eff (st :: ST h | r) (STArray h a)
 thaw = copyImpl
 
 -- | Create an immutable copy of a mutable array, where each element
@@ -141,4 +140,4 @@ foreign import toAssocArray """
         as[i] = {value: arr[i], index: i};
       return as;
     };
-  }""" :: forall a h r. STArray h a -> Eff (st :: ST h | r) [Assoc a]
+  }""" :: forall a h r. STArray h a -> Eff (st :: ST h | r) (Array (Assoc a))
