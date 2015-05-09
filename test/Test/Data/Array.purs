@@ -2,7 +2,6 @@ module Test.Data.Array (testArray) where
 
 import Console (log)
 import Data.Array
-import Data.Int (Int(), fromNumber, toNumber)
 import Data.Maybe (Maybe(..))
 import Test.Common
 
@@ -17,13 +16,13 @@ testArray = do
   assert $ [1, 2, 3] /= [1, 2, 2]
 
   log "(!!) should return Just x when the index is within the bounds of the array"
-  assert $ [1, 2, 3] !! (fromNumber 0) == (Just 1)
-  assert $ [1, 2, 3] !! (fromNumber 1) == (Just 2)
-  assert $ [1, 2, 3] !! (fromNumber 2) == (Just 3)
+  assert $ [1, 2, 3] !! 0 == (Just 1)
+  assert $ [1, 2, 3] !! 1 == (Just 2)
+  assert $ [1, 2, 3] !! 2 == (Just 3)
 
   log "(!!) should return Nothing when the index is outside of the bounds of the array"
-  assert $ [1, 2, 3] !! (fromNumber 6) == Nothing
-  assert $ [1, 2, 3] !! (fromNumber (-1)) == Nothing
+  assert $ [1, 2, 3] !! 6 == Nothing
+  assert $ [1, 2, 3] !! (-1) == Nothing
 
   log "snoc should add an item to the end of an array"
   assert $ [1, 2, 3] `snoc` 4 == [1, 2, 3, 4]
@@ -66,24 +65,24 @@ testArray = do
   assert $ null nil == true
 
   log "length should return the number of items in an array"
-  assert $ length nil == fromNumber 0
-  assert $ length [1] == fromNumber 1
-  assert $ length [1, 2, 3, 4, 5] == fromNumber 5
+  assert $ length nil == 0
+  assert $ length [1] == 1
+  assert $ length [1, 2, 3, 4, 5] == 5
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
-  assert $ (findIndex (/= 1) [1, 2, 1]) == Just (fromNumber 1)
+  assert $ (findIndex (/= 1) [1, 2, 1]) == Just 1
   assert $ (findIndex (== 3) [1, 2, 1]) == Nothing
 
   log "findLastIndex should return the last index of an item in an array"
-  assert $ (findLastIndex (/= 1) [2, 1, 2]) == Just (fromNumber 2)
+  assert $ (findLastIndex (/= 1) [2, 1, 2]) == Just 2
   assert $ (findLastIndex (== 3) [2, 1, 2]) == Nothing
 
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
-  assert $ (elemIndex 1 [1, 2, 1]) == Just (fromNumber 0)
+  assert $ (elemIndex 1 [1, 2, 1]) == Just 0
   assert $ (elemIndex 4 [1, 2, 1]) == Nothing
 
   log "elemLastIndex should return the last index of an item in an array"
-  assert $ (elemLastIndex 1 [1, 2, 1]) == Just (fromNumber 2)
+  assert $ (elemLastIndex 1 [1, 2, 1]) == Just 2
   assert $ (elemLastIndex 4 [1, 2, 1]) == Nothing
 
   log "append should joint two arrays"
@@ -106,9 +105,9 @@ testArray = do
   assert $ spanResult.rest == [4, 5, 6, 7]
 
   log "drop should remove the specified number of items from the front of an array"
-  assert $ (drop (fromNumber 1) [1, 2, 3]) == [2, 3]
-  assert $ (drop (fromNumber 2) [1, 2, 3]) == [3]
-  assert $ (drop (fromNumber 1) nil) == nil
+  assert $ (drop 1 [1, 2, 3]) == [2, 3]
+  assert $ (drop 2 [1, 2, 3]) == [3]
+  assert $ (drop 1 nil) == nil
 
   log "dropWhile should remove all values that match a predicate from the front of an array"
   assert $ (dropWhile (/= 1) [1, 2, 3]) == [1, 2, 3]
@@ -116,9 +115,9 @@ testArray = do
   assert $ (dropWhile (/= 1) nil) == nil
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
-  assert $ (take (fromNumber 1) [1, 2, 3]) == [1]
-  assert $ (take (fromNumber 2) [1, 2, 3]) == [1, 2]
-  assert $ (take (fromNumber 1) nil) == nil
+  assert $ (take 1 [1, 2, 3]) == [1]
+  assert $ (take 2 [1, 2, 3]) == [1, 2]
+  assert $ (take 1 nil) == nil
 
   log "takeWhile should keep all values that match a predicate from the front of an array"
   assert $ (takeWhile (/= 2) [1, 2, 3]) == [1]
@@ -126,22 +125,22 @@ testArray = do
   assert $ (takeWhile (/= 1) nil) == nil
 
   log "insertAt should add an item at the specified index"
-  assert $ (insertAt (fromNumber 0) 1 [2, 3]) == [1, 2, 3]
-  assert $ (insertAt (fromNumber 1) 1 [2, 3]) == [2, 1, 3]
+  assert $ (insertAt 0 1 [2, 3]) == [1, 2, 3]
+  assert $ (insertAt 1 1 [2, 3]) == [2, 1, 3]
 
   log "deleteAt should remove an item at the specified index"
-  assert $ (deleteAt (fromNumber 0) (fromNumber 1) [1, 2, 3]) == [2, 3]
-  assert $ (deleteAt (fromNumber 1) (fromNumber 1) [1, 2, 3]) == [1, 3]
+  assert $ (deleteAt 0 1 [1, 2, 3]) == [2, 3]
+  assert $ (deleteAt 1 1 [1, 2, 3]) == [1, 3]
 
   log "updateAt should replace an item at the specified index"
-  assert $ (updateAt (fromNumber 0) 9 [1, 2, 3]) == [9, 2, 3]
-  assert $ (updateAt (fromNumber 1) 9 [1, 2, 3]) == [1, 9, 3]
-  assert $ (updateAt (fromNumber 1) 9 nil) == nil
+  assert $ (updateAt 0 9 [1, 2, 3]) == [9, 2, 3]
+  assert $ (updateAt 1 9 [1, 2, 3]) == [1, 9, 3]
+  assert $ (updateAt 1 9 nil) == nil
 
   log "modifyAt should update an item at the specified index"
-  assert $ (modifyAt (fromNumber 0) (+ 1) [1, 2, 3]) == [2, 2, 3]
-  assert $ (modifyAt (fromNumber 1) (+ 1) [1, 2, 3]) == [1, 3, 3]
-  assert $ (modifyAt (fromNumber 1) (+ 1) nil) == nil
+  assert $ (modifyAt 0 (+ 1) [1, 2, 3]) == [2, 2, 3]
+  assert $ (modifyAt 1 (+ 1) [1, 2, 3]) == [1, 3, 3]
+  assert $ (modifyAt 1 (+ 1) nil) == nil
 
   log "delete should remove the first matching item from an array"
   assert $ delete 1 [1, 2, 1] == [2, 1]
@@ -173,11 +172,11 @@ testArray = do
   assert $ catMaybes [Nothing, Just 2, Nothing, Just 4] == [2, 4]
 
   log "filter should remove items that don't match a predicate"
-  assert $ filter odd (map toNumber $ range zero (fromNumber 10)) == [1, 3, 5, 7, 9]
+  assert $ filter odd (range 0 10) == [1, 3, 5, 7, 9]
 
   log "range should create an inclusive array of integers for the specified start and end"
-  assert $ (map toNumber $ range zero (fromNumber 5)) == [0, 1, 2, 3, 4, 5]
-  assert $ (map toNumber $ range (fromNumber 2) (fromNumber (-3))) == [2, 1, 0, -1, -2, -3]
+  assert $ (range 0 5) == [0, 1, 2, 3, 4, 5]
+  assert $ (range 2 (-3)) == [2, 1, 0, -1, -2, -3]
 
   log "zipWith should use the specified function to zip two lists together"
   assert $ zipWith (\x y -> [show x, y]) [1, 2, 3] ["a", "b", "c"] == [["1", "a"], ["2", "b"], ["3", "c"]]
@@ -205,16 +204,16 @@ testArray = do
   assert $ groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [[1, 1], [2], [2], [3, 3]]
 
   log "replicate should produce an array containg an item a specified number of times"
-  assert $ replicate (fromNumber 3) true == [true, true, true]
-  assert $ replicate (fromNumber 1) "foo" == ["foo"]
-  assert $ replicate (fromNumber 0) "foo" == []
-  assert $ replicate (fromNumber (-1)) "foo" == []
+  assert $ replicate 3 true == [true, true, true]
+  assert $ replicate 1 "foo" == ["foo"]
+  assert $ replicate 0 "foo" == []
+  assert $ replicate (-1) "foo" == []
 
-nil :: [Number]
+nil :: Array Int
 nil = []
 
-odd :: Number -> Boolean
-odd n = (fromNumber n) `mod` (fromNumber 2) /= zero
+odd :: Int -> Boolean
+odd n = n `mod` 2 /= zero
 
-doubleAndOrig :: Number -> [Number]
+doubleAndOrig :: Int -> Array Int
 doubleAndOrig x = [x * 2, x]
