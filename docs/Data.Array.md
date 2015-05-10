@@ -1,7 +1,4 @@
-# Module Documentation
-
 ## Module Data.Array
-
 
 Helper functions for working with immutable Javascript arrays.
 
@@ -11,33 +8,91 @@ use cases. This module is useful when integrating with JavaScript libraries
 which use arrays, but immutable arrays are not a practical data structure
 for many use cases due to their poor asymptotics.
 
-#### `(!!)`
+#### `singleton`
 
 ``` purescript
-(!!) :: forall a. [a] -> Int -> Maybe a
+singleton :: forall a. a -> Array a
 ```
 
-This operator provides a safe way to read a value at a particular index
-from an array.
+#### `range`
+
+``` purescript
+range :: Int -> Int -> Array Int
+```
+
+Create an array containing a range of integers, including both endpoints.
+
+#### `(..)`
+
+``` purescript
+(..) :: Int -> Int -> Array Int
+```
+
+An infix synonym for `range`.
+
+#### `replicate`
+
+``` purescript
+replicate :: forall a. Int -> a -> Array a
+```
+
+Create an array with repeated instances of a value.
+
+#### `replicateM`
+
+``` purescript
+replicateM :: forall m a. (Monad m) => Int -> m a -> m (Array a)
+```
+
+Perform a monadic action `n` times collecting all of the results.
+
+#### `some`
+
+``` purescript
+some :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+```
+
+Attempt a computation multiple times, requiring at least one success.
+
+The `Lazy` constraint is used to generate the result lazily, to ensure
+termination.
+
+#### `many`
+
+``` purescript
+many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+```
+
+Attempt a computation multiple times, returning as many successful results
+as possible (possibly zero).
+
+The `Lazy` constraint is used to generate the result lazily, to ensure
+termination.
+
+#### `null`
+
+``` purescript
+null :: forall a. Array a -> Boolean
+```
+
+#### `length`
+
+``` purescript
+length :: forall a. Array a -> Int
+```
+
+Get the number of elements in an array.
 
 #### `cons`
 
 ``` purescript
-cons :: forall a. a -> [a] -> [a]
+cons :: forall a. a -> Array a -> Array a
 ```
-
-Attaches an element to the front of an array, creating a new array.
-
-```purescript
-cons 1 [2, 3, 4] = [1, 2, 3, 4]
-```
-
-Note, the running time of this function is `O(n)`.
 
 #### `(:)`
 
 ``` purescript
-(:) :: forall a. a -> [a] -> [a]
+(:) :: forall a. a -> Array a -> Array a
 ```
 
 An infix alias for `cons`.
@@ -47,33 +102,21 @@ Note, the running time of this function is `O(n)`.
 #### `snoc`
 
 ``` purescript
-snoc :: forall a. [a] -> a -> [a]
+snoc :: forall a. Array a -> a -> Array a
 ```
 
 Append an element to the end of an array, creating a new array.
 
-#### `singleton`
-
-``` purescript
-singleton :: forall a. a -> [a]
-```
-
-Create an array of one element
-
 #### `head`
 
 ``` purescript
-head :: forall a. [a] -> Maybe a
+head :: forall a. Array a -> Maybe a
 ```
-
-Get the first element in an array, or `Nothing` if the array is empty
-
-Running time: `O(1)`.
 
 #### `last`
 
 ``` purescript
-last :: forall a. [a] -> Maybe a
+last :: forall a. Array a -> Maybe a
 ```
 
 Get the last element in an array, or `Nothing` if the array is empty
@@ -83,7 +126,7 @@ Running time: `O(1)`.
 #### `tail`
 
 ``` purescript
-tail :: forall a. [a] -> Maybe [a]
+tail :: forall a. Array a -> Maybe (Array a)
 ```
 
 Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
@@ -93,49 +136,39 @@ Running time: `O(n)` where `n` is the length of the array
 #### `init`
 
 ``` purescript
-init :: forall a. [a] -> Maybe [a]
+init :: forall a. Array a -> Maybe (Array a)
 ```
 
 Get all but the last element of an array, creating a new array, or `Nothing` if the array is empty.
 
 Running time: `O(n)` where `n` is the length of the array
 
-#### `null`
+#### `uncons`
 
 ``` purescript
-null :: forall a. [a] -> Boolean
+uncons :: forall a. Array a -> Maybe { head :: a, tail :: Array a }
 ```
 
-Test whether an array is empty.
+Break an array into its first element, and the remaining elements
 
-#### `length`
+#### `index`
 
 ``` purescript
-length :: forall a. [a] -> Int
+index :: forall a. Array a -> Int -> Maybe a
 ```
 
-Get the number of elements in an array.
-
-#### `findIndex`
+#### `(!!)`
 
 ``` purescript
-findIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
+(!!) :: forall a. Array a -> Int -> Maybe a
 ```
 
-Find the first index for which a predicate holds.
-
-#### `findLastIndex`
-
-``` purescript
-findLastIndex :: forall a. (a -> Boolean) -> [a] -> Maybe Int
-```
-
-Find the last index for which a predicate holds.
+An infix version of `index`.
 
 #### `elemIndex`
 
 ``` purescript
-elemIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
+elemIndex :: forall a. (Eq a) => a -> Array a -> Maybe Int
 ```
 
 Find the index of the first element equal to the specified element.
@@ -143,90 +176,31 @@ Find the index of the first element equal to the specified element.
 #### `elemLastIndex`
 
 ``` purescript
-elemLastIndex :: forall a. (Eq a) => a -> [a] -> Maybe Int
+elemLastIndex :: forall a. (Eq a) => a -> Array a -> Maybe Int
 ```
 
 Find the index of the last element equal to the specified element.
 
-#### `append`
+#### `findIndex`
 
 ``` purescript
-append :: forall a. [a] -> [a] -> [a]
+findIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
 ```
 
-Concatenate two arrays, creating a new array.
+Find the first index for which a predicate holds.
 
-#### `concat`
+#### `findLastIndex`
 
 ``` purescript
-concat :: forall a. [[a]] -> [a]
+findLastIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
 ```
 
-Flatten an array of arrays, creating a new array.
-
-#### `reverse`
-
-``` purescript
-reverse :: forall a. [a] -> [a]
-```
-
-Reverse an array, creating a copy
-
-#### `span`
-
-``` purescript
-span :: forall a. (a -> Boolean) -> [a] -> { rest :: [a], init :: [a] }
-```
-
-Split an array into two parts:
-
-1. the longest initial subarray for which all element satisfy the specified predicate
-2. the remaining elements
-
-For example,
-
-```purescript
-span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
-```
-
-#### `drop`
-
-``` purescript
-drop :: forall a. Int -> [a] -> [a]
-```
-
-Drop a number of elements from the start of an array, creating a new array.
-
-#### `dropWhile`
-
-``` purescript
-dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
-```
-
-Remove the longest initial subarray for which all element satisfy the specified predicate,
-creating a new array.
-
-#### `take`
-
-``` purescript
-take :: forall a. Int -> [a] -> [a]
-```
-
-Keep only a number of elements from the start of an array, creating a new array.
-
-#### `takeWhile`
-
-``` purescript
-takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
-```
-
-Calculate the longest initial subarray for which all element satisfy the specified predicate,
-creating a new array.
+Find the last index for which a predicate holds.
 
 #### `insertAt`
 
 ``` purescript
-insertAt :: forall a. Int -> a -> [a] -> [a]
+insertAt :: forall a. Int -> a -> Array a -> Array a
 ```
 
 Insert an element at the specified index, creating a new array.
@@ -234,7 +208,7 @@ Insert an element at the specified index, creating a new array.
 #### `deleteAt`
 
 ``` purescript
-deleteAt :: forall a. Int -> Int -> [a] -> [a]
+deleteAt :: forall a. Int -> Int -> Array a -> Array a
 ```
 
 Delete the element at the specified index, creating a new array.
@@ -242,7 +216,7 @@ Delete the element at the specified index, creating a new array.
 #### `updateAt`
 
 ``` purescript
-updateAt :: forall a. Int -> a -> [a] -> [a]
+updateAt :: forall a. Int -> a -> Array a -> Array a
 ```
 
 Change the element at the specified index, creating a new array.
@@ -250,175 +224,147 @@ Change the element at the specified index, creating a new array.
 #### `modifyAt`
 
 ``` purescript
-modifyAt :: forall a. Int -> (a -> a) -> [a] -> [a]
+modifyAt :: forall a. Int -> (a -> a) -> Array a -> Array a
 ```
 
 Apply a function to the element at the specified index, creating a new array.
 
-#### `delete`
+#### `reverse`
 
 ``` purescript
-delete :: forall a. (Eq a) => a -> [a] -> [a]
+reverse :: forall a. Array a -> Array a
 ```
 
-Delete the first element of an array which is equal to the specified value,
-creating a new array.
-
-#### `deleteBy`
+#### `concat`
 
 ``` purescript
-deleteBy :: forall a. (a -> a -> Boolean) -> a -> [a] -> [a]
+concat :: forall a. Array (Array a) -> Array a
 ```
 
-Delete the first element of an array which matches the specified value, under the
-equivalence relation provided in the first argument, creating a new array.
-
-#### `(\\)`
-
-``` purescript
-(\\) :: forall a. (Eq a) => [a] -> [a] -> [a]
-```
-
-Delete the first occurrence of each element in the second array from the first array,
-creating a new array.
-
-#### `intersect`
-
-``` purescript
-intersect :: forall a. (Eq a) => [a] -> [a] -> [a]
-```
-
-Calculate the intersection of two arrays, creating a new array.
-
-#### `intersectBy`
-
-``` purescript
-intersectBy :: forall a. (a -> a -> Boolean) -> [a] -> [a] -> [a]
-```
-
-Calculate the intersection of two arrays, using the specified equivalence relation
-to compare elements, creating a new array.
+Flatten an array of arrays, creating a new array.
 
 #### `concatMap`
 
 ``` purescript
-concatMap :: forall a b. (a -> [b]) -> [a] -> [b]
+concatMap :: forall a b. (a -> Array b) -> Array a -> Array b
 ```
 
 Apply a function to each element in an array, and flatten the results
 into a single, new array.
 
-#### `map`
-
-``` purescript
-map :: forall a b. (a -> b) -> [a] -> [b]
-```
-
-Apply a function to each element in an array, creating a new array.
-
-#### `mapMaybe`
-
-``` purescript
-mapMaybe :: forall a b. (a -> Maybe b) -> [a] -> [b]
-```
-
-Apply a function to each element in an array, keeping only the results which
-contain a value, creating a new array.
-
-#### `catMaybes`
-
-``` purescript
-catMaybes :: forall a. [Maybe a] -> [a]
-```
-
-Filter an array of optional values, keeping only the elements which contain
-a value, creating a new array.
-
 #### `filter`
 
 ``` purescript
-filter :: forall a. (a -> Boolean) -> [a] -> [a]
+filter :: forall a. (a -> Boolean) -> Array a -> Array a
 ```
 
 Filter an array, keeping the elements which satisfy a predicate function,
 creating a new array.
 
-#### `range`
+#### `filterM`
 
 ``` purescript
-range :: Int -> Int -> [Int]
+filterM :: forall a m. (Monad m) => (a -> m Boolean) -> Array a -> m (Array a)
 ```
 
-Create an array containing a range of integers, including both endpoints.
-
-#### `(..)`
-
-``` purescript
-(..) :: Int -> Int -> [Int]
-```
-
-An infix synonym for `range`.
-
-#### `zipWith`
-
-``` purescript
-zipWith :: forall a b c. (a -> b -> c) -> [a] -> [b] -> [c]
-```
-
-Apply a function to pairs of elements at the same index in two arrays,
-collecting the results in a new array.
-
-If one array is longer, elements will be discarded from the longer array.
-
-For example
+Filter where the predicate returns a monadic `Boolean`.
 
 ```purescript
-zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
+powerSet :: forall a. [a] -> [[a]]
+powerSet = filterM (const [true, false])
 ```
 
-#### `nub`
+#### `mapMaybe`
 
 ``` purescript
-nub :: forall a. (Eq a) => [a] -> [a]
+mapMaybe :: forall a b. (a -> Maybe b) -> Array a -> Array b
 ```
 
-Remove the duplicates from an array, creating a new array.
+Apply a function to each element in an array, keeping only the results
+which contain a value, creating a new array.
 
-#### `nubBy`
+#### `catMaybes`
 
 ``` purescript
-nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
+catMaybes :: forall a. Array (Maybe a) -> Array a
 ```
 
-Remove the duplicates from an array, where element equality is determined by the
-specified equivalence relation, creating a new array.
+Filter an array of optional values, keeping only the elements which contain
+a value, creating a new array.
 
 #### `sort`
 
 ``` purescript
-sort :: forall a. (Ord a) => [a] -> [a]
+sort :: forall a. (Ord a) => Array a -> Array a
 ```
-
-Sort the elements of an array in increasing order, creating a new array.
 
 #### `sortBy`
 
 ``` purescript
-sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
+sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 ```
 
 Sort the elements of an array in increasing order, where elements are compared using
 the specified partial ordering, creating a new array.
 
+#### `take`
+
+``` purescript
+take :: forall a. Int -> Array a -> Array a
+```
+
+Keep only a number of elements from the start of an array, creating a new
+array.
+
+#### `takeWhile`
+
+``` purescript
+takeWhile :: forall a. (a -> Boolean) -> Array a -> Array a
+```
+
+Calculate the longest initial subarray for which all element satisfy the
+specified predicate, creating a new array.
+
+#### `drop`
+
+``` purescript
+drop :: forall a. Int -> Array a -> Array a
+```
+
+Drop a number of elements from the start of an array, creating a new array.
+
+#### `dropWhile`
+
+``` purescript
+dropWhile :: forall a. (a -> Boolean) -> Array a -> Array a
+```
+
+Remove the longest initial subarray for which all element satisfy the
+specified predicate, creating a new array.
+
+#### `span`
+
+``` purescript
+span :: forall a. (a -> Boolean) -> Array a -> { init :: Array a, rest :: Array a }
+```
+
+Split an array into two parts:
+
+1. the longest initial subarray for which all element satisfy the specified
+   predicate
+2. the remaining elements
+
+```purescript
+span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
+```
+
 #### `group`
 
 ``` purescript
-group :: forall a. (Eq a) => [a] -> [[a]]
+group :: forall a. (Eq a) => Array a -> Array (Array a)
 ```
 
 Group equal, consecutive elements of an array into arrays.
-
-For example,
 
 ```purescript
 group [1,1,2,2,1] == [[1,1],[2,2],[1]]
@@ -427,110 +373,103 @@ group [1,1,2,2,1] == [[1,1],[2,2],[1]]
 #### `group'`
 
 ``` purescript
-group' :: forall a. (Ord a) => [a] -> [[a]]
+group' :: forall a. (Ord a) => Array a -> Array (Array a)
 ```
 
-Sort and group the elements of an array into arrays.
-
-For example,
+Sort and then group the elements of an array into arrays.
 
 ```purescript
-group [1,1,2,2,1] == [[1,1,1],[2,2]]
+group' [1,1,2,2,1] == [[1,1,1],[2,2]]
 ```
 
 #### `groupBy`
 
 ``` purescript
-groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
+groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (Array a)
 ```
 
-Group equal, consecutive elements of an array into arrays, using the specified
-equivalence relation to detemine equality.
+Group equal, consecutive elements of an array into arrays, using the
+specified equivalence relation to detemine equality.
 
-#### `replicate`
+#### `nub`
 
 ``` purescript
-replicate :: forall a. Int -> a -> [a]
+nub :: forall a. (Eq a) => Array a -> Array a
 ```
 
-Create an array with repeated instances of a value.
-
-#### `functorArray`
+#### `nubBy`
 
 ``` purescript
-instance functorArray :: Functor Prim.Array
+nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 ```
 
+Remove the duplicates from an array, where element equality is determined
+by the specified equivalence relation, creating a new array.
 
-#### `applyArray`
+#### `delete`
 
 ``` purescript
-instance applyArray :: Apply Prim.Array
+delete :: forall a. (Eq a) => a -> Array a -> Array a
 ```
 
+Delete the first element of an array which is equal to the specified value,
+creating a new array.
 
-#### `applicativeArray`
+#### `deleteBy`
 
 ``` purescript
-instance applicativeArray :: Applicative Prim.Array
+deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
 ```
 
+Delete the first element of an array which matches the specified value,
+under the equivalence relation provided in the first argument, creating a
+new array.
 
-#### `bindArray`
+#### `(\\)`
 
 ``` purescript
-instance bindArray :: Bind Prim.Array
+(\\) :: forall a. (Eq a) => Array a -> Array a -> Array a
 ```
 
+Delete the first occurrence of each element in the second array from the
+first array, creating a new array.
 
-#### `monadArray`
+#### `intersect`
 
 ``` purescript
-instance monadArray :: Monad Prim.Array
+intersect :: forall a. (Eq a) => Array a -> Array a -> Array a
 ```
 
+Calculate the intersection of two arrays, creating a new array.
 
-#### `semigroupArray`
+#### `intersectBy`
 
 ``` purescript
-instance semigroupArray :: Semigroup [a]
+intersectBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
 ```
 
+Calculate the intersection of two arrays, using the specified equivalence
+relation to compare elements, creating a new array.
 
-#### `monoidArray`
+#### `zipWith`
 
 ``` purescript
-instance monoidArray :: Monoid [a]
+zipWith :: forall a b c. (a -> b -> c) -> Array a -> Array b -> Array c
 ```
 
-
-#### `altArray`
+#### `zipWithA`
 
 ``` purescript
-instance altArray :: Alt Prim.Array
+zipWithA :: forall m a b c. (Applicative m) => (a -> b -> m c) -> Array a -> Array b -> m (Array c)
 ```
 
+A generalization of `zipWith` which accumulates results in some `Applicative`
+functor.
 
-#### `plusArray`
+#### `foldM`
 
 ``` purescript
-instance plusArray :: Plus Prim.Array
+foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
 ```
-
-
-#### `alternativeArray`
-
-``` purescript
-instance alternativeArray :: Alternative Prim.Array
-```
-
-
-#### `monadPlusArray`
-
-``` purescript
-instance monadPlusArray :: MonadPlus Prim.Array
-```
-
-
 
 

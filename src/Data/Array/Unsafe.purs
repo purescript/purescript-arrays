@@ -5,21 +5,13 @@
 
 module Data.Array.Unsafe where
 
-import Data.Int (toNumber)
 import Data.Maybe.Unsafe (fromJust)
 import qualified Data.Array as A
 
 -- | Find the element of an array at the specified index.
 -- |
 -- | Note: this function can cause unpredictable failure at runtime if the index is out-of-bounds.
-foreign import unsafeIndex
-  """
-  function unsafeIndex(xs) {
-    return function(n) {
-      return xs[n];
-    };
-  }
-  """ :: forall a. Array a -> Int -> a
+foreign import unsafeIndex :: forall a. Array a -> Int -> a
 
 -- | Get the first element of a non-empty array.
 -- |

@@ -16,13 +16,12 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-eff": "~0.1.0",
+    "purescript-foldable-traversable": "~0.4.0",
     "purescript-functions": "~0.1.0",
-    "purescript-integers": "~0.2.0",
-    "purescript-maybe": "~0.3.0",
     "purescript-st": "~0.1.0"
   },
   "devDependencies": {
+    "purescript-assert": "~0.1.0",
     "purescript-console": "~0.1.0"
   }
 }

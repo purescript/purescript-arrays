@@ -1,51 +1,68 @@
+/* jshint node: true */
 "use strict";
 
 var gulp = require("gulp");
+var jshint = require("gulp-jshint");
+var jscs = require("gulp-jscs");
 var plumber = require("gulp-plumber");
 var purescript = require("gulp-purescript");
-var jsvalidate = require("gulp-jsvalidate");
 var run = require("gulp-run");
+var rimraf = require("rimraf");
 
-var paths = [
+var sources = [
   "src/**/*.purs",
-  "bower_components/purescript-*/src/**/*.purs",
-  "test/**/*.purs"
+  "bower_components/purescript-*/src/**/*.purs"
 ];
 
-gulp.task("make", function() {
-  return gulp.src(paths)
-    .pipe(plumber())
-    .pipe(purescript.pscMake());
+var foreigns = [
+  "src/**/*.js",
+  "bower_components/purescript-*/src/**/*.js"
+];
+
+gulp.task("clean-docs", function (cb) {
+  rimraf("docs", cb);
 });
 
-gulp.task("jsvalidate", ["make"], function () {
-  return gulp.src("output/**/*.js")
-    .pipe(plumber())
-    .pipe(jsvalidate());
+gulp.task("clean-output", function (cb) {
+  rimraf("output", cb);
 });
 
-var docTasks = [];
+gulp.task("clean", ["clean-docs", "clean-output"]);
 
-var docTask = function(name) {
-  var taskName = "docs-" + name.toLowerCase();
-  gulp.task(taskName, function () {
-    return gulp.src("src/" + name.replace(/\./g, "/") + ".purs")
-      .pipe(plumber())
-      .pipe(purescript.pscDocs())
-      .pipe(gulp.dest("docs/" + name + ".md"));
-  });
-  docTasks.push(taskName);
-};
+gulp.task("lint", function() {
+  return gulp.src("src/**/*.js")
+    .pipe(jshint())
+    .pipe(jshint.reporter())
+    .pipe(jscs());
+});
 
-["Data.Array", "Data.Array.ST", "Data.Array.Unsafe"].forEach(docTask);
-
-gulp.task("docs", docTasks);
-
-gulp.task("test", function() {
-  return gulp.src(paths)
+gulp.task("make", ["lint"], function() {
+  return gulp.src(sources)
     .pipe(plumber())
-    .pipe(purescript.psc({ main: "Test.Main" }))
+    .pipe(purescript.pscMake({ ffi: foreigns }));
+});
+
+gulp.task("docs", ["clean-docs"], function () {
+  return gulp.src(sources)
+    .pipe(plumber())
+    .pipe(purescript.pscDocs({
+      docgen: {
+        "Data.Array": "docs/Data.Array.md"
+      }
+    }));
+});
+
+gulp.task("dotpsci", function () {
+  return gulp.src(sources)
+    .pipe(plumber())
+    .pipe(purescript.dotPsci());
+});
+
+gulp.task("test", ["make"], function() {
+  return gulp.src(sources.concat(["test/**/*.purs"]))
+    .pipe(plumber())
+    .pipe(purescript.psc({ main: "Test.Main", ffi: foreigns }))
     .pipe(run("node"));
 });
 
-gulp.task("default", ["jsvalidate", "docs", "test"]);
+gulp.task("default", ["make", "docs", "dotpsci", "test"]);
