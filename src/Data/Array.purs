@@ -227,7 +227,9 @@ foreign import concat
   function concat (xss) {
     var result = [];
     for (var i = 0, l = xss.length; i < l; i++) {
-      result.push.apply(result, xss[i]);
+      for (var j = 0, m = xss[i].length; j < m; j++) {
+        result.push(xss[i][j]);
+      }
     }
     return result;
   }
