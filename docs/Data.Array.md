@@ -307,6 +307,12 @@ sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 Sort the elements of an array in increasing order, where elements are compared using
 the specified partial ordering, creating a new array.
 
+#### `slice`
+
+``` purescript
+slice :: forall a. Int -> Int -> Array a -> Array a
+```
+
 #### `take`
 
 ``` purescript

@@ -1,8 +1,9 @@
 module Test.Data.Array (testArray) where
 
-import Console (log, print)
+import Console (log)
 import Data.Array
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isNothing)
+import Data.Maybe.Unsafe (fromJust)
 import Test.Assert (assert)
 
 testArray = do
@@ -22,7 +23,12 @@ testArray = do
   assert $ replicate 0 "foo" == []
   assert $ replicate (-1) "foo" == []
 
-  -- replicateM
+  log "replicateM should perform the monadic action the correct number of times"
+  assert $ replicateM 3 (Just 1) == Just [1, 1, 1]
+  assert $ replicateM 1 (Just 1) == Just [1]
+  assert $ replicateM 0 (Just 1) == Just []
+  assert $ replicateM (-1) (Just 1) == Just []
+
   -- some
   -- many
 
@@ -70,7 +76,16 @@ testArray = do
   log "init should return Nothing for an empty array"
   assert $ init nil == Nothing
 
-  -- uncons
+  log "uncons should return nothing when used on an empty array"
+  assert $ isNothing (uncons nil)
+
+  log "uncons should split an array into a head and tail record when there is at least one item"
+  let u1 = uncons [1]
+  assert $ (fromJust u1).head == 1
+  assert $ (fromJust u1).tail == []
+  let u2 = uncons [1, 2, 3]
+  assert $ (fromJust u2).head == 1
+  assert $ (fromJust u2).tail == [2, 3]
 
   log "(!!) should return Just x when the index is within the bounds of the array"
   assert $ [1, 2, 3] !! 0 == (Just 1)

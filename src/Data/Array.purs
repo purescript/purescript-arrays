@@ -46,6 +46,7 @@ module Data.Array
   , sort
   , sortBy
 
+  , slice
   , take
   , takeWhile
   , drop
@@ -325,7 +326,7 @@ foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
 -- Subarrays -------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
--- | Extract a subarray by a start index and length.
+-- | Extract a subarray by a start and end index.
 foreign import slice :: forall a. Int -> Int -> Array a -> Array a
 
 -- | Keep only a number of elements from the start of an array, creating a new

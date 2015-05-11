@@ -11,43 +11,61 @@ exports.emptySTArray = function () {
   return [];
 };
 
-exports.peekSTArrayImpl = function (just, nothing, arr, i) {
-  return function () {
-    return i < arr.length ? just(arr[i]) : nothing;
+exports.peekSTArrayImpl = function (just) {
+  return function (nothing) {
+    return function (xs) {
+      return function (i) {
+        return function () {
+          return i >= 0 && i < xs.length ? just(xs[i]) : nothing;
+        };
+      };
+    };
   };
 };
 
-exports.pokeSTArrayImpl = function (arr, i, a) {
-  return function () {
-    var ret = i < arr.length;
-    if (ret) arr[i] = a;
-    return ret;
+exports.pokeSTArray = function (xs) {
+  return function (i) {
+    return function (a) {
+      return function () {
+        var ret = i >= 0 && i < xs.length;
+        if (ret) xs[i] = a;
+        return ret;
+      };
+    };
   };
 };
 
-exports.pushAllSTArrayImpl = function (arr, as) {
-  return function () {
-    return arr.push.apply(arr, as);
+exports.pushAllSTArray = function (xs) {
+  return function (as) {
+    return function () {
+      return xs.push.apply(xs, as);
+    };
   };
 };
 
-exports.spliceSTArrayImpl = function (arr, i, howMany, bs) {
-  return function () {
-    return arr.splice.apply(arr, [i, howMany].concat(bs));
+exports.spliceSTArray = function (xs) {
+  return function (i) {
+    return function (howMany) {
+      return function (bs) {
+        return function () {
+          return xs.splice.apply(xs, [i, howMany].concat(bs));
+        };
+      };
+    };
   };
 };
 
-exports.copyImpl = function (arr) {
+exports.copyImpl = function (xs) {
   return function () {
-    return arr.slice();
+    return xs.slice();
   };
 };
 
-exports.toAssocArray = function (arr) {
+exports.toAssocArray = function (xs) {
   return function () {
-    var n = arr.length;
+    var n = xs.length;
     var as = new Array(n);
-    for (var i = 0; i < n; i++) as[i] = { value: arr[i], index: i };
+    for (var i = 0; i < n; i++) as[i] = { value: xs[i], index: i };
     return as;
   };
 };
