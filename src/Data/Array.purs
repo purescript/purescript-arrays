@@ -67,20 +67,23 @@ module Data.Array
 
   , zipWith
   , zipWithA
+  , zip
+  , unzip
 
   , foldM
   ) where
 
 import Control.Alt (Alt, (<|>))
 import Control.Alternative (Alternative)
+import Control.Lazy (Lazy, defer)
 import Control.MonadPlus (MonadPlus)
 import Control.Plus (Plus)
-import Control.Lazy (Lazy, defer)
 import Data.Foldable (Foldable, foldr)
 import Data.Functor.Invariant (Invariant, imapF)
 import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Monoid (Monoid, mempty)
 import Data.Traversable (Traversable, traverse, sequence)
+import Data.Tuple (Tuple(..))
 
 --------------------------------------------------------------------------------
 -- Array creation --------------------------------------------------------------
@@ -455,6 +458,17 @@ foreign import zipWith :: forall a b c. (a -> b -> c) -> Array a -> Array b -> A
 -- | functor.
 zipWithA :: forall m a b c. (Applicative m) => (a -> b -> m c) -> Array a -> Array b -> m (Array c)
 zipWithA f xs ys = sequence (zipWith f xs ys)
+
+-- | Rakes two lists and returns a list of corresponding pairs.
+-- | If one input list is short, excess elements of the longer list are discarded.
+zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
+zip = zipWith Tuple
+
+-- | Transforms a list of pairs into a list of first components and a list of
+-- | second components.
+unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
+unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
+  Tuple as bs -> Tuple (a : as) (b : bs)
 
 --------------------------------------------------------------------------------
 -- Folding ---------------------------------------------------------------------

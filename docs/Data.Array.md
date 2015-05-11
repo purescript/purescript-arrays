@@ -472,6 +472,24 @@ zipWithA :: forall m a b c. (Applicative m) => (a -> b -> m c) -> Array a -> Arr
 A generalization of `zipWith` which accumulates results in some `Applicative`
 functor.
 
+#### `zip`
+
+``` purescript
+zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
+```
+
+Rakes two lists and returns a list of corresponding pairs.
+If one input list is short, excess elements of the longer list are discarded.
+
+#### `unzip`
+
+``` purescript
+unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
+```
+
+Transforms a list of pairs into a list of first components and a list of
+second components.
+
 #### `foldM`
 
 ``` purescript

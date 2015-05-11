@@ -4,6 +4,7 @@ import Console (log)
 import Data.Array
 import Data.Maybe (Maybe(..), isNothing)
 import Data.Maybe.Unsafe (fromJust)
+import Data.Tuple (Tuple(..))
 import Test.Assert (assert)
 
 testArray = do
@@ -220,7 +221,15 @@ testArray = do
   log "zipWith should use the specified function to zip two lists together"
   assert $ zipWith (\x y -> [show x, y]) [1, 2, 3] ["a", "b", "c"] == [["1", "a"], ["2", "b"], ["3", "c"]]
 
-  -- zipWithA
+  log "zipWithA should use the specified function to zip two lists together"
+  assert $ zipWithA (\x y -> Just $ Tuple x y) [1, 2, 3] ["a", "b", "c"] == Just [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]
+
+  log "zip should use the specified function to zip two lists together"
+  assert $ zip [1, 2, 3] ["a", "b", "c"] == [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]
+
+  log "unzip should deconstruct a list of tuples into a tuple of lists"
+  assert $ unzip [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"] == Tuple [1, 2, 3] ["a", "b", "c"]
+
   -- foldM
 
 nil :: Array Int
