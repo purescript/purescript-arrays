@@ -78,11 +78,10 @@ import Control.Alternative (Alternative)
 import Control.Lazy (Lazy, defer)
 import Control.MonadPlus (MonadPlus)
 import Control.Plus (Plus)
-import Data.Foldable (Foldable, foldr)
 import Data.Functor.Invariant (Invariant, imapF)
 import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Monoid (Monoid, mempty)
-import Data.Traversable (Traversable, traverse, sequence)
+import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 
 --------------------------------------------------------------------------------
@@ -478,10 +477,6 @@ unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
 foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
 foldM f a = uncons' (\_ -> return a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
 
-foreign import foldrArray :: forall a b. (a -> b -> b) -> b -> Array a -> b
-
-foreign import foldlArray :: forall a b. (b -> a -> b) -> b -> Array a -> b
-
 --------------------------------------------------------------------------------
 -- Non-Prelude instances -------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -495,15 +490,6 @@ instance plusArray :: Plus Array where
 instance alternativeArray :: Alternative Array
 
 instance monadPlusArray :: MonadPlus Array
-
-instance foldableArray :: Foldable Array where
-  foldr f z xs = foldrArray f z xs
-  foldl f z xs = foldlArray f z xs
-  foldMap f xs = foldr (\x acc -> f x <> acc) mempty xs
-
-instance traversableArray :: Traversable Array where
-  traverse f = uncons' (\_ -> pure []) (\x xs -> (:) <$> (f x) <*> traverse f xs)
-  sequence = uncons' (\_ -> pure []) (\x xs -> (:) <$> x <*> sequence xs)
 
 instance invariantArray :: Invariant Array where
   imap = imapF
