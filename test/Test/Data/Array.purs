@@ -1,5 +1,7 @@
 module Test.Data.Array (testArray) where
 
+import Prelude
+
 import Console (log)
 import Data.Array
 import Data.Maybe (Maybe(..), isNothing)

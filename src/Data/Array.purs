@@ -9,9 +9,6 @@ module Data.Array
   ( singleton
   , (..), range
   , replicate
-  , replicateM
-  , some
-  , many
 
   , null
   , length
@@ -39,7 +36,6 @@ module Data.Array
   , concat
   , concatMap
   , filter
-  , filterM
   , mapMaybe
   , catMaybes
 
@@ -69,9 +65,9 @@ module Data.Array
   , zipWithA
   , zip
   , unzip
-
-  , foldM
   ) where
+
+import Prelude
 
 import Control.Alt (Alt, (<|>))
 import Control.Alternative (Alternative)
@@ -104,28 +100,6 @@ infix 8 ..
 
 -- | Create an array with repeated instances of a value.
 foreign import replicate :: forall a. Int -> a -> Array a
-
--- | Perform a monadic action `n` times collecting all of the results.
-replicateM :: forall m a. (Monad m) => Int -> m a -> m (Array a)
-replicateM n m | n < 1 = return []
-               | otherwise = do a <- m
-                                as <- replicateM (n - 1) m
-                                return (a : as)
-
--- | Attempt a computation multiple times, requiring at least one success.
--- |
--- | The `Lazy` constraint is used to generate the result lazily, to ensure
--- | termination.
-some :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
-some v = (:) <$> v <*> defer (\_ -> many v)
-
--- | Attempt a computation multiple times, returning as many successful results
--- | as possible (possibly zero).
--- |
--- | The `Lazy` constraint is used to generate the result lazily, to ensure
--- | termination.
-many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
-many v = some v <|> pure []
 
 --------------------------------------------------------------------------------
 -- Array size ------------------------------------------------------------------
@@ -280,20 +254,6 @@ concatMap = flip bind
 -- | Filter an array, keeping the elements which satisfy a predicate function,
 -- | creating a new array.
 foreign import filter :: forall a. (a -> Boolean) -> Array a -> Array a
-
--- | Filter where the predicate returns a monadic `Boolean`.
--- |
--- | ```purescript
--- | powerSet :: forall a. [a] -> [[a]]
--- | powerSet = filterM (const [true, false])
--- | ```
-filterM :: forall a m. (Monad m) => (a -> m Boolean) -> Array a -> m (Array a)
-filterM p = uncons' (\_ -> pure []) \x xs -> do
-    b <- p x
-    xs' <- filterM p xs
-    return if b
-           then x : xs'
-           else xs'
 
 -- | Apply a function to each element in an array, keeping only the results
 -- | which contain a value, creating a new array.
@@ -471,18 +431,6 @@ unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
   Tuple as bs -> Tuple (a : as) (b : bs)
 
 --------------------------------------------------------------------------------
--- Folding ---------------------------------------------------------------------
---------------------------------------------------------------------------------
-
--- | Perform a fold using a monadic step function.
-foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
-foldM f a = uncons' (\_ -> return a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
-
-foreign import foldrArray :: forall a b. (a -> b -> b) -> b -> Array a -> b
-
-foreign import foldlArray :: forall a b. (b -> a -> b) -> b -> Array a -> b
-
---------------------------------------------------------------------------------
 -- Non-Prelude instances -------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -495,15 +443,6 @@ instance plusArray :: Plus Array where
 instance alternativeArray :: Alternative Array
 
 instance monadPlusArray :: MonadPlus Array
-
-instance foldableArray :: Foldable Array where
-  foldr f z xs = foldrArray f z xs
-  foldl f z xs = foldlArray f z xs
-  foldMap f xs = foldr (\x acc -> f x <> acc) mempty xs
-
-instance traversableArray :: Traversable Array where
-  traverse f = uncons' (\_ -> pure []) (\x xs -> (:) <$> (f x) <*> traverse f xs)
-  sequence = uncons' (\_ -> pure []) (\x xs -> (:) <$> x <*> sequence xs)
 
 instance invariantArray :: Invariant Array where
   imap = imapF

@@ -1,5 +1,7 @@
 module Test.Data.Array.ST (testArrayST) where
 
+import Prelude
+
 import Console (log, print)
 import Control.Monad.Eff (runPure)
 import Control.Monad.ST (runST)
