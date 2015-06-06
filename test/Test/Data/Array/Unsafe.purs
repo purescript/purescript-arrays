@@ -1,7 +1,5 @@
 module Test.Data.Array.Unsafe (testArrayUnsafe) where
 
-import Prelude
-
 import Console (log)
 import Data.Array.Unsafe
 import Test.Assert (assert)

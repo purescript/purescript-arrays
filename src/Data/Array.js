@@ -211,3 +211,29 @@ exports.zipWith = function (f) {
     };
   };
 };
+
+//------------------------------------------------------------------------------
+// Folding ---------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+exports.foldrArray = function (f) {
+  return function (init) {
+    return function (xs) {
+      /* jshint maxparams: 2 */
+      return xs.reduceRight(function (acc, x) {
+        return f(x)(acc);
+      }, init);
+    };
+  };
+};
+
+exports.foldlArray = function (f) {
+  return function (init) {
+    return function (xs) {
+      /* jshint maxparams: 2 */
+      return xs.reduce(function (acc, x) {
+        return f(acc)(x);
+      }, init);
+    };
+  };
+};

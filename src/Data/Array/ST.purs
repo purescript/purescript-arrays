@@ -16,8 +16,6 @@ module Data.Array.ST
   , toAssocArray
   ) where
 
-import Prelude
-
 import Control.Monad.Eff (Eff())
 import Control.Monad.ST (ST())
 import Data.Maybe (Maybe(..))
@@ -27,7 +25,7 @@ import Data.Maybe (Maybe(..))
 -- | The first type parameter represents the memory region which the array belongs to.
 -- | The second type parameter defines the type of elements of the mutable array.
 -- |
--- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
+-- | The runtime representation of a value of type `STArray h a` is the same as that of `[a]`,
 -- | except that mutation is allowed.
 foreign import data STArray :: * -> * -> *
 
