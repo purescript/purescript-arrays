@@ -1,6 +1,7 @@
 module Test.Data.Array (testArray) where
 
-import Console (log)
+import Prelude
+import Control.Monad.Eff.Console (log)
 import Data.Array
 import Data.Maybe (Maybe(..), isNothing)
 import Data.Maybe.Unsafe (fromJust)

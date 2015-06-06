@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/purescript/purescript-arrays.svg?branch=master)](https://travis-ci.org/purescript/purescript-arrays)
 
-Instances and utility functions for the `Array` type - JavaScript's native arrays.
+Utility functions for the `Array` type - JavaScript's native arrays.
 
 ## Installation
 

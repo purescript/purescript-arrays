@@ -1,6 +1,7 @@
 module Test.Data.Array.Unsafe (testArrayUnsafe) where
 
-import Console (log)
+import Prelude
+import Control.Monad.Eff.Console (log)
 import Data.Array.Unsafe
 import Test.Assert (assert)
 

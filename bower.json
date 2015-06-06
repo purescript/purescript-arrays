@@ -1,7 +1,7 @@
 {
   "name": "purescript-arrays",
   "homepage": "https://github.com/purescript/purescript-arrays",
-  "description": "Instances and utility functions for arrays",
+  "description": "Array utility functions",
   "keywords": [
     "purescript"
   ],
@@ -16,12 +16,12 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-foldable-traversable": "~0.4.0",
-    "purescript-st": "~0.1.0",
-    "purescript-tuples": "~0.4.0"
+    "purescript-foldable-traversable": "^0.4.0",
+    "purescript-st": "^0.1.0",
+    "purescript-tuples": "^0.4.0"
   },
   "devDependencies": {
-    "purescript-assert": "~0.1.0",
-    "purescript-console": "~0.1.0"
+    "purescript-assert": "^0.1.0",
+    "purescript-console": "^0.1.0"
   }
 }
