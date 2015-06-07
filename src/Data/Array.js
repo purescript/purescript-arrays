@@ -106,35 +106,45 @@ exports.findLastIndexImpl = function (just) {
   };
 };
 
-exports.insertAt = function (i) {
-  return function (a) {
-    return function (l) {
-      if (i < 0 || i >= l.length) return l;
-      var l1 = l.slice();
-      l1.splice(i, 0, a);
-      return l1;
+exports._insertAt = function (just) {
+  return function (nothing) {
+    return function (i) {
+      return function (a) {
+        return function (l) {
+          if (i < 0 || i > l.length) return nothing;
+          var l1 = l.slice();
+          l1.splice(i, 0, a);
+          return just(l1);
+        };
+      };
     };
   };
 };
 
-exports.deleteAt = function (i) {
-  return function (n) {
-    return function (l) {
-      if (i < 0 || i >= l.length) return l;
-      var l1 = l.slice();
-      l1.splice(i, n);
-      return l1;
+exports._deleteAt = function (just) {
+  return function (nothing) {
+    return function (i) {
+      return function (l) {
+        if (i < 0 || i >= l.length) return nothing;
+        var l1 = l.slice();
+        l1.splice(i, 1);
+        return just(l1);
+      };
     };
   };
 };
 
-exports.updateAt = function (i) {
-  return function (a) {
-    return function (l) {
-      if (i < 0 || i >= l.length) return l;
-      var l1 = l.slice();
-      l1[i] = a;
-      return l1;
+exports._updateAt = function (just) {
+  return function (nothing) {
+    return function (i) {
+      return function (a) {
+        return function (l) {
+          if (i < 0 || i >= l.length) return nothing;
+          var l1 = l.slice();
+          l1[i] = a;
+          return just(l1);
+        };
+      };
     };
   };
 };
@@ -208,32 +218,6 @@ exports.zipWith = function (f) {
         result[i] = f(xs[i])(ys[i]);
       }
       return result;
-    };
-  };
-};
-
-//------------------------------------------------------------------------------
-// Folding ---------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-exports.foldrArray = function (f) {
-  return function (init) {
-    return function (xs) {
-      /* jshint maxparams: 2 */
-      return xs.reduceRight(function (acc, x) {
-        return f(x)(acc);
-      }, init);
-    };
-  };
-};
-
-exports.foldlArray = function (f) {
-  return function (init) {
-    return function (xs) {
-      /* jshint maxparams: 2 */
-      return xs.reduce(function (acc, x) {
-        return f(acc)(x);
-      }, init);
     };
   };
 };

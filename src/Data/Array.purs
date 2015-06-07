@@ -18,6 +18,8 @@ module Data.Array
 
   , (:), cons
   , snoc
+  , insert
+  , insertBy
 
   , head
   , last
@@ -34,6 +36,7 @@ module Data.Array
   , deleteAt
   , updateAt
   , modifyAt
+  , alterAt
 
   , reverse
   , concat
@@ -58,6 +61,8 @@ module Data.Array
 
   , nub
   , nubBy
+  -- , union
+  -- , unionBy
   , delete
   , deleteBy
 
@@ -84,6 +89,8 @@ import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Monoid (Monoid, mempty)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
+
+import qualified Data.Maybe.Unsafe as U
 
 --------------------------------------------------------------------------------
 -- Array creation --------------------------------------------------------------
@@ -162,6 +169,17 @@ infixr 6 :
 -- | Append an element to the end of an array, creating a new array.
 foreign import snoc :: forall a. Array a -> a -> Array a
 
+-- | Insert an element into a sorted array.
+insert :: forall a. (Ord a) => a -> Array a -> Array a
+insert = insertBy compare
+
+-- | Insert an element into a sorted array, using the specified function to
+-- | determine the ordering of elements.
+insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
+insertBy cmp x ys =
+  let index = maybe 0 (+ 1) (findLastIndex (\y -> cmp x y == GT) ys)
+  in U.fromJust (insertAt index x ys)
+
 --------------------------------------------------------------------------------
 -- Non-indexed reads -----------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -236,8 +254,8 @@ findIndex = findIndexImpl Just Nothing
 foreign import findIndexImpl :: forall a. (forall b. b -> Maybe b)
                                        -> (forall b. Maybe b)
                                        -> (a -> Boolean)
-                                       -> (Array a)
-                                       -> (Maybe Int)
+                                       -> Array a
+                                       -> Maybe Int
 
 -- | Find the last index for which a predicate holds.
 findLastIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
@@ -246,21 +264,60 @@ findLastIndex = findLastIndexImpl Just Nothing
 foreign import findLastIndexImpl :: forall a. (forall b. b -> Maybe b)
                                            -> (forall b. Maybe b)
                                            -> (a -> Boolean)
-                                           -> (Array a)
-                                           -> (Maybe Int)
+                                           -> Array a
+                                           -> Maybe Int
 
--- | Insert an element at the specified index, creating a new array.
-foreign import insertAt :: forall a. Int -> a -> Array a -> Array a
+-- | Insert an element at the specified index, creating a new array, or
+-- | returning `Nothing` if the index is out of bounds.
+insertAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
+insertAt = _insertAt Just Nothing
 
--- | Delete the element at the specified index, creating a new array.
-foreign import deleteAt :: forall a. Int -> Int -> Array a -> Array a
+foreign import _insertAt :: forall a. (forall b. b -> Maybe b)
+                                   -> (forall b. Maybe b)
+                                   -> Int
+                                   -> a
+                                   -> Array a
+                                   -> Maybe (Array a)
 
--- | Change the element at the specified index, creating a new array.
-foreign import updateAt :: forall a. Int -> a -> Array a -> Array a
+-- | Delete the element at the specified index, creating a new array, or
+-- | returning `Nothing` if the index is out of bounds.
+deleteAt :: forall a. Int -> Array a -> Maybe (Array a)
+deleteAt = _deleteAt Just Nothing
 
--- | Apply a function to the element at the specified index, creating a new array.
-modifyAt :: forall a. Int -> (a -> a) -> Array a -> Array a
-modifyAt i f xs = maybe xs (\x -> updateAt i (f x) xs) (xs !! i)
+foreign import _deleteAt :: forall a. (forall b. b -> Maybe b)
+                                   -> (forall b. Maybe b)
+                                   -> Int
+                                   -> Array a
+                                   -> Maybe (Array a)
+
+-- | Change the element at the specified index, creating a new array, or
+-- | returning `Nothing` if the index is out of bounds.
+updateAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
+updateAt = _updateAt Just Nothing
+
+foreign import _updateAt :: forall a. (forall b. b -> Maybe b)
+                                   -> (forall b. Maybe b)
+                                   -> Int
+                                   -> a
+                                   -> Array a
+                                   -> Maybe (Array a)
+
+-- | Apply a function to the element at the specified index, creating a new
+-- | array, or returning `Nothing` if the index is out of bounds.
+modifyAt :: forall a. Int -> (a -> a) -> Array a -> Maybe (Array a)
+modifyAt i f xs = maybe Nothing go (xs !! i)
+  where
+  go x = updateAt i (f x) xs
+
+-- | Update or delete the element at the specified index by applying a
+-- | function to the current value, returning a new array or `Nothing` if the
+-- | index is out-of-bounds.
+alterAt :: forall a. Int -> (a -> Maybe a) -> Array a -> Maybe (Array a)
+alterAt i f xs = maybe Nothing go (xs !! i)
+  where
+  go x = case f x of
+    Nothing -> deleteAt i xs
+    Just x' -> updateAt i x' xs
 
 --------------------------------------------------------------------------------
 -- Transformations -------------------------------------------------------------
@@ -419,7 +476,7 @@ delete = deleteBy eq
 -- | new array.
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
 deleteBy _  _ [] = []
-deleteBy eq x ys = maybe ys (\i -> deleteAt i one ys) (findIndex (eq x) ys)
+deleteBy eq x ys = maybe ys (\i -> U.fromJust $ deleteAt i ys) (findIndex (eq x) ys)
 
 infix 5 \\
 
@@ -477,7 +534,3 @@ unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
 -- | Perform a fold using a monadic step function.
 foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
 foldM f a = uncons' (\_ -> return a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
-
-foreign import foldrArray :: forall a b. (a -> b -> b) -> b -> Array a -> b
-
-foreign import foldlArray :: forall a b. (b -> a -> b) -> b -> Array a -> b

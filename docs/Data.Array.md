@@ -107,6 +107,23 @@ snoc :: forall a. Array a -> a -> Array a
 
 Append an element to the end of an array, creating a new array.
 
+#### `insert`
+
+``` purescript
+insert :: forall a. (Ord a) => a -> Array a -> Array a
+```
+
+Insert an element into a sorted array.
+
+#### `insertBy`
+
+``` purescript
+insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
+```
+
+Insert an element into a sorted array, using the specified function to
+determine the ordering of elements.
+
 #### `head`
 
 ``` purescript
@@ -200,34 +217,48 @@ Find the last index for which a predicate holds.
 #### `insertAt`
 
 ``` purescript
-insertAt :: forall a. Int -> a -> Array a -> Array a
+insertAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
 ```
 
-Insert an element at the specified index, creating a new array.
+Insert an element at the specified index, creating a new array, or
+returning `Nothing` if the index is out of bounds.
 
 #### `deleteAt`
 
 ``` purescript
-deleteAt :: forall a. Int -> Int -> Array a -> Array a
+deleteAt :: forall a. Int -> Array a -> Maybe (Array a)
 ```
 
-Delete the element at the specified index, creating a new array.
+Delete the element at the specified index, creating a new array, or
+returning `Nothing` if the index is out of bounds.
 
 #### `updateAt`
 
 ``` purescript
-updateAt :: forall a. Int -> a -> Array a -> Array a
+updateAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
 ```
 
-Change the element at the specified index, creating a new array.
+Change the element at the specified index, creating a new array, or
+returning `Nothing` if the index is out of bounds.
 
 #### `modifyAt`
 
 ``` purescript
-modifyAt :: forall a. Int -> (a -> a) -> Array a -> Array a
+modifyAt :: forall a. Int -> (a -> a) -> Array a -> Maybe (Array a)
 ```
 
-Apply a function to the element at the specified index, creating a new array.
+Apply a function to the element at the specified index, creating a new
+array, or returning `Nothing` if the index is out of bounds.
+
+#### `alterAt`
+
+``` purescript
+alterAt :: forall a. Int -> (a -> Maybe a) -> Array a -> Maybe (Array a)
+```
+
+Update or delete the element at the specified index by applying a
+function to the current value, returning a new array or `Nothing` if the
+index is out-of-bounds.
 
 #### `reverse`
 

@@ -46,13 +46,23 @@ testArray = do
   assert $ length [1] == 1
   assert $ length [1, 2, 3, 4, 5] == 5
 
-  log "const should add an item to the start of an array"
+  log "cons should add an item to the start of an array"
   assert $ 4 : [1, 2, 3] == [4, 1, 2, 3]
   assert $ 1 : nil == [1]
 
   log "snoc should add an item to the end of an array"
   assert $ [1, 2, 3] `snoc` 4 == [1, 2, 3, 4]
   assert $ nil `snoc` 1 == [1]
+
+  log "insert should add an item at the appropriate place in a sorted array"
+  assert $ insert 1.5 [1.0, 2.0, 3.0] == [1.0, 1.5, 2.0, 3.0]
+  assert $ insert 4 [1, 2, 3] == [1, 2, 3, 4]
+  assert $ insert 0 [1, 2, 3] == [0, 1, 2, 3]
+
+  log "insertBy should add an item at the appropriate place in a sorted array using the specified comparison"
+  assert $ insertBy (flip compare) 1.5 [1.0, 2.0, 3.0] == [1.0, 2.0, 3.0, 1.5]
+  assert $ insertBy (flip compare) 4 [1, 2, 3] == [4, 1, 2, 3]
+  assert $ insertBy (flip compare) 0 [1, 2, 3] == [1, 2, 3, 0]
 
   log "head should return a Just-wrapped first value of a non-empty array"
   assert $ head ["foo", "bar"] == Just "foo"
@@ -115,22 +125,44 @@ testArray = do
   assert $ (findLastIndex (== 3) [2, 1, 2]) == Nothing
 
   log "insertAt should add an item at the specified index"
-  assert $ (insertAt 0 1 [2, 3]) == [1, 2, 3]
-  assert $ (insertAt 1 1 [2, 3]) == [2, 1, 3]
+  assert $ (insertAt 0 1 [2, 3]) == Just [1, 2, 3]
+  assert $ (insertAt 1 1 [2, 3]) == Just [2, 1, 3]
+  assert $ (insertAt 2 1 [2, 3]) == Just [2, 3, 1]
+
+  log "insertAt should return Nothing if the index is out of range"
+  assert $ (insertAt 2 1 nil) == Nothing
 
   log "deleteAt should remove an item at the specified index"
-  assert $ (deleteAt 0 1 [1, 2, 3]) == [2, 3]
-  assert $ (deleteAt 1 1 [1, 2, 3]) == [1, 3]
+  assert $ (deleteAt 0 [1, 2, 3]) == Just [2, 3]
+  assert $ (deleteAt 1 [1, 2, 3]) == Just [1, 3]
+
+  log "deleteAt should return Nothing if the index is out of range"
+  assert $ (deleteAt 1 nil) == Nothing
 
   log "updateAt should replace an item at the specified index"
-  assert $ (updateAt 0 9 [1, 2, 3]) == [9, 2, 3]
-  assert $ (updateAt 1 9 [1, 2, 3]) == [1, 9, 3]
-  assert $ (updateAt 1 9 nil) == nil
+  assert $ (updateAt 0 9 [1, 2, 3]) == Just [9, 2, 3]
+  assert $ (updateAt 1 9 [1, 2, 3]) == Just [1, 9, 3]
+
+  log "updateAt should return Nothing if the index is out of range"
+  assert $ (updateAt 1 9 nil) == Nothing
 
   log "modifyAt should update an item at the specified index"
-  assert $ (modifyAt 0 (+ 1) [1, 2, 3]) == [2, 2, 3]
-  assert $ (modifyAt 1 (+ 1) [1, 2, 3]) == [1, 3, 3]
-  assert $ (modifyAt 1 (+ 1) nil) == nil
+  assert $ (modifyAt 0 (+ 1) [1, 2, 3]) == Just [2, 2, 3]
+  assert $ (modifyAt 1 (+ 1) [1, 2, 3]) == Just [1, 3, 3]
+
+  log "modifyAt should return Nothing if the index is out of range"
+  assert $ (modifyAt 1 (+ 1) nil) == Nothing
+
+  log "alterAt should update an item at the specified index when the function returns Just"
+  assert $ (alterAt 0 (Just <<< (+ 1)) [1, 2, 3]) == Just [2, 2, 3]
+  assert $ (alterAt 1 (Just <<< (+ 1)) [1, 2, 3]) == Just [1, 3, 3]
+
+  log "alterAt should drop an item at the specified index when the function returns Nothing"
+  assert $ (alterAt 0 (const Nothing) [1, 2, 3]) == Just [2, 3]
+  assert $ (alterAt 1 (const Nothing) [1, 2, 3]) == Just [1, 3]
+
+  log "alterAt should return Nothing if the index is out of range"
+  assert $ (alterAt 1 (Just <<< (+ 1)) nil) == Nothing
 
   log "reverse should reverse the order of items in an array"
   assert $ (reverse [1, 2, 3]) == [3, 2, 1]
@@ -147,7 +179,9 @@ testArray = do
   log "filter should remove items that don't match a predicate"
   assert $ filter odd (range 0 10) == [1, 3, 5, 7, 9]
 
-  -- filterM
+  log "filterM should remove items that don't match a predicate while using a monadic behaviour"
+  assert $ filterM (Just <<< odd) (range 0 10) == Just [1, 3, 5, 7, 9]
+  assert $ filterM (const Nothing) (range 0 10) == Nothing
 
   log "mapMaybe should transform every item in an array, throwing out Nothing values"
   assert $ mapMaybe (\x -> if x /= 0 then Just x else Nothing) [0, 1, 0, 0, 2, 3] == [1, 2, 3]
@@ -231,7 +265,9 @@ testArray = do
   log "unzip should deconstruct a list of tuples into a tuple of lists"
   assert $ unzip [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"] == Tuple [1, 2, 3] ["a", "b", "c"]
 
-  -- foldM
+  log "foldM should perform a fold using a monadic step function"
+  assert $ foldM (\x y -> Just (x + y)) 0 (range 1 10) == Just 55
+  assert $ foldM (\_ _ -> Nothing) 0 (range 1 10) == Nothing
 
 nil :: Array Int
 nil = []
