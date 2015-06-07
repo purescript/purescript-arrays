@@ -236,6 +236,13 @@ testArray = do
   let nubPred = \x y -> if odd x then false else x == y
   assert $ nubBy nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
 
+  log "union should produce the union of two arrays"
+  assert $ union [1, 2, 3] [2, 3, 4] == [1, 2, 3, 4]
+  assert $ union [1, 1, 2, 3] [2, 3, 4] == [1, 1, 2, 3, 4]
+
+  log "unionBy should produce the union of two arrays using the specified equality relation"
+  assert $ unionBy (\_ y -> y < 5) [1, 2, 3] [2, 3, 4, 5, 6] == [1, 2, 3, 5, 6]
+
   log "delete should remove the first matching item from an array"
   assert $ delete 1 [1, 2, 1] == [2, 1]
   assert $ delete 2 [1, 2, 1] == [1, 1]

@@ -61,8 +61,8 @@ module Data.Array
 
   , nub
   , nubBy
-  -- , union
-  -- , unionBy
+  , union
+  , unionBy
   , delete
   , deleteBy
 
@@ -84,6 +84,7 @@ import Control.Alternative (Alternative)
 import Control.Lazy (Lazy, defer)
 import Control.MonadPlus (MonadPlus)
 import Control.Plus (Plus)
+import Data.Foldable (foldl)
 import Data.Functor.Invariant (Invariant, imapF)
 import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Monoid (Monoid, mempty)
@@ -465,6 +466,17 @@ nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 nubBy _ [] = []
 nubBy eq xs = case uncons xs of
                 Just o -> o.head : nubBy eq (filter (\y -> not (o.head `eq` y)) o.tail)
+
+-- | Calculate the union of two lists.
+-- |
+-- | Running time: `O(n^2)`
+union :: forall a. (Eq a) => Array a -> Array a -> Array a
+union = unionBy (==)
+
+-- | Calculate the union of two arrays, using the specified function to
+-- | determine equality of elements.
+unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
+unionBy eq xs ys = xs ++ foldl (flip (deleteBy eq)) (nubBy eq ys) xs
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.

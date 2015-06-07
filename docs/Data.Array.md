@@ -443,6 +443,25 @@ nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 Remove the duplicates from an array, where element equality is determined
 by the specified equivalence relation, creating a new array.
 
+#### `union`
+
+``` purescript
+union :: forall a. (Eq a) => Array a -> Array a -> Array a
+```
+
+Calculate the union of two lists.
+
+Running time: `O(n^2)`
+
+#### `unionBy`
+
+``` purescript
+unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
+```
+
+Calculate the union of two arrays, using the specified function to
+determine equality of elements.
+
 #### `delete`
 
 ``` purescript
