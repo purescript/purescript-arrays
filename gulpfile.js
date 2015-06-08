@@ -47,7 +47,9 @@ gulp.task("docs", ["clean-docs"], function () {
     .pipe(plumber())
     .pipe(purescript.pscDocs({
       docgen: {
-        "Data.Array": "docs/Data.Array.md"
+        "Data.Array": "docs/Data.Array.md",
+        "Data.Array.ST": "docs/Data.Array.ST.md",
+        "Data.Array.Unsafe": "docs/Data.Array.Unsafe.md"
       }
     }));
 });
