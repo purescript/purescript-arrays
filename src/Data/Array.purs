@@ -178,8 +178,8 @@ insert = insertBy compare
 -- | determine the ordering of elements.
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
 insertBy cmp x ys =
-  let index = maybe 0 (+ 1) (findLastIndex (\y -> cmp x y == GT) ys)
-  in U.fromJust (insertAt index x ys)
+  let i = maybe 0 (+ 1) (findLastIndex (\y -> cmp x y == GT) ys)
+  in U.fromJust (insertAt i x ys)
 
 --------------------------------------------------------------------------------
 -- Non-indexed reads -----------------------------------------------------------
