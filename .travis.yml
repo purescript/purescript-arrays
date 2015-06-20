@@ -1,4 +1,5 @@
 language: node_js
+sudo: false
 node_js:
   - 0.10
 env:
@@ -11,4 +12,4 @@ install:
   - npm install bower gulp -g
   - npm install && bower install
 script:
-  - gulp test
+  - gulp
