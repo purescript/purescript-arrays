@@ -6,6 +6,10 @@
     "purescript"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/purescript/purescript-arrays.git"
+  },
   "ignore": [
     "**/.*",
     "bower_components",
