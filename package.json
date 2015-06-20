@@ -1,8 +1,5 @@
 {
   "private": true,
-  "scripts": {
-    "test": ""
-  },
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-jscs": "^1.6.0",
