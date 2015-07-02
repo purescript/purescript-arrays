@@ -28,6 +28,8 @@ Create an array containing a range of integers, including both endpoints.
 (..) :: Int -> Int -> Array Int
 ```
 
+_non-associative / precedence 8_
+
 An infix synonym for `range`.
 
 #### `replicate`
@@ -94,6 +96,8 @@ cons :: forall a. a -> Array a -> Array a
 ``` purescript
 (:) :: forall a. a -> Array a -> Array a
 ```
+
+_right-associative / precedence 6_
 
 An infix alias for `cons`.
 
@@ -179,6 +183,8 @@ index :: forall a. Array a -> Int -> Maybe a
 ``` purescript
 (!!) :: forall a. Array a -> Int -> Maybe a
 ```
+
+_left-associative / precedence 8_
 
 An infix version of `index`.
 
@@ -486,6 +492,8 @@ new array.
 ``` purescript
 (\\) :: forall a. (Eq a) => Array a -> Array a -> Array a
 ```
+
+_non-associative / precedence 5_
 
 Delete the first occurrence of each element in the second array from the
 first array, creating a new array.
