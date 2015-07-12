@@ -170,7 +170,20 @@ Running time: `O(n)` where `n` is the length of the array
 uncons :: forall a. Array a -> Maybe { head :: a, tail :: Array a }
 ```
 
-Break an array into its first element, and the remaining elements
+Break an array into its first element and remaining elements.
+
+Using `uncons` provides a way of writing code that would use cons patterns
+in Haskell or pre-PureScript 0.7:
+``` purescript
+f (x : xs) = something
+f [] = somethingElse
+```
+Becomes:
+``` purescript
+f arr = case uncons arr of
+  Just { head: x, tail: xs } -> something
+  Nothing -> somethingElse
+```
 
 #### `index`
 
