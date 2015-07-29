@@ -31,6 +31,10 @@ testArray = do
   assert $ replicateM 0 (Just 1) == Just []
   assert $ replicateM (-1) (Just 1) == Just []
 
+  log "replicateM should be stack safe"
+  let n = 50000
+  assert $ replicateM n (Just unit) == Just (replicate n unit)
+
   -- some
   -- many
 

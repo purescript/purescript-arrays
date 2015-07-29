@@ -115,10 +115,8 @@ foreign import replicate :: forall a. Int -> a -> Array a
 
 -- | Perform a monadic action `n` times collecting all of the results.
 replicateM :: forall m a. (Monad m) => Int -> m a -> m (Array a)
-replicateM n m | n < 1 = return []
-               | otherwise = do a <- m
-                                as <- replicateM (n - 1) m
-                                return (a : as)
+replicateM n m | n < 1     = return []
+               | otherwise = sequence $ replicate n m
 
 -- | Attempt a computation multiple times, requiring at least one success.
 -- |
