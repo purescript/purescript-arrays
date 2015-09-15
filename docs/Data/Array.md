@@ -453,6 +453,8 @@ specified equivalence relation to detemine equality.
 nub :: forall a. (Eq a) => Array a -> Array a
 ```
 
+Special case of `nubBy`: `nubBy eq`
+
 #### `nubBy`
 
 ``` purescript
@@ -460,7 +462,8 @@ nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 ```
 
 Remove the duplicates from an array, where element equality is determined
-by the specified equivalence relation, creating a new array.
+by the specified equivalence relation, creating a new array. The first
+occurence of an element is always the one that is kept.
 
 #### `union`
 
@@ -566,5 +569,3 @@ second components.
 ``` purescript
 foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
 ```
-
-
