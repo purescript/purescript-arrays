@@ -79,18 +79,19 @@ module Data.Array
   ) where
 
 import Prelude
+
 import Control.Alt (Alt, (<|>))
 import Control.Alternative (Alternative)
 import Control.Lazy (Lazy, defer)
 import Control.MonadPlus (MonadPlus)
 import Control.Plus (Plus)
+
 import Data.Foldable (foldl)
-import Data.Functor.Invariant (Invariant, imapF)
+import Data.Functor.Invariant (Invariant)
 import Data.Maybe (Maybe(..), maybe, isJust)
-import Data.Monoid (Monoid, mempty)
+import Data.Monoid (Monoid)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
-
 import qualified Data.Maybe.Unsafe as U
 
 --------------------------------------------------------------------------------

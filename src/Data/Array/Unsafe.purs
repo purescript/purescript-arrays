@@ -6,6 +6,7 @@
 module Data.Array.Unsafe where
 
 import Prelude
+
 import Data.Array (length, slice)
 
 -- | Find the element of an array at the specified index.

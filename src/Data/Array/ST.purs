@@ -17,8 +17,10 @@ module Data.Array.ST
   ) where
 
 import Prelude
+
 import Control.Monad.Eff (Eff())
 import Control.Monad.ST (ST())
+
 import Data.Maybe (Maybe(..))
 
 -- | A reference to a mutable array.
