@@ -5,6 +5,28 @@
 -- | use cases. This module is useful when integrating with JavaScript libraries
 -- | which use arrays, but immutable arrays are not a practical data structure
 -- | for many use cases due to their poor asymptotics.
+-- |
+-- | In addition to the functions in this module, Arrays have a number of
+-- | useful instances:
+-- |
+-- | * `Functor`, which provides `map :: forall a b. (a -> b) -> Array a ->
+-- |   Array b`
+-- | * `Apply`, which provides `(<*>) :: forall a b. Array (a -> b) -> Array a
+-- |   -> Array b`. This function works a bit like a Cartesian product; the
+-- |   result array is constructed by applying each function in the first
+-- |   array to each value in the second, so that the result array ends up with
+-- |   a length equal to the product of the two arguments' lengths.
+-- | * `Bind`, which provides `(>>=) :: forall a b. (a -> Array b) -> Array a
+-- |   -> Array b` (this is the same as `concatMap`).
+-- | * `Semigroup`, which provides `(<>) :: forall a. Array a -> Array a ->
+-- |   Array a`, for concatenating arrays.
+-- | * `Foldable`, which provides a slew of functions for *folding* (also known
+-- |   as *reducing*) arrays down to one value. For example,
+-- |   `Data.Foldable.any` tests whether an array of `Boolean` values contains
+-- |   at least one `true`.
+-- | * `Traversable`, which provides the PureScript version of a for-loop,
+-- |   allowing you to iterate over an array and accumulate effects.
+-- |
 module Data.Array
   ( singleton
   , (..), range
