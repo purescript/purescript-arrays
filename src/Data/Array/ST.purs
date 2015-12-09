@@ -28,11 +28,11 @@ import Data.Maybe (Maybe(..))
 -- | The first type parameter represents the memory region which the array belongs to.
 -- | The second type parameter defines the type of elements of the mutable array.
 -- |
--- | The runtime representation of a value of type `STArray h a` is the same as that of `[a]`,
+-- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
 -- | except that mutation is allowed.
 foreign import data STArray :: * -> * -> *
 
--- | An element and its index
+-- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
 
 -- | Freeze a mutable array, creating an immutable array. Use this function as you would use
