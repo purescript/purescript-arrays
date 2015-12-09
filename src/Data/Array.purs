@@ -94,10 +94,6 @@ import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import qualified Data.Maybe.Unsafe as U
 
---------------------------------------------------------------------------------
--- Array creation --------------------------------------------------------------
---------------------------------------------------------------------------------
-
 -- | Create an array of one element
 singleton :: forall a. a -> Array a
 singleton a = [a]
@@ -464,10 +460,6 @@ groupBy op = go []
               in go ((o.head : sp.init) : acc) sp.rest
     Nothing -> reverse acc
 
---------------------------------------------------------------------------------
--- Set-like operations ---------------------------------------------------------
---------------------------------------------------------------------------------
-
 -- | Remove the duplicates from an array, creating a new array.
 nub :: forall a. (Eq a) => Array a -> Array a
 nub = nubBy eq
@@ -519,10 +511,6 @@ intersect = intersectBy eq
 intersectBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
 intersectBy eq xs ys = filter (\x -> isJust (findIndex (eq x) ys)) xs
 
---------------------------------------------------------------------------------
--- Zipping ---------------------------------------------------------------------
---------------------------------------------------------------------------------
-
 -- | Apply a function to pairs of elements at the same index in two arrays,
 -- | collecting the results in a new array.
 -- |
@@ -550,10 +538,6 @@ zip = zipWith Tuple
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
   Tuple as bs -> Tuple (a : as) (b : bs)
-
---------------------------------------------------------------------------------
--- Folding ---------------------------------------------------------------------
---------------------------------------------------------------------------------
 
 -- | Perform a fold using a monadic step function.
 foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
