@@ -8,11 +8,35 @@ use cases. This module is useful when integrating with JavaScript libraries
 which use arrays, but immutable arrays are not a practical data structure
 for many use cases due to their poor asymptotics.
 
+In addition to the functions in this module, Arrays have a number of
+useful instances:
+
+* `Functor`, which provides `map :: forall a b. (a -> b) -> Array a ->
+  Array b`
+* `Apply`, which provides `(<*>) :: forall a b. Array (a -> b) -> Array a
+  -> Array b`. This function works a bit like a Cartesian product; the
+  result array is constructed by applying each function in the first
+  array to each value in the second, so that the result array ends up with
+  a length equal to the product of the two arguments' lengths.
+* `Bind`, which provides `(>>=) :: forall a b. (a -> Array b) -> Array a
+  -> Array b` (this is the same as `concatMap`).
+* `Semigroup`, which provides `(<>) :: forall a. Array a -> Array a ->
+  Array a`, for concatenating arrays.
+* `Foldable`, which provides a slew of functions for *folding* (also known
+  as *reducing*) arrays down to one value. For example,
+  `Data.Foldable.any` tests whether an array of `Boolean` values contains
+  at least one `true`.
+* `Traversable`, which provides the PureScript version of a for-loop,
+  allowing you to iterate over an array and accumulate effects.
+
+
 #### `singleton`
 
 ``` purescript
 singleton :: forall a. a -> Array a
 ```
+
+Create an array of one element
 
 #### `range`
 
@@ -453,7 +477,7 @@ specified equivalence relation to detemine equality.
 nub :: forall a. (Eq a) => Array a -> Array a
 ```
 
-Special case of `nubBy`: `nubBy eq`
+Remove the duplicates from an array, creating a new array.
 
 #### `nubBy`
 
@@ -462,8 +486,7 @@ nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 ```
 
 Remove the duplicates from an array, where element equality is determined
-by the specified equivalence relation, creating a new array. The first
-occurence of an element is always the one that is kept.
+by the specified equivalence relation, creating a new array.
 
 #### `union`
 
@@ -537,6 +560,17 @@ relation to compare elements, creating a new array.
 zipWith :: forall a b c. (a -> b -> c) -> Array a -> Array b -> Array c
 ```
 
+Apply a function to pairs of elements at the same index in two arrays,
+collecting the results in a new array.
+
+If one array is longer, elements will be discarded from the longer array.
+
+For example
+
+```purescript
+zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
+```
+
 #### `zipWithA`
 
 ``` purescript
@@ -569,3 +603,7 @@ second components.
 ``` purescript
 foldM :: forall m a b. (Monad m) => (a -> b -> m a) -> a -> Array b -> m a
 ```
+
+Perform a fold using a monadic step function.
+
+
