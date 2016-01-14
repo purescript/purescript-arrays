@@ -24,8 +24,8 @@ useful instances:
   Array a`, for concatenating arrays.
 * `Foldable`, which provides a slew of functions for *folding* (also known
   as *reducing*) arrays down to one value. For example,
-  `Data.Foldable.any` tests whether an array of `Boolean` values contains
-  at least one `true`.
+  `Data.Foldable.or` tests whether an array of `Boolean` values contains
+  at least one `true` value.
 * `Traversable`, which provides the PureScript version of a for-loop,
   allowing you to iterate over an array and accumulate effects.
 
