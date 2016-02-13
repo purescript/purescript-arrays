@@ -89,7 +89,7 @@ module Data.Array
   , delete
   , deleteBy
 
-  , (\\)
+  , (\\), difference
   , intersect
   , intersectBy
 
@@ -101,21 +101,17 @@ module Data.Array
   , foldM
   ) where
 
-import Prelude
+import Prelude (class Monad, class Applicative, class Eq, class Ord, Unit, Ordering(LT, EQ, GT), (>>=), return, eq, const, otherwise, ($), flip, (++), (==), not, (<<<), negate, compare, id, bind, pure, one, (-), zero, (+), (<*>), (<$>), (<))
 
-import Control.Alt (Alt, (<|>))
-import Control.Alternative (Alternative)
-import Control.Lazy (Lazy, defer)
-import Control.MonadPlus (MonadPlus)
-import Control.Plus (Plus)
+import Control.Alt ((<|>))
+import Control.Alternative (class Alternative)
+import Control.Lazy (class Lazy, defer)
 
 import Data.Foldable (foldl)
-import Data.Functor.Invariant (Invariant)
 import Data.Maybe (Maybe(..), maybe, isJust)
-import Data.Monoid (Monoid)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
-import qualified Data.Maybe.Unsafe as U
+import Data.Maybe.Unsafe as U
 
 -- | Create an array of one element
 singleton :: forall a. a -> Array a
@@ -124,11 +120,8 @@ singleton a = [a]
 -- | Create an array containing a range of integers, including both endpoints.
 foreign import range :: Int -> Int -> Array Int
 
-infix 8 ..
-
 -- | An infix synonym for `range`.
-(..) :: Int -> Int -> Array Int
-(..) = range
+infix 8 range as ..
 
 -- | Create an array with repeated instances of a value.
 foreign import replicate :: forall a. Int -> a -> Array a
@@ -177,13 +170,10 @@ foreign import length :: forall a. Array a -> Int
 -- | Note, the running time of this function is `O(n)`.
 foreign import cons :: forall a. a -> Array a -> Array a
 
-infixr 6 :
-
 -- | An infix alias for `cons`.
 -- |
 -- | Note, the running time of this function is `O(n)`.
-(:) :: forall a. a -> Array a -> Array a
-(:) = cons
+infixr 6 cons as :
 
 -- | Append an element to the end of an array, creating a new array.
 foreign import snoc :: forall a. Array a -> a -> Array a
@@ -265,11 +255,8 @@ foreign import indexImpl :: forall a. (forall r. r -> Maybe r)
                                    -> Int
                                    -> Maybe a
 
-infixl 8 !!
-
 -- | An infix version of `index`.
-(!!) :: forall a. Array a -> Int -> Maybe a
-(!!) = index
+infixl 8 index as !!
 
 -- | Find the index of the first element equal to the specified element.
 elemIndex :: forall a. (Eq a) => a -> Array a -> Maybe Int
@@ -524,13 +511,13 @@ deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
 deleteBy _  _ [] = []
 deleteBy eq x ys = maybe ys (\i -> U.fromJust $ deleteAt i ys) (findIndex (eq x) ys)
 
-infix 5 \\
-
 -- | Delete the first occurrence of each element in the second array from the
 -- | first array, creating a new array.
-(\\) :: forall a. (Eq a) => Array a -> Array a -> Array a
-(\\) xs ys | null xs = []
-           | otherwise = uncons' (const xs) (\y ys -> delete y xs \\ ys) ys
+difference :: forall a. (Eq a) => Array a -> Array a -> Array a
+difference xs ys | null xs = []
+           | otherwise = uncons' (const xs) (\z zs -> delete z xs \\ zs) ys
+
+infix 5 difference as \\
 
 -- | Calculate the intersection of two arrays, creating a new array.
 intersect :: forall a. (Eq a) => Array a -> Array a -> Array a
