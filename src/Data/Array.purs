@@ -64,6 +64,7 @@ module Data.Array
   , concat
   , concatMap
   , filter
+  , partition
   , filterM
   , mapMaybe
   , catMaybes
@@ -368,6 +369,13 @@ concatMap = flip bind
 -- | Filter an array, keeping the elements which satisfy a predicate function,
 -- | creating a new array.
 foreign import filter :: forall a. (a -> Boolean) -> Array a -> Array a
+
+-- | Partition an array using a predicate function, creating a set of
+-- | new arrays. One for the values satisfying the predicate function
+-- | and one for values that don't.
+foreign import partition :: forall a. (a -> Boolean)
+                         -> Array a
+                         -> { yes :: Array a, no :: Array a }
 
 -- | Filter where the predicate returns a monadic `Boolean`.
 -- |

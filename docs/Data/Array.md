@@ -101,6 +101,8 @@ termination.
 null :: forall a. Array a -> Boolean
 ```
 
+Test whether an array is empty.
+
 #### `length`
 
 ``` purescript
@@ -114,6 +116,14 @@ Get the number of elements in an array.
 ``` purescript
 cons :: forall a. a -> Array a -> Array a
 ```
+
+Attaches an element to the front of an array, creating a new array.
+
+```purescript
+cons 1 [2, 3, 4] = [1, 2, 3, 4]
+```
+
+Note, the running time of this function is `O(n)`.
 
 #### `(:)`
 
@@ -157,6 +167,10 @@ determine the ordering of elements.
 ``` purescript
 head :: forall a. Array a -> Maybe a
 ```
+
+Get the first element in an array, or `Nothing` if the array is empty
+
+Running time: `O(1)`.
 
 #### `last`
 
@@ -214,6 +228,9 @@ f arr = case uncons arr of
 ``` purescript
 index :: forall a. Array a -> Int -> Maybe a
 ```
+
+This function provides a safe way to read a value at a particular index
+from an array.
 
 #### `(!!)`
 
@@ -309,6 +326,8 @@ index is out-of-bounds.
 reverse :: forall a. Array a -> Array a
 ```
 
+Reverse an array, creating a new array.
+
 #### `concat`
 
 ``` purescript
@@ -334,6 +353,16 @@ filter :: forall a. (a -> Boolean) -> Array a -> Array a
 
 Filter an array, keeping the elements which satisfy a predicate function,
 creating a new array.
+
+#### `partition`
+
+``` purescript
+partition :: forall a. (a -> Boolean) -> Array a -> { yes :: Array a, no :: Array a }
+```
+
+Partition an array using a predicate function, creating a set of
+new arrays. One for the values satisfying the predicate function
+and one for values that don't.
 
 #### `filterM`
 
@@ -372,6 +401,8 @@ a value, creating a new array.
 sort :: forall a. (Ord a) => Array a -> Array a
 ```
 
+Sort the elements of an array in increasing order, creating a new array.
+
 #### `sortBy`
 
 ``` purescript
@@ -386,6 +417,8 @@ the specified partial ordering, creating a new array.
 ``` purescript
 slice :: forall a. Int -> Int -> Array a -> Array a
 ```
+
+Extract a subarray by a start and end index.
 
 #### `take`
 

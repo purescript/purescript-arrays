@@ -174,6 +174,21 @@ exports.filter = function (f) {
   };
 };
 
+exports.partition = function (f) {
+  return function (xs) {
+    var yes = [];
+    var no  = [];
+    for (var i = 0; i < xs.length; i++) {
+      var x = xs[i];
+      if (f(x))
+        yes.push(x);
+      else
+        no.push(x);
+    }
+    return { yes: yes, no: no };
+  };
+};
+
 //------------------------------------------------------------------------------
 // Sorting ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
