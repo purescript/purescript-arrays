@@ -186,7 +186,7 @@ insert = insertBy compare
 -- | determine the ordering of elements.
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
 insertBy cmp x ys =
-  let i = maybe 0 (+ 1) (findLastIndex (\y -> cmp x y == GT) ys)
+  let i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
   in U.fromJust (insertAt i x ys)
 
 --------------------------------------------------------------------------------
@@ -260,11 +260,11 @@ infixl 8 index as !!
 
 -- | Find the index of the first element equal to the specified element.
 elemIndex :: forall a. (Eq a) => a -> Array a -> Maybe Int
-elemIndex x = findIndex (== x)
+elemIndex x = findIndex (_ == x)
 
 -- | Find the index of the last element equal to the specified element.
 elemLastIndex :: forall a. (Eq a) => a -> Array a -> Maybe Int
-elemLastIndex x = findLastIndex (== x)
+elemLastIndex x = findLastIndex (_ == x)
 
 -- | Find the first index for which a predicate holds.
 findIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int

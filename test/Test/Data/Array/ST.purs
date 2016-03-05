@@ -1,15 +1,21 @@
 module Test.Data.Array.ST (testArrayST) where
 
-import Prelude
-import Control.Monad.Eff.Console (log, print)
-import Control.Monad.Eff (runPure)
+import Prelude (bind, (+), (*), (==), ($), return, negate, not, Unit)
+import Control.Monad.Eff.Console (log, CONSOLE)
+import Control.Monad.Eff (runPure, Eff)
 import Control.Monad.ST (runST)
-import Data.Array ()
-import Data.Array.ST
+import Data.Array.ST (toAssocArray, thaw, spliceSTArray, runSTArray, pokeSTArray, emptySTArray, peekSTArray, pushAllSTArray, pushSTArray, freeze)
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
-import Test.Assert (assert)
+import Test.Assert (assert, ASSERT)
 
+testArrayST :: forall t.
+        Eff
+          ( console :: CONSOLE
+          , assert :: ASSERT
+          | t
+          )
+          Unit
 testArrayST = do
 
   log "emptySTArray should produce an empty array"
