@@ -1,9 +1,12 @@
 module Test.Data.Array.Unsafe (testArrayUnsafe) where
 
-import Prelude ((==), ($), bind, Unit)
+import Prelude
+
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
+
 import Data.Array.Unsafe (init, last, tail, head)
+
 import Test.Assert (assert, ASSERT)
 
 testArrayUnsafe :: forall t.

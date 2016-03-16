@@ -1,12 +1,16 @@
 module Test.Data.Array (testArray) where
 
-import Prelude ((*), zero, (/=), mod, (==), ($), (+), bind, show, (<), (&&), compare, flip, const, (<<<), map, negate, unit, Unit)
+import Prelude
+
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
+
 import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, replicate, replicateM, singleton)
-import Data.Maybe (Maybe(..), isNothing)
-import Data.Maybe.Unsafe (fromJust)
+import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
+
+import Partial.Unsafe (unsafePartial)
+
 import Test.Assert (assert, ASSERT)
 
 testArray :: forall t.
@@ -105,11 +109,11 @@ testArray = do
 
   log "uncons should split an array into a head and tail record when there is at least one item"
   let u1 = uncons [1]
-  assert $ (fromJust u1).head == 1
-  assert $ (fromJust u1).tail == []
+  assert $ (unsafePartial $ fromJust u1).head == 1
+  assert $ (unsafePartial $ fromJust u1).tail == []
   let u2 = uncons [1, 2, 3]
-  assert $ (fromJust u2).head == 1
-  assert $ (fromJust u2).tail == [2, 3]
+  assert $ (unsafePartial $ fromJust u2).head == 1
+  assert $ (unsafePartial $ fromJust u2).tail == [2, 3]
 
   log "(!!) should return Just x when the index is within the bounds of the array"
   assert $ [1, 2, 3] !! 0 == (Just 1)
