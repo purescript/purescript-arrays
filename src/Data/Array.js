@@ -43,8 +43,9 @@ exports.fromFoldableImpl = (function () {
 
   function listToArray (list) {
     var result = [];
+    var count = 0;
     while (list !== emptyList) {
-      result.push(list.head);
+      result[count++] = list.head;
       list = list.tail;
     }
     return result;
