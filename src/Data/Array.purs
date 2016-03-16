@@ -34,6 +34,7 @@ module Data.Array
   , replicateM
   , some
   , many
+  , fromFoldable
 
   , null
   , length
@@ -107,7 +108,7 @@ import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 
-import Data.Foldable (foldl)
+import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
@@ -147,6 +148,12 @@ some v = (:) <$> v <*> defer (\_ -> many v)
 -- | termination.
 many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
 many v = some v <|> pure []
+
+-- | Construct an `Array` from any `Foldable` structure.
+fromFoldable :: forall f a. (Foldable f) => f a -> Array a
+fromFoldable = fromFoldableImpl foldr
+
+foreign import fromFoldableImpl :: forall f a. (forall b. (a -> b -> b) -> b -> f a -> b) -> f a -> Array a
 
 --------------------------------------------------------------------------------
 -- Array size ------------------------------------------------------------------

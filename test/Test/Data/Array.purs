@@ -4,8 +4,10 @@ import Prelude
 
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
+import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
+import Test.Assert (assert)
 
-import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, replicate, replicateM, singleton)
+import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, replicate, replicateM, singleton, fromFoldable)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
 
@@ -44,8 +46,8 @@ testArray = do
   assert $ replicateM (-1) (Just 1) == Just []
 
   log "replicateM should be stack safe"
-  let n = 50000
-  assert $ replicateM n (Just unit) == Just (replicate n unit)
+  for_ [1, 1000, 2000, 20000, 50000] \n -> do
+    assert $ replicateM n (Just unit) == Just (replicate n unit)
 
   -- some
   -- many
@@ -292,6 +294,17 @@ testArray = do
   assert $ foldM (\x y -> Just (x + y)) 0 (range 1 10) == Just 55
   assert $ foldM (\_ _ -> Nothing) 0 (range 1 10) == Nothing
 
+  log "fromFoldable"
+  for_ [[], [1], [1,2], [1,2,3,4,5]] \xs -> do
+    assert $ fromFoldable xs == xs
+
+  log "fromFoldable is stack safe"
+  for_ [1, 1000, 10000, 20000, 50000] \n -> do
+    let elem = 0
+    let arr = fromFoldable (Replicated n elem)
+    assert $ length arr == n
+    assert $ all (_ == elem) arr
+
 nil :: Array Int
 nil = []
 
@@ -300,3 +313,15 @@ odd n = n `mod` 2 /= zero
 
 doubleAndOrig :: Int -> Array Int
 doubleAndOrig x = [x * 2, x]
+
+data Replicated a = Replicated Int a
+
+instance foldableReplicated :: Foldable Replicated where
+  foldr f z (Replicated n x) = applyN n (f x) z
+  foldl f z (Replicated n x) = applyN n (flip f x) z
+  foldMap = foldMapDefaultR
+
+applyN :: forall a. Int -> (a -> a) -> a -> a
+applyN n f x
+  | n <= 0    = x
+  | otherwise = applyN (n - 1) f (f x)
