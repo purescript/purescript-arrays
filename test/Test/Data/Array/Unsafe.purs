@@ -1,10 +1,18 @@
 module Test.Data.Array.Unsafe (testArrayUnsafe) where
 
-import Prelude
-import Control.Monad.Eff.Console (log)
-import Data.Array.Unsafe
-import Test.Assert (assert)
+import Prelude ((==), ($), bind, Unit)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (log, CONSOLE)
+import Data.Array.Unsafe (init, last, tail, head)
+import Test.Assert (assert, ASSERT)
 
+testArrayUnsafe :: forall t.
+        Eff
+          ( console :: CONSOLE
+          , assert :: ASSERT
+          | t
+          )
+          Unit
 testArrayUnsafe = do
 
   log "head should return the first item in an array"

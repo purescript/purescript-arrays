@@ -5,7 +5,7 @@
 
 module Data.Array.Unsafe where
 
-import Prelude
+import Prelude ((-))
 
 import Data.Array (length, slice)
 

@@ -1,13 +1,21 @@
 module Test.Data.Array (testArray) where
 
-import Prelude
-import Control.Monad.Eff.Console (log)
-import Data.Array
+import Prelude ((*), zero, (/=), mod, (==), ($), (+), bind, show, (<), (&&), compare, flip, const, (<<<), map, negate, unit, Unit)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (log, CONSOLE)
+import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, replicate, replicateM, singleton)
 import Data.Maybe (Maybe(..), isNothing)
 import Data.Maybe.Unsafe (fromJust)
 import Data.Tuple (Tuple(..))
-import Test.Assert (assert)
+import Test.Assert (assert, ASSERT)
 
+testArray :: forall t.
+        Eff
+          ( console :: CONSOLE
+          , assert :: ASSERT
+          | t
+          )
+          Unit
 testArray = do
 
   log "singleton should construct an array with a single value"
@@ -121,12 +129,12 @@ testArray = do
   assert $ (elemLastIndex 4 [1, 2, 1]) == Nothing
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
-  assert $ (findIndex (/= 1) [1, 2, 1]) == Just 1
-  assert $ (findIndex (== 3) [1, 2, 1]) == Nothing
+  assert $ (findIndex (_ /= 1) [1, 2, 1]) == Just 1
+  assert $ (findIndex (_ == 3) [1, 2, 1]) == Nothing
 
   log "findLastIndex should return the last index of an item in an array"
-  assert $ (findLastIndex (/= 1) [2, 1, 2]) == Just 2
-  assert $ (findLastIndex (== 3) [2, 1, 2]) == Nothing
+  assert $ (findLastIndex (_ /= 1) [2, 1, 2]) == Just 2
+  assert $ (findLastIndex (_ == 3) [2, 1, 2]) == Nothing
 
   log "insertAt should add an item at the specified index"
   assert $ (insertAt 0 1 [2, 3]) == Just [1, 2, 3]
@@ -151,11 +159,11 @@ testArray = do
   assert $ (updateAt 1 9 nil) == Nothing
 
   log "modifyAt should update an item at the specified index"
-  assert $ (modifyAt 0 (+ 1) [1, 2, 3]) == Just [2, 2, 3]
-  assert $ (modifyAt 1 (+ 1) [1, 2, 3]) == Just [1, 3, 3]
+  assert $ (modifyAt 0 (_ + 1) [1, 2, 3]) == Just [2, 2, 3]
+  assert $ (modifyAt 1 (_ + 1) [1, 2, 3]) == Just [1, 3, 3]
 
   log "modifyAt should return Nothing if the index is out of range"
-  assert $ (modifyAt 1 (+ 1) nil) == Nothing
+  assert $ (modifyAt 1 (_ + 1) nil) == Nothing
 
   log "alterAt should update an item at the specified index when the function returns Just"
   assert $ (alterAt 0 (Just <<< (+ 1)) [1, 2, 3]) == Just [2, 2, 3]
@@ -205,9 +213,9 @@ testArray = do
   assert $ (take 1 nil) == nil
 
   log "takeWhile should keep all values that match a predicate from the front of an array"
-  assert $ (takeWhile (/= 2) [1, 2, 3]) == [1]
-  assert $ (takeWhile (/= 3) [1, 2, 3]) == [1, 2]
-  assert $ (takeWhile (/= 1) nil) == nil
+  assert $ (takeWhile (_ /= 2) [1, 2, 3]) == [1]
+  assert $ (takeWhile (_ /= 3) [1, 2, 3]) == [1, 2]
+  assert $ (takeWhile (_ /= 1) nil) == nil
 
   log "drop should remove the specified number of items from the front of an array"
   assert $ (drop 1 [1, 2, 3]) == [2, 3]
@@ -215,12 +223,12 @@ testArray = do
   assert $ (drop 1 nil) == nil
 
   log "dropWhile should remove all values that match a predicate from the front of an array"
-  assert $ (dropWhile (/= 1) [1, 2, 3]) == [1, 2, 3]
-  assert $ (dropWhile (/= 2) [1, 2, 3]) == [2, 3]
-  assert $ (dropWhile (/= 1) nil) == nil
+  assert $ (dropWhile (_ /= 1) [1, 2, 3]) == [1, 2, 3]
+  assert $ (dropWhile (_ /= 2) [1, 2, 3]) == [2, 3]
+  assert $ (dropWhile (_ /= 1) nil) == nil
 
   log "span should split an array in two based on a predicate"
-  let spanResult = span (< 4) [1, 2, 3, 4, 5, 6, 7]
+  let spanResult = span (_ < 4) [1, 2, 3, 4, 5, 6, 7]
   assert $ spanResult.init == [1, 2, 3]
   assert $ spanResult.rest == [4, 5, 6, 7]
 
