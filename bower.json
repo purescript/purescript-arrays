@@ -2,9 +2,6 @@
   "name": "purescript-arrays",
   "homepage": "https://github.com/purescript/purescript-arrays",
   "description": "Array utility functions",
-  "keywords": [
-    "purescript"
-  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -19,12 +16,13 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-foldable-traversable": "^0.4.0",
-    "purescript-st": "^0.1.0",
-    "purescript-tuples": "^0.4.0"
+    "purescript-foldable-traversable": "^1.0.0-rc.1",
+    "purescript-st": "^1.0.0-rc.1",
+    "purescript-tuples": "^1.0.0-rc.1",
+    "purescript-partial": "^1.1.0"
   },
   "devDependencies": {
-    "purescript-assert": "^0.1.0",
-    "purescript-console": "^0.1.0"
+    "purescript-assert": "^1.0.0-rc.1",
+    "purescript-console": "^1.0.0-rc.1"
   }
 }
