@@ -28,6 +28,36 @@ exports.replicate = function (n) {
   };
 };
 
+exports.fromFoldableImpl = (function () {
+  function Cons (head, tail) {
+    this.head = head;
+    this.tail = tail;
+  }
+  var emptyList = {};
+
+  function curryCons (head) {
+    return function (tail) {
+      return new Cons(head, tail);
+    };
+  }
+
+  function listToArray (list) {
+    var result = [];
+    var count = 0;
+    while (list !== emptyList) {
+      result[count++] = list.head;
+      list = list.tail;
+    }
+    return result;
+  }
+
+  return function (foldr) {
+    return function (xs) {
+      return listToArray(foldr(curryCons)(emptyList)(xs));
+    };
+  };
+})();
+
 //------------------------------------------------------------------------------
 // Array size ------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -195,7 +225,6 @@ exports.partition = function (f) {
 
 exports.sortImpl = function (f) {
   return function (l) {
-    /* jshint maxparams: 2 */
     return l.slice().sort(function (x, y) {
       return f(x)(y);
     });
