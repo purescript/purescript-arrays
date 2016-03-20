@@ -441,8 +441,7 @@ foreign import slice :: forall a. Int -> Int -> Array a -> Array a
 
 -- | Keep only a number of elements from the start of an array, creating a new
 -- | array.
-take :: forall a. Int -> Array a -> Array a
-take = slice 0
+foreign import take :: forall a. Int -> Array a -> Array a
 
 -- | Calculate the longest initial subarray for which all element satisfy the
 -- | specified predicate, creating a new array.

@@ -243,6 +243,12 @@ exports.slice = function (s) {
   };
 };
 
+exports.take = function (n) {
+  return function (l) {
+    return n < 1 ? [] : l.slice(0, n);
+  };
+};
+
 exports.drop = function (n) {
   return function (l) {
     return n < 1 ? l : l.slice(n);
