@@ -7,6 +7,7 @@
   "futurehostile": true,
   "strict": "global",
   "latedef": true,
+  "maxparams": 1,
   "noarg": true,
   "nocomma": true,
   "nonew": true,
@@ -14,5 +15,6 @@
   "singleGroups": true,
   "undef": true,
   "unused": true,
-  "eqnull": true
+  "eqnull": true,
+  "predef": ["exports"]
 }
