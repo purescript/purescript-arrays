@@ -233,6 +233,10 @@ testArray = do
   assert $ (dropWhile (_ /= 2) [1, 2, 3]) == [2, 3]
   assert $ (dropWhile (_ /= 1) nil) == nil
 
+  log "take and drop should treat negative arguments as zero"
+  assert $ (take (-2) [1, 2, 3]) == nil
+  assert $ (drop (-2) [1, 2, 3]) == [1, 2, 3]
+
   log "span should split an array in two based on a predicate"
   let spanResult = span (_ < 4) [1, 2, 3, 4, 5, 6, 7]
   assert $ spanResult.init == [1, 2, 3]
