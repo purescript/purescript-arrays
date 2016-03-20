@@ -519,14 +519,16 @@ nubBy eq xs =
     Just o -> o.head : nubBy eq (filter (\y -> not (o.head `eq` y)) o.tail)
     Nothing -> []
 
--- | Calculate the union of two lists.
+-- | Calculate the union of two arrays. Note that duplicates in the first array
+-- | are preserved while duplicates in the second array are removed.
 -- |
 -- | Running time: `O(n^2)`
 union :: forall a. Eq a => Array a -> Array a -> Array a
 union = unionBy (==)
 
 -- | Calculate the union of two arrays, using the specified function to
--- | determine equality of elements.
+-- | determine equality of elements. Note that duplicates in the first array
+-- | are preserved while duplicates in the second array are removed.
 unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
 unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) xs
 
@@ -551,12 +553,16 @@ difference xs ys
 
 infix 5 difference as \\
 
--- | Calculate the intersection of two arrays, creating a new array.
+-- | Calculate the intersection of two arrays, creating a new array. Note that
+-- | duplicates in the first array are preserved while duplicates in the second
+-- | array are removed.
 intersect :: forall a. Eq a => Array a -> Array a -> Array a
 intersect = intersectBy eq
 
 -- | Calculate the intersection of two arrays, using the specified equivalence
--- | relation to compare elements, creating a new array.
+-- | relation to compare elements, creating a new array. Note that duplicates
+-- | in the first array are preserved while duplicates in the second array are
+-- | removed.
 intersectBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
 intersectBy eq xs ys = filter (\x -> isJust (findIndex (eq x) ys)) xs
 
