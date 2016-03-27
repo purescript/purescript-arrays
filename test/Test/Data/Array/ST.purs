@@ -12,13 +12,7 @@ import Data.Maybe (Maybe(..), isNothing)
 
 import Test.Assert (assert, ASSERT)
 
-testArrayST :: forall t.
-        Eff
-          ( console :: CONSOLE
-          , assert :: ASSERT
-          | t
-          )
-          Unit
+testArrayST :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
 testArrayST = do
 
   log "emptySTArray should produce an empty array"

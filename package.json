@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "clean": "rimraf output && rimraf .pulp-cache",
-    "build": "jshint src && jscs src && pulp build"
+    "build": "jshint src && jscs src && pulp build",
+    "test": "jshint src && jscs src && pulp test"
   },
   "devDependencies": {
     "jscs": "^2.8.0",
