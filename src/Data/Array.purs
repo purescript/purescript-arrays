@@ -28,13 +28,14 @@
 -- |   allowing you to iterate over an array and accumulate effects.
 -- |
 module Data.Array
-  ( singleton
+  ( fromFoldable
+  , toUnfoldable
+  , singleton
   , (..), range
   , replicate
   , replicateM
   , some
   , many
-  , fromFoldable
 
   , null
   , length
@@ -112,8 +113,23 @@ import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (class Unfoldable, unfoldr)
 
 import Partial.Unsafe (unsafePartial)
+
+-- | Convert an `Array` into an `Unfoldable` structure.
+toUnfoldable :: forall f a. Unfoldable f => Array a -> f a
+toUnfoldable = unfoldr $ uncons' (const Nothing) (\h t -> Just (Tuple h t))
+
+-- | Convert a `Foldable` structure into an `Array`.
+fromFoldable :: forall f a. Foldable f => f a -> Array a
+fromFoldable = fromFoldableImpl foldr
+
+foreign import fromFoldableImpl
+  :: forall f a
+   . (forall b. (a -> b -> b) -> b -> f a -> b)
+  -> f a
+  -> Array a
 
 -- | Create an array of one element
 singleton :: forall a. a -> Array a
@@ -148,12 +164,6 @@ some v = (:) <$> v <*> defer (\_ -> many v)
 -- | termination.
 many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
 many v = some v <|> pure []
-
--- | Construct an `Array` from any `Foldable` structure.
-fromFoldable :: forall f a. (Foldable f) => f a -> Array a
-fromFoldable = fromFoldableImpl foldr
-
-foreign import fromFoldableImpl :: forall f a. (forall b. (a -> b -> b) -> b -> f a -> b) -> f a -> Array a
 
 --------------------------------------------------------------------------------
 -- Array size ------------------------------------------------------------------
