@@ -5,10 +5,11 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, replicate, replicateM, singleton, fromFoldable)
+import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (replicate, replicateA)
 
 import Partial.Unsafe (unsafePartial)
 
@@ -32,15 +33,15 @@ testArray = do
   assert $ replicate 0 "foo" == []
   assert $ replicate (-1) "foo" == []
 
-  log "replicateM should perform the monadic action the correct number of times"
-  assert $ replicateM 3 (Just 1) == Just [1, 1, 1]
-  assert $ replicateM 1 (Just 1) == Just [1]
-  assert $ replicateM 0 (Just 1) == Just []
-  assert $ replicateM (-1) (Just 1) == Just []
+  log "replicateA should perform the monadic action the correct number of times"
+  assert $ replicateA 3 (Just 1) == Just [1, 1, 1]
+  assert $ replicateA 1 (Just 1) == Just [1]
+  assert $ replicateA 0 (Just 1) == Just []
+  assert $ replicateA (-1) (Just 1) == Just []
 
-  log "replicateM should be stack safe"
+  log "replicateA should be stack safe"
   for_ [1, 1000, 2000, 20000, 50000] \n -> do
-    assert $ replicateM n (Just unit) == Just (replicate n unit)
+    assert $ replicateA n (Just unit) == Just (replicate n unit :: Array Unit)
 
   -- some
   -- many
@@ -165,15 +166,15 @@ testArray = do
   assert $ (modifyAt 1 (_ + 1) nil) == Nothing
 
   log "alterAt should update an item at the specified index when the function returns Just"
-  assert $ (alterAt 0 (Just <<< (+ 1)) [1, 2, 3]) == Just [2, 2, 3]
-  assert $ (alterAt 1 (Just <<< (+ 1)) [1, 2, 3]) == Just [1, 3, 3]
+  assert $ (alterAt 0 (Just <<< (_ + 1)) [1, 2, 3]) == Just [2, 2, 3]
+  assert $ (alterAt 1 (Just <<< (_ + 1)) [1, 2, 3]) == Just [1, 3, 3]
 
   log "alterAt should drop an item at the specified index when the function returns Nothing"
   assert $ (alterAt 0 (const Nothing) [1, 2, 3]) == Just [2, 3]
   assert $ (alterAt 1 (const Nothing) [1, 2, 3]) == Just [1, 3]
 
   log "alterAt should return Nothing if the index is out of range"
-  assert $ (alterAt 1 (Just <<< (+ 1)) nil) == Nothing
+  assert $ (alterAt 1 (Just <<< (_ + 1)) nil) == Nothing
 
   log "reverse should reverse the order of items in an array"
   assert $ (reverse [1, 2, 3]) == [3, 2, 1]

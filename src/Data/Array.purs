@@ -32,8 +32,6 @@ module Data.Array
   , toUnfoldable
   , singleton
   , (..), range
-  , replicate
-  , replicateM
   , some
   , many
 
@@ -140,15 +138,6 @@ foreign import range :: Int -> Int -> Array Int
 
 -- | An infix synonym for `range`.
 infix 8 range as ..
-
--- | Create an array with repeated instances of a value.
-foreign import replicate :: forall a. Int -> a -> Array a
-
--- | Perform a monadic action `n` times collecting all of the results.
-replicateM :: forall m a. Monad m => Int -> m a -> m (Array a)
-replicateM n m
-  | n < 1 = pure []
-  | otherwise = sequence $ replicate n m
 
 -- | Attempt a computation multiple times, requiring at least one success.
 -- |
