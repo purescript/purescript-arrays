@@ -4,7 +4,7 @@
 
 module Data.Array.ST
   ( STArray(..)
-  , Assoc()
+  , Assoc
   , runSTArray
   , emptySTArray
   , peekSTArray
@@ -74,7 +74,10 @@ foreign import peekSTArrayImpl
 -- | Change the value at the specified index in a mutable array.
 foreign import pokeSTArray
   :: forall a h r
-   . STArray h a -> Int -> a -> Eff (st :: ST h | r) Boolean
+   . STArray h a
+  -> Int
+  -> a
+  -> Eff (st :: ST h | r) Boolean
 
 -- | Append an element to the end of a mutable array.
 pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int

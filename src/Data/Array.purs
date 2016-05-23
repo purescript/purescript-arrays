@@ -116,18 +116,17 @@ import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
-toUnfoldable :: forall f a. Unfoldable f => Array a -> f a
+toUnfoldable :: forall f. Unfoldable f => Array ~> f
 toUnfoldable = unfoldr $ uncons' (const Nothing) (\h t -> Just (Tuple h t))
 
 -- | Convert a `Foldable` structure into an `Array`.
-fromFoldable :: forall f a. Foldable f => f a -> Array a
+fromFoldable :: forall f. Foldable f => f ~> Array
 fromFoldable = fromFoldableImpl foldr
 
 foreign import fromFoldableImpl
-  :: forall f a
-   . (forall b. (a -> b -> b) -> b -> f a -> b)
-  -> f a
-  -> Array a
+  :: forall f
+   . (forall a b. (a -> b -> b) -> b -> f a -> b)
+  -> f ~> Array
 
 -- | Create an array of one element
 singleton :: forall a. a -> Array a
@@ -204,13 +203,13 @@ insertBy cmp x ys =
 -- | Get the first element in an array, or `Nothing` if the array is empty
 -- |
 -- | Running time: `O(1)`.
-head :: forall a. Array a -> Maybe a
+head :: Array ~> Maybe
 head = uncons' (const Nothing) (\x _ -> Just x)
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
 -- | Running time: `O(1)`.
-last :: forall a. Array a -> Maybe a
+last :: Array ~> Maybe
 last xs = xs !! (length xs - 1)
 
 -- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
@@ -366,7 +365,7 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 --------------------------------------------------------------------------------
 
 -- | Reverse an array, creating a new array.
-foreign import reverse :: forall a. Array a -> Array a
+foreign import reverse :: Array ~> Array
 
 -- | Flatten an array of arrays, creating a new array.
 foreign import concat :: forall a. Array (Array a) -> Array a
@@ -436,11 +435,11 @@ foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
 --------------------------------------------------------------------------------
 
 -- | Extract a subarray by a start and end index.
-foreign import slice :: forall a. Int -> Int -> Array a -> Array a
+foreign import slice :: Int -> Int -> Array ~> Array
 
 -- | Keep only a number of elements from the start of an array, creating a new
 -- | array.
-foreign import take :: forall a. Int -> Array a -> Array a
+foreign import take :: Int -> Array ~> Array
 
 -- | Calculate the longest initial subarray for which all element satisfy the
 -- | specified predicate, creating a new array.
@@ -448,7 +447,7 @@ takeWhile :: forall a. (a -> Boolean) -> Array a -> Array a
 takeWhile p xs = (span p xs).init
 
 -- | Drop a number of elements from the start of an array, creating a new array.
-foreign import drop :: forall a. Int -> Array a -> Array a
+foreign import drop :: Int -> Array ~> Array
 
 -- | Remove the longest initial subarray for which all element satisfy the
 -- | specified predicate, creating a new array.
