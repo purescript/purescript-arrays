@@ -68,6 +68,7 @@ module Data.Array
   , filterM
   , mapMaybe
   , catMaybes
+  , mapWithIndex
 
   , sort
   , sortBy
@@ -410,6 +411,14 @@ mapMaybe f = concatMap (maybe [] singleton <<< f)
 -- | a value, creating a new array.
 catMaybes :: forall a. Array (Maybe a) -> Array a
 catMaybes = mapMaybe id
+
+-- | Apply a function to each element in an array, supplying a generated
+-- | zero-based index integer along with the element, creating an array
+-- | with the new elements.
+mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
+mapWithIndex f xs =
+  zipWith f (range 0 (length xs - 1)) xs
+
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------

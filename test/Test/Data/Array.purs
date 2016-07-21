@@ -5,7 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
+import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
@@ -200,6 +200,9 @@ testArray = do
 
   log "catMaybe should take an array of Maybe values and throw out Nothings"
   assert $ catMaybes [Nothing, Just 2, Nothing, Just 4] == [2, 4]
+
+  log "mapWithIndex applies a function with an index for every element"
+  assert $ mapWithIndex (\i x -> x - i) [9,8,7,6,5] == [9,7,5,3,1]
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
