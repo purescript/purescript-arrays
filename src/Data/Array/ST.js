@@ -1,8 +1,6 @@
 /* global exports */
 "use strict";
 
-// module Data.Array.ST
-
 exports.runSTArray = function (f) {
   return f;
 };
