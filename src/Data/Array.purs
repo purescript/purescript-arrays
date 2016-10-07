@@ -100,6 +100,9 @@ module Data.Array
   , unzip
 
   , foldM
+
+  , module Data.Foldable
+  , module Data.Traversable
   ) where
 
 import Prelude
@@ -108,9 +111,9 @@ import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 
-import Data.Foldable (class Foldable, foldl, foldr)
+import Data.Foldable (class Foldable, foldl, foldr, fold, oneOf, intercalate, and, or, all, any, sum, product, elem, notElem, find, maximum, maximumBy, minimum, minimumBy)
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
-import Data.Traversable (sequence)
+import Data.Traversable (sequence, scanl, scanr)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
 
