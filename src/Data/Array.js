@@ -1,7 +1,4 @@
-/* global exports */
 "use strict";
-
-// module Data.Array
 
 //------------------------------------------------------------------------------
 // Array creation --------------------------------------------------------------
@@ -15,6 +12,17 @@ exports.range = function (start) {
       result[n++] = i;
     }
     result[n] = i;
+    return result;
+  };
+};
+
+exports.replicate = function (count) {
+  return function (value) {
+    var result = [];
+    var n = 0;
+    for (var i = 0; i < count; i++) {
+      result[n++] = value;
+    }
     return result;
   };
 };
@@ -262,5 +270,15 @@ exports.zipWith = function (f) {
       }
       return result;
     };
+  };
+};
+
+//------------------------------------------------------------------------------
+// Partial ---------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+exports.unsafeIndexImpl = function (xs) {
+  return function (n) {
+    return xs[n];
   };
 };

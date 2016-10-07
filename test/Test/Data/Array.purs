@@ -5,11 +5,11 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
+import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
-import Data.Unfoldable (replicate, replicateA)
+import Data.Unfoldable (replicateA)
 
 import Partial.Unsafe (unsafePartial)
 

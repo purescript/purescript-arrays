@@ -32,6 +32,7 @@ module Data.Array
   , toUnfoldable
   , singleton
   , (..), range
+  , replicate
   , some
   , many
 
@@ -100,6 +101,11 @@ module Data.Array
   , unzip
 
   , foldM
+  , foldRecM
+
+  , unsafeIndex
+
+  , module Exports
   ) where
 
 import Prelude
@@ -107,9 +113,12 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
+import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 
 import Data.Foldable (class Foldable, foldl, foldr)
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -136,6 +145,9 @@ singleton a = [a]
 
 -- | Create an array containing a range of integers, including both endpoints.
 foreign import range :: Int -> Int -> Array Int
+
+-- | Create an array containing a value repeated the specified number of times.
+foreign import replicate :: forall a. Int -> a -> Array a
 
 -- | An infix synonym for `range`.
 infix 8 range as ..
@@ -214,13 +226,15 @@ head = uncons' (const Nothing) (\x _ -> Just x)
 last :: forall a. Array a -> Maybe a
 last xs = xs !! (length xs - 1)
 
--- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
+-- | Get all but the first element of an array, creating a new array, or
+-- | `Nothing` if the array is empty
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 tail :: forall a. Array a -> Maybe (Array a)
 tail = uncons' (const Nothing) (\_ xs -> Just xs)
 
--- | Get all but the last element of an array, creating a new array, or `Nothing` if the array is empty.
+-- | Get all but the last element of an array, creating a new array, or
+-- | `Nothing` if the array is empty.
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 init :: forall a. Array a -> Maybe (Array a)
@@ -428,8 +442,8 @@ mapWithIndex f xs =
 sort :: forall a. Ord a => Array a -> Array a
 sort xs = sortBy compare xs
 
--- | Sort the elements of an array in increasing order, where elements are compared using
--- | the specified partial ordering, creating a new array.
+-- | Sort the elements of an array in increasing order, where elements are
+-- | compared using the specified partial ordering, creating a new array.
 sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 sortBy comp xs = sortImpl comp' xs
   where
@@ -590,8 +604,8 @@ foreign import zipWith
   -> Array b
   -> Array c
 
--- | A generalization of `zipWith` which accumulates results in some `Applicative`
--- | functor.
+-- | A generalization of `zipWith` which accumulates results in some
+-- | `Applicative` functor.
 zipWithA
   :: forall m a b c
    . Applicative m
@@ -602,7 +616,8 @@ zipWithA
 zipWithA f xs ys = sequence (zipWith f xs ys)
 
 -- | Rakes two lists and returns a list of corresponding pairs.
--- | If one input list is short, excess elements of the longer list are discarded.
+-- | If one input list is short, excess elements of the longer list are
+-- | discarded.
 zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
 zip = zipWith Tuple
 
@@ -615,3 +630,18 @@ unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
 -- | Perform a fold using a monadic step function.
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
 foldM f a = uncons' (\_ -> pure a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
+
+foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> Array b -> m a
+foldRecM f a array = tailRecM2 go a 0
+  where
+  go res i
+    | i >= length array = pure (Done res)
+    | otherwise = do
+        res' <- f res (unsafePartial (unsafeIndex array i))
+        pure (Loop { a: res', b: i + 1 })
+
+-- | Find the element of an array at the specified index.
+unsafeIndex :: forall a. Partial => Array a -> Int -> a
+unsafeIndex = unsafeIndexImpl
+
+foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a

@@ -1,7 +1,6 @@
 -- | Partial helper functions for working with immutable arrays.
 module Data.Array.Partial
-  ( unsafeIndex
-  , head
+  ( head
   , tail
   , last
   , init
@@ -9,13 +8,7 @@ module Data.Array.Partial
 
 import Prelude
 
-import Data.Array (length, slice)
-
--- | Find the element of an array at the specified index.
-unsafeIndex :: forall a. Partial => Array a -> Int -> a
-unsafeIndex = unsafeIndexImpl
-
-foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a
+import Data.Array (length, slice, unsafeIndex)
 
 -- | Get the first element of a non-empty array.
 -- |
