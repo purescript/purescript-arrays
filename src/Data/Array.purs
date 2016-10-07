@@ -100,6 +100,8 @@ module Data.Array
   , unzip
 
   , foldM
+
+  , module Exports
   ) where
 
 import Prelude
@@ -109,7 +111,9 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 
 import Data.Foldable (class Foldable, foldl, foldr)
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -214,13 +218,15 @@ head = uncons' (const Nothing) (\x _ -> Just x)
 last :: forall a. Array a -> Maybe a
 last xs = xs !! (length xs - 1)
 
--- | Get all but the first element of an array, creating a new array, or `Nothing` if the array is empty
+-- | Get all but the first element of an array, creating a new array, or
+-- | `Nothing` if the array is empty
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 tail :: forall a. Array a -> Maybe (Array a)
 tail = uncons' (const Nothing) (\_ xs -> Just xs)
 
--- | Get all but the last element of an array, creating a new array, or `Nothing` if the array is empty.
+-- | Get all but the last element of an array, creating a new array, or
+-- | `Nothing` if the array is empty.
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 init :: forall a. Array a -> Maybe (Array a)
@@ -428,8 +434,8 @@ mapWithIndex f xs =
 sort :: forall a. Ord a => Array a -> Array a
 sort xs = sortBy compare xs
 
--- | Sort the elements of an array in increasing order, where elements are compared using
--- | the specified partial ordering, creating a new array.
+-- | Sort the elements of an array in increasing order, where elements are
+-- | compared using the specified partial ordering, creating a new array.
 sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 sortBy comp xs = sortImpl comp' xs
   where
@@ -590,8 +596,8 @@ foreign import zipWith
   -> Array b
   -> Array c
 
--- | A generalization of `zipWith` which accumulates results in some `Applicative`
--- | functor.
+-- | A generalization of `zipWith` which accumulates results in some
+-- | `Applicative` functor.
 zipWithA
   :: forall m a b c
    . Applicative m
@@ -602,7 +608,8 @@ zipWithA
 zipWithA f xs ys = sequence (zipWith f xs ys)
 
 -- | Rakes two lists and returns a list of corresponding pairs.
--- | If one input list is short, excess elements of the longer list are discarded.
+-- | If one input list is short, excess elements of the longer list are
+-- | discarded.
 zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
 zip = zipWith Tuple
 
