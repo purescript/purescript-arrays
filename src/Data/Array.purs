@@ -101,6 +101,9 @@ module Data.Array
   , unzip
 
   , foldM
+  , foldRecM
+
+  , unsafeIndex
 
   , module Exports
   ) where
@@ -110,6 +113,7 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
+import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
@@ -626,3 +630,18 @@ unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
 -- | Perform a fold using a monadic step function.
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
 foldM f a = uncons' (\_ -> pure a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
+
+foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> Array b -> m a
+foldRecM f a array = tailRecM2 go a 0
+  where
+  go res i
+    | i >= length array = pure (Done res)
+    | otherwise = do
+        res' <- f res (unsafePartial (unsafeIndex array i))
+        pure (Loop { a: res', b: i + 1 })
+
+-- | Find the element of an array at the specified index.
+unsafeIndex :: forall a. Partial => Array a -> Int -> a
+unsafeIndex = unsafeIndexImpl
+
+foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a

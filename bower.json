@@ -19,6 +19,7 @@
     "purescript-foldable-traversable": "^2.0.0",
     "purescript-partial": "^1.1.0",
     "purescript-st": "^2.0.0",
+    "purescript-tailrec": "^2.0.0",
     "purescript-tuples": "^3.0.0",
     "purescript-unfoldable": "^2.0.0"
   },
