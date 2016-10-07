@@ -16,6 +16,17 @@ exports.range = function (start) {
   };
 };
 
+exports.replicate = function (count) {
+  return function (value) {
+    var result = [];
+    var n = 0;
+    for (var i = 0; i < count; i++) {
+      result[n++] = value;
+    }
+    return result;
+  };
+};
+
 exports.fromFoldableImpl = (function () {
   // jshint maxparams: 2
   function Cons(head, tail) {

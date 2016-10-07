@@ -32,6 +32,7 @@ module Data.Array
   , toUnfoldable
   , singleton
   , (..), range
+  , replicate
   , some
   , many
 
@@ -140,6 +141,9 @@ singleton a = [a]
 
 -- | Create an array containing a range of integers, including both endpoints.
 foreign import range :: Int -> Int -> Array Int
+
+-- | Create an array containing a value repeated the specified number of times.
+foreign import replicate :: forall a. Int -> a -> Array a
 
 -- | An infix synonym for `range`.
 infix 8 range as ..
