@@ -118,6 +118,7 @@ import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
@@ -505,7 +506,7 @@ span p = go []
 -- | ```purescript
 -- | group [1,1,2,2,1] == [[1,1],[2,2],[1]]
 -- | ```
-group :: forall a. Eq a => Array a -> Array (Array a)
+group :: forall a. Eq a => Array a -> Array (NonEmpty Array a)
 group xs = groupBy eq xs
 
 -- | Sort and then group the elements of an array into arrays.
@@ -513,19 +514,19 @@ group xs = groupBy eq xs
 -- | ```purescript
 -- | group' [1,1,2,2,1] == [[1,1,1],[2,2]]
 -- | ```
-group' :: forall a. Ord a => Array a -> Array (Array a)
+group' :: forall a. Ord a => Array a -> Array (NonEmpty Array a)
 group' = group <<< sort
 
 -- | Group equal, consecutive elements of an array into arrays, using the
 -- | specified equivalence relation to detemine equality.
-groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (Array a)
+groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
 groupBy op = go []
   where
-  go :: Array (Array a) -> Array a -> Array (Array a)
+  go :: Array (NonEmpty Array a) -> Array a -> Array (NonEmpty Array a)
   go acc xs = case uncons xs of
     Just o ->
       let sp = span (op o.head) o.tail
-      in go ((o.head : sp.init) : acc) sp.rest
+      in go ((o.head :| sp.init) : acc) sp.rest
     Nothing -> reverse acc
 
 -- | Remove the duplicates from an array, creating a new array.
