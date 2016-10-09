@@ -8,6 +8,8 @@ import Control.Monad.Eff.Console (log, CONSOLE)
 import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
+import Data.NonEmpty ((:|))
+import Data.NonEmpty as NE
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
 
@@ -240,13 +242,13 @@ testArray = do
   assert $ spanResult.rest == [4, 5, 6, 7]
 
   log "group should group consecutive equal elements into arrays"
-  assert $ group [1, 2, 2, 3, 3, 3, 1] == [[1], [2, 2], [3, 3, 3], [1]]
+  assert $ group [1, 2, 2, 3, 3, 3, 1] == [NE.singleton 1, 2 :| [2], 3:| [3, 3], NE.singleton 1]
 
   log "group' should sort then group consecutive equal elements into arrays"
-  assert $ group' [1, 2, 2, 3, 3, 3, 1] == [[1, 1], [2, 2], [3, 3, 3]]
+  assert $ group' [1, 2, 2, 3, 3, 3, 1] == [1 :| [1], 2 :| [2], 3 :| [3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [[1, 1], [2], [2], [3, 3]]
+  assert $ groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
