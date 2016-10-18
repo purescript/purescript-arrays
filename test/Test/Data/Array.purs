@@ -5,7 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
+import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, unsnoc, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.NonEmpty ((:|))
@@ -112,6 +112,17 @@ testArray = do
   let u2 = uncons [1, 2, 3]
   assert $ (unsafePartial $ fromJust u2).head == 1
   assert $ (unsafePartial $ fromJust u2).tail == [2, 3]
+
+  log "unsnoc should return nothing when used on an empty array"
+  assert $ isNothing (unsnoc nil)
+
+  log "unsnoc should split an array into an init and last record when there is at least one item"
+  let u3 = unsnoc [1]
+  assert $ (unsafePartial $ fromJust u3).init == []
+  assert $ (unsafePartial $ fromJust u3).last == 1
+  let u4 = unsnoc [1, 2, 3]
+  assert $ (unsafePartial $ fromJust u4).init == [1, 2]
+  assert $ (unsafePartial $ fromJust u4).last == 3
 
   log "(!!) should return Just x when the index is within the bounds of the array"
   assert $ [1, 2, 3] !! 0 == (Just 1)

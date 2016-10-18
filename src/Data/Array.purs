@@ -49,6 +49,7 @@ module Data.Array
   , tail
   , init
   , uncons
+  , unsnoc
 
   , (!!), index
   , elemIndex
@@ -266,6 +267,12 @@ foreign import uncons'
   -> (a -> Array a -> b)
   -> Array a
   -> b
+
+-- | Break an array into its last element and all preceding elements.
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
+unsnoc :: forall a. Array a -> Maybe { init :: Array a, last :: a }
+unsnoc xs = { init: _, last: _ } <$> init xs <*> last xs
 
 --------------------------------------------------------------------------------
 -- Indexed operations ----------------------------------------------------------
