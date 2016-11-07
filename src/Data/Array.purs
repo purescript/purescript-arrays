@@ -219,7 +219,7 @@ insertBy cmp x ys =
 -- |
 -- | Running time: `O(1)`.
 head :: forall a. Array a -> Maybe a
-head = uncons' (const Nothing) (\x _ -> Just x)
+head xs = xs !! 0
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
