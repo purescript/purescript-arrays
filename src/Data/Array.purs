@@ -128,7 +128,12 @@ import Partial.Unsafe (unsafePartial)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f a. Unfoldable f => Array a -> f a
-toUnfoldable = unfoldr $ uncons' (const Nothing) (\h t -> Just (Tuple h t))
+toUnfoldable xs = unfoldr f 0
+  where
+  len = length xs
+  f i
+    | i < len   = Just (Tuple (unsafePartial (unsafeIndex xs i)) (i+1))
+    | otherwise = Nothing
 
 -- | Convert a `Foldable` structure into an `Array`.
 fromFoldable :: forall f a. Foldable f => f a -> Array a

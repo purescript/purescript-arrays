@@ -5,8 +5,8 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
-import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
+import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable, toUnfoldable)
+import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.NonEmpty ((:|))
 import Data.NonEmpty as NE
@@ -307,6 +307,17 @@ testArray = do
     let arr = fromFoldable (Replicated n elem)
     assert $ length arr == n
     assert $ all (_ == elem) arr
+
+  log "toUnfoldable"
+  let toUnfoldableId xs = toUnfoldable xs == xs
+  traverse_ (assert <<< toUnfoldableId)
+    [ []
+    , [1]
+    , [1,2,3]
+    , [2,3,1]
+    , [4,0,0,1,25,36,458,5842,23757]
+    ]
+
 
 nil :: Array Int
 nil = []
