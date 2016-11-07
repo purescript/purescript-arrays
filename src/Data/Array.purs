@@ -486,8 +486,8 @@ dropWhile p xs = (span p xs).rest
 
 -- | Split an array into two parts:
 -- |
--- | 1. the longest initial subarray for which all element satisfy the specified
--- |    predicate
+-- | 1. the longest initial subarray for which all elements satisfy the
+-- |    specified predicate
 -- | 2. the remaining elements
 -- |
 -- | ```purescript
