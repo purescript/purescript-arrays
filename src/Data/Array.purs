@@ -493,18 +493,30 @@ dropWhile p xs = (span p xs).rest
 -- | ```purescript
 -- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
 -- | ```
+-- |
+-- | Running time: `O(n)`.
 span
   :: forall a
    . (a -> Boolean)
   -> Array a
   -> { init :: Array a, rest :: Array a }
-span p = go []
+span p arr =
+  case breakIndex of
+    Just 0 ->
+      { init: [], rest: arr }
+    Just i ->
+      { init: slice 0 i arr, rest: slice i (length arr) arr }
+    Nothing ->
+      { init: arr, rest: [] }
   where
-  go :: Array a -> Array a -> { init :: Array a, rest :: Array a }
-  go acc xs =
-    case uncons xs of
-      Just { head: x, tail: xs' } | p x -> go (x : acc) xs'
-      _ -> { init: reverse acc, rest: xs }
+  breakIndex = go 0
+  go i =
+    -- This looks like a good opportunity to use the Monad Maybe instance,
+    -- but it's important to write out an explicit case expression here in
+    -- order to ensure that TCO is triggered.
+    case index arr i of
+      Just x -> if p x then go (i+1) else Just i
+      Nothing -> Nothing
 
 -- | Group equal, consecutive elements of an array into arrays.
 -- |

@@ -237,9 +237,30 @@ testArray = do
   assert $ (drop (-2) [1, 2, 3]) == [1, 2, 3]
 
   log "span should split an array in two based on a predicate"
-  let spanResult = span (_ < 4) [1, 2, 3, 4, 5, 6, 7]
-  assert $ spanResult.init == [1, 2, 3]
-  assert $ spanResult.rest == [4, 5, 6, 7]
+  let testSpan { p, input, init_, rest_ } = do
+        let result = span p input
+        assert $ result.init == init_
+        assert $ result.rest == rest_
+
+  let oneToSeven = [1, 2, 3, 4, 5, 6, 7]
+  testSpan { p: (_ < 4), input: oneToSeven, init_: [1, 2, 3], rest_: [4, 5, 6, 7] }
+
+  log "span with all elements satisfying the predicate"
+  testSpan { p: const true, input: oneToSeven, init_: oneToSeven, rest_: [] }
+
+  log "span with no elements satisfying the predicate"
+  testSpan { p: const false, input: oneToSeven, init_: [], rest_: oneToSeven }
+
+  log "span with large inputs: 10000"
+  let testBigSpan n =
+        testSpan { p: (_ < n), input: range 1 n, init_: range 1 (n-1), rest_: [n] }
+  testBigSpan 10000
+
+  log "span with large inputs: 40000"
+  testBigSpan 40000
+
+  log "span with large inputs: 100000"
+  testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
   assert $ group [1, 2, 2, 3, 3, 3, 1] == [NE.singleton 1, 2 :| [2], 3:| [3, 3], NE.singleton 1]
