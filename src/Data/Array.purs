@@ -498,7 +498,7 @@ span p = go []
   go :: Array a -> Array a -> { init :: Array a, rest :: Array a }
   go acc xs =
     case uncons xs of
-      Just { head: x, tail: xs } | p x -> go (x : acc) xs
+      Just { head: x, tail: xs' } | p x -> go (x : acc) xs'
       _ -> { init: reverse acc, rest: xs }
 
 -- | Group equal, consecutive elements of an array into arrays.
