@@ -5,8 +5,8 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
-import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable)
-import Data.Foldable (for_, foldMapDefaultR, class Foldable, all)
+import Data.Array (range, replicate, foldM, unzip, zip, zipWithA, zipWith, intersectBy, intersect, (\\), deleteBy, delete, unionBy, union, nubBy, nub, groupBy, group', group, span, dropWhile, drop, takeWhile, take, sortBy, sort, catMaybes, mapMaybe, mapWithIndex, filterM, filter, concat, concatMap, reverse, alterAt, modifyAt, updateAt, deleteAt, insertAt, findLastIndex, findIndex, elemLastIndex, elemIndex, (!!), uncons, init, tail, last, head, insertBy, insert, snoc, (:), length, null, singleton, fromFoldable, toUnfoldable)
+import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.NonEmpty ((:|))
 import Data.NonEmpty as NE
@@ -237,9 +237,30 @@ testArray = do
   assert $ (drop (-2) [1, 2, 3]) == [1, 2, 3]
 
   log "span should split an array in two based on a predicate"
-  let spanResult = span (_ < 4) [1, 2, 3, 4, 5, 6, 7]
-  assert $ spanResult.init == [1, 2, 3]
-  assert $ spanResult.rest == [4, 5, 6, 7]
+  let testSpan { p, input, init_, rest_ } = do
+        let result = span p input
+        assert $ result.init == init_
+        assert $ result.rest == rest_
+
+  let oneToSeven = [1, 2, 3, 4, 5, 6, 7]
+  testSpan { p: (_ < 4), input: oneToSeven, init_: [1, 2, 3], rest_: [4, 5, 6, 7] }
+
+  log "span with all elements satisfying the predicate"
+  testSpan { p: const true, input: oneToSeven, init_: oneToSeven, rest_: [] }
+
+  log "span with no elements satisfying the predicate"
+  testSpan { p: const false, input: oneToSeven, init_: [], rest_: oneToSeven }
+
+  log "span with large inputs: 10000"
+  let testBigSpan n =
+        testSpan { p: (_ < n), input: range 1 n, init_: range 1 (n-1), rest_: [n] }
+  testBigSpan 10000
+
+  log "span with large inputs: 40000"
+  testBigSpan 40000
+
+  log "span with large inputs: 100000"
+  testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
   assert $ group [1, 2, 2, 3, 3, 3, 1] == [NE.singleton 1, 2 :| [2], 3:| [3, 3], NE.singleton 1]
@@ -307,6 +328,17 @@ testArray = do
     let arr = fromFoldable (Replicated n elem)
     assert $ length arr == n
     assert $ all (_ == elem) arr
+
+  log "toUnfoldable"
+  let toUnfoldableId xs = toUnfoldable xs == xs
+  traverse_ (assert <<< toUnfoldableId)
+    [ []
+    , [1]
+    , [1,2,3]
+    , [2,3,1]
+    , [4,0,0,1,25,36,458,5842,23757]
+    ]
+
 
 nil :: Array Int
 nil = []

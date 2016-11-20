@@ -128,7 +128,12 @@ import Partial.Unsafe (unsafePartial)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f a. Unfoldable f => Array a -> f a
-toUnfoldable = unfoldr $ uncons' (const Nothing) (\h t -> Just (Tuple h t))
+toUnfoldable xs = unfoldr f 0
+  where
+  len = length xs
+  f i
+    | i < len   = Just (Tuple (unsafePartial (unsafeIndex xs i)) (i+1))
+    | otherwise = Nothing
 
 -- | Convert a `Foldable` structure into an `Array`.
 fromFoldable :: forall f a. Foldable f => f a -> Array a
@@ -219,7 +224,7 @@ insertBy cmp x ys =
 -- |
 -- | Running time: `O(1)`.
 head :: forall a. Array a -> Maybe a
-head = uncons' (const Nothing) (\x _ -> Just x)
+head xs = xs !! 0
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
@@ -481,25 +486,37 @@ dropWhile p xs = (span p xs).rest
 
 -- | Split an array into two parts:
 -- |
--- | 1. the longest initial subarray for which all element satisfy the specified
--- |    predicate
+-- | 1. the longest initial subarray for which all elements satisfy the
+-- |    specified predicate
 -- | 2. the remaining elements
 -- |
 -- | ```purescript
 -- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
 -- | ```
+-- |
+-- | Running time: `O(n)`.
 span
   :: forall a
    . (a -> Boolean)
   -> Array a
   -> { init :: Array a, rest :: Array a }
-span p = go []
+span p arr =
+  case breakIndex of
+    Just 0 ->
+      { init: [], rest: arr }
+    Just i ->
+      { init: slice 0 i arr, rest: slice i (length arr) arr }
+    Nothing ->
+      { init: arr, rest: [] }
   where
-  go :: Array a -> Array a -> { init :: Array a, rest :: Array a }
-  go acc xs =
-    case uncons xs of
-      Just { head: x, tail: xs' } | p x -> go (x : acc) xs'
-      _ -> { init: reverse acc, rest: xs }
+  breakIndex = go 0
+  go i =
+    -- This looks like a good opportunity to use the Monad Maybe instance,
+    -- but it's important to write out an explicit case expression here in
+    -- order to ensure that TCO is triggered.
+    case index arr i of
+      Just x -> if p x then go (i+1) else Just i
+      Nothing -> Nothing
 
 -- | Group equal, consecutive elements of an array into arrays.
 -- |
