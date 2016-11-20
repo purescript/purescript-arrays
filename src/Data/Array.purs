@@ -580,6 +580,8 @@ unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) xs
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.
+-- |
+-- | Running time: `O(n)`
 delete :: forall a. Eq a => a -> Array a -> Array a
 delete = deleteBy eq
 
@@ -592,10 +594,11 @@ deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (fi
 
 -- | Delete the first occurrence of each element in the second array from the
 -- | first array, creating a new array.
+-- |
+-- | Running time: `O(n*m)`, where n is the length of the first array, and m is
+-- | the length of the second.
 difference :: forall a. Eq a => Array a -> Array a -> Array a
-difference xs ys
-  | null xs = []
-  | otherwise = uncons' (const xs) (\z zs -> delete z xs \\ zs) ys
+difference = foldr delete
 
 infix 5 difference as \\
 
