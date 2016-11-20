@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 
+import Data.Const (Const(..))
 import Data.Array as A
 import Data.Array ((:), (\\), (!!))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
@@ -205,9 +206,12 @@ testArray = do
   log "filter should remove items that don't match a predicate"
   assert $ A.filter odd (A.range 0 10) == [1, 3, 5, 7, 9]
 
-  log "filterM should remove items that don't match a predicate while using a monadic behaviour"
-  assert $ A.filterM (Just <<< odd) (A.range 0 10) == Just [1, 3, 5, 7, 9]
-  assert $ A.filterM (const Nothing) (A.range 0 10) == Nothing
+  log "filterA should remove items that don't match a predicate while using an applicative behaviour"
+  assert $ A.filterA (Just <<< odd) (A.range 0 10) == Just [1, 3, 5, 7, 9]
+  assert $ A.filterA (const Nothing) (A.range 0 10) == Nothing
+
+  log "filterA should apply effects in the right order"
+  assert $ A.filterA (Const <<< show) (A.range 1 5) == Const "12345"
 
   log "mapMaybe should transform every item in an array, throwing out Nothing values"
   assert $ A.mapMaybe (\x -> if x /= 0 then Just x else Nothing) [0, 1, 0, 0, 2, 3] == [1, 2, 3]

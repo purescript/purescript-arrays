@@ -67,6 +67,7 @@ module Data.Array
   , concatMap
   , filter
   , partition
+  , filterA
   , filterM
   , mapMaybe
   , catMaybes
@@ -121,7 +122,7 @@ import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, f
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
-import Data.Traversable (sequence)
+import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
 
@@ -417,17 +418,20 @@ foreign import partition
   -> Array a
   -> { yes :: Array a, no :: Array a }
 
--- | Filter where the predicate returns a monadic `Boolean`.
+-- | Filter where the predicate returns a `Boolean` in some `Applicative`.
 -- |
 -- | ```purescript
--- | powerSet :: forall a. [a] -> [[a]]
--- | powerSet = filterM (const [true, false])
+-- | powerSet :: forall a. Array a -> Array (Array a)
+-- | powerSet = filterA (const [true, false])
 -- | ```
+filterA :: forall a f. Applicative f => (a -> f Boolean) -> Array a -> f (Array a)
+filterA p =
+  traverse (\x -> Tuple x <$> p x)
+  >>> map (mapMaybe (\(Tuple x b) -> if b then Just x else Nothing))
+
+-- | Deprecated alias for `filterA`.
 filterM :: forall a m. Monad m => (a -> m Boolean) -> Array a -> m (Array a)
-filterM p = uncons' (\_ -> pure []) \x xs -> do
-  b <- p x
-  xs' <- filterM p xs
-  pure if b then x : xs' else xs'
+filterM = filterA
 
 -- | Apply a function to each element in an array, keeping only the results
 -- | which contain a value, creating a new array.
