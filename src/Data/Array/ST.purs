@@ -6,6 +6,7 @@ module Data.Array.ST
   ( STArray(..)
   , Assoc()
   , runSTArray
+  , runSTArray'
   , emptySTArray
   , peekSTArray
   , pokeSTArray
@@ -16,10 +17,12 @@ module Data.Array.ST
   , toAssocArray
   ) where
 
+import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
-
 import Data.Maybe (Maybe(..))
+import Data.Newtype (class Newtype, unwrap)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | A reference to a mutable array.
 -- |
@@ -33,14 +36,32 @@ foreign import data STArray :: * -> * -> *
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
 
+newtype Id a f = Id (f a)
+
+derive instance newtypeId :: Newtype (Id a f) _
+
 -- | Freeze a mutable array, creating an immutable array. Use this function as you would use
 -- | `runST` to freeze a mutable reference.
 -- |
 -- | The rank-2 type prevents the reference from escaping the scope of `runSTArray`.
-foreign import runSTArray
+runSTArray
   :: forall a r
    . (forall h. Eff (st :: ST h | r) (STArray h a))
   -> Eff r (Array a)
+runSTArray a = map unwrap (runSTArray' (map Id a))
+
+-- | Freeze all mutable arrays in some structure, creating a version of the
+-- | same structure where all mutable arrays are replaced with immutable
+-- | arrays. Use this function as you would use `runST` to freeze a mutable
+-- | reference.
+-- |
+-- | The rank-2 type prevents the reference from escaping the scope of `runSTArray'`.
+runSTArray'
+  :: forall f r
+   . (forall h. Eff (st :: ST h | r) (f (STArray h)))
+  -> Eff r (f Array)
+runSTArray' =
+  unsafeCoerce
 
 -- | Create an empty mutable array.
 foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
