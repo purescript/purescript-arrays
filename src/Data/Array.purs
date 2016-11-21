@@ -115,11 +115,16 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
+import Control.Monad.Eff (Eff, runPure)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
+import Control.Monad.ST (ST)
 
+import Data.Array.ST (STArray, emptySTArray, pushSTArray, runSTArray')
+import Data.Array.ST.Iterator (iterate, iterator, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.Newtype (class Newtype, unwrap)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
@@ -548,14 +553,25 @@ group' = group <<< sort
 -- | Group equal, consecutive elements of an array into arrays, using the
 -- | specified equivalence relation to detemine equality.
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
-groupBy op = go []
+groupBy op xs =
+  runPure do
+    runGroupedSTArray do
+      result <- emptySTArray
+      iter <- iterator (xs !! _)
+      iterate iter \x -> do
+        sub <- emptySTArray
+        pushSTArray result (x :| sub)
+        pushWhile (op x) iter sub
+      pure result
   where
-  go :: Array (NonEmpty Array a) -> Array a -> Array (NonEmpty Array a)
-  go acc xs = case uncons xs of
-    Just o ->
-      let sp = span (op o.head) o.tail
-      in go ((o.head :| sp.init) : acc) sp.rest
-    Nothing -> reverse acc
+  runGroupedSTArray
+    :: forall b r
+    . (forall h. Eff (st :: ST h | r) (STArray h (NonEmpty (STArray h) b)))
+    -> Eff r (Array (NonEmpty Array b))
+  runGroupedSTArray a = map unwrap (runSTArray' (map Grouped a))
+
+newtype Grouped a arr = Grouped (arr (NonEmpty arr a))
+derive instance newtypeGrouped :: Newtype (Grouped a arr) _
 
 -- | Remove the duplicates from an array, creating a new array.
 nub :: forall a. Eq a => Array a -> Array a

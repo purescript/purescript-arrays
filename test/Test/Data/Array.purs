@@ -285,7 +285,7 @@ testArray = do
   assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [1 :| [1], 2 :| [2], 3 :| [3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 5] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [5]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
