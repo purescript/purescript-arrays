@@ -115,7 +115,7 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
-import Control.Monad.Eff (Eff, runPure)
+import Control.Monad.Eff (Eff)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST (ST)
 
@@ -554,21 +554,20 @@ group' = group <<< sort
 -- | specified equivalence relation to detemine equality.
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
 groupBy op xs =
-  runPure do
-    runGroupedSTArray do
-      result <- emptySTArray
-      iter <- iterator (xs !! _)
-      iterate iter \x -> do
-        sub <- emptySTArray
-        pushSTArray result (x :| sub)
-        pushWhile (op x) iter sub
-      pure result
+  runGroupedSTArray do
+    result <- emptySTArray
+    iter <- iterator (xs !! _)
+    iterate iter \x -> do
+      sub <- emptySTArray
+      pushSTArray result (x :| sub)
+      pushWhile (op x) iter sub
+    pure result
   where
   runGroupedSTArray
-    :: forall b r
-    . (forall h. Eff (st :: ST h | r) (STArray h (NonEmpty (STArray h) b)))
-    -> Eff r (Array (NonEmpty Array b))
-  runGroupedSTArray a = map unwrap (runSTArray' (map Grouped a))
+    :: forall b
+     . (forall h. Eff (st :: ST h) (STArray h (NonEmpty (STArray h) b)))
+    -> Array (NonEmpty Array b)
+  runGroupedSTArray a = unwrap (runSTArray' (map Grouped a))
 
 newtype Grouped a arr = Grouped (arr (NonEmpty arr a))
 derive instance newtypeGrouped :: Newtype (Grouped a arr) _

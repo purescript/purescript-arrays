@@ -18,7 +18,7 @@ module Data.Array.ST
   ) where
 
 import Prelude
-import Control.Monad.Eff (Eff)
+import Control.Monad.Eff (Eff, Pure, runPure)
 import Control.Monad.ST (ST)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap)
@@ -43,25 +43,41 @@ derive instance newtypeId :: Newtype (Id a f) _
 -- | Freeze a mutable array, creating an immutable array. Use this function as you would use
 -- | `runST` to freeze a mutable reference.
 -- |
--- | The rank-2 type prevents the reference from escaping the scope of `runSTArray`.
+-- | The rank-2 type prevents the reference from escaping the scope of `runSTArray'`,
+-- | and the closed row on the `Eff` computation prevents the reference from
+-- | escaping into other parts of your program via native effects such as `setTimeout`.
+-- |
+-- | You can also return an immutable copy of an `STArray` from an `ST` computation
+-- | by using `freeze` combined with `runST`. However, when possible, you should
+-- | prefer this function, because it is `O(1)`. By contrast, `freeze` must copy the
+-- | underlying array and is therefore `O(n)`.
 runSTArray
-  :: forall a r
-   . (forall h. Eff (st :: ST h | r) (STArray h a))
-  -> Eff r (Array a)
-runSTArray a = map unwrap (runSTArray' (map Id a))
+  :: forall a
+   . (forall h. Eff (st :: ST h) (STArray h a))
+  -> Array a
+runSTArray a = unwrap (runSTArray' (map Id a))
 
 -- | Freeze all mutable arrays in some structure, creating a version of the
 -- | same structure where all mutable arrays are replaced with immutable
 -- | arrays. Use this function as you would use `runST` to freeze a mutable
 -- | reference.
 -- |
--- | The rank-2 type prevents the reference from escaping the scope of `runSTArray'`.
+-- | The rank-2 type prevents the reference from escaping the scope of `runSTArray'`,
+-- | and the closed row on the `Eff` computation prevents the reference from
+-- | escaping into other parts of your program via native effects such as `setTimeout`.
+-- |
+-- | You can also return an immutable copy of an `STArray` from an `ST` computation
+-- | by using `freeze` combined with `runST`. However, when possible, you should
+-- | prefer this function, because it is `O(1)`. By contrast, `freeze` must copy the
+-- | underlying array and is therefore `O(n)`.
 runSTArray'
-  :: forall f r
-   . (forall h. Eff (st :: ST h | r) (f (STArray h)))
-  -> Eff r (f Array)
-runSTArray' =
-  unsafeCoerce
+  :: forall f
+   . (forall h. Eff (st :: ST h) (f (STArray h)))
+  -> f Array
+runSTArray' x = runPure (go x)
+  where
+  go :: (forall h. Eff (st :: ST h) (f (STArray h))) -> Pure (f Array)
+  go = unsafeCoerce
 
 -- | Create an empty mutable array.
 foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
