@@ -1,9 +1,5 @@
 "use strict";
 
-exports.runSTArray = function (f) {
-  return f;
-};
-
 exports.emptySTArray = function () {
   return [];
 };

@@ -285,7 +285,7 @@ testArray = do
   assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [1 :| [1], 2 :| [2], 3 :| [3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [3]]
+  assert $ A.groupBy eqParity [1, 1, 2, 2, 3, 5, 4] == [1 :| [1], 2 :| [2], 3 :| [5], NE.singleton 4]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
@@ -364,6 +364,11 @@ odd n = n `mod` 2 /= zero
 
 doubleAndOrig :: Int -> Array Int
 doubleAndOrig x = [x * 2, x]
+
+-- | An equivalence relation on integers. This relation splits the integers
+-- | into two equivalence classes: odds and evens.
+eqParity :: Int -> Int -> Boolean
+eqParity x y = x `mod` 2 == y `mod` 2
 
 data Replicated a = Replicated Int a
 
