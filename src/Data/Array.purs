@@ -129,7 +129,7 @@ import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
-toUnfoldable :: forall f a. Unfoldable f => Array a -> f a
+toUnfoldable :: forall f. Unfoldable f => Array ~> f
 toUnfoldable xs = unfoldr f 0
   where
   len = length xs
@@ -138,7 +138,7 @@ toUnfoldable xs = unfoldr f 0
     | otherwise = Nothing
 
 -- | Convert a `Foldable` structure into an `Array`.
-fromFoldable :: forall f a. Foldable f => f a -> Array a
+fromFoldable :: forall f. Foldable f => f ~> Array
 fromFoldable = fromFoldableImpl foldr
 
 foreign import fromFoldableImpl
