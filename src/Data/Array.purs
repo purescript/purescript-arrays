@@ -98,6 +98,7 @@ module Data.Array
   , intersectBy
 
   , zipWith
+  , zipWith3
   , zipWithA
   , zip
   , unzip
@@ -635,6 +636,24 @@ foreign import zipWith
   -> Array a
   -> Array b
   -> Array c
+
+-- | Apply a function to triples of elements at the same index in three arrays,
+-- | collecting the results in a new array.
+-- |
+-- | If one array is longer, elements will be discarded from the longer array.
+-- |
+-- | For example
+-- |
+-- | ```purescript
+-- | zipWith (*) [1, 2, 3] [4, 5, 6, 7] == [4, 10, 18]
+-- | ```
+foreign import zipWith3 :: forall a    b    c    d.
+                          (       a -> b -> c -> d)
+                        -> Array  a
+                        -> Array       b
+                        -> Array            c
+                        -> Array                 d
+
 
 -- | A generalization of `zipWith` which accumulates results in some
 -- | `Applicative` functor.
