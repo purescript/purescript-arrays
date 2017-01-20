@@ -111,12 +111,13 @@ module Data.Array
   ) where
 
 import Prelude
-
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
-
+import Control.Monad.ST (pureST)
+import Data.Array.ST (unsafeFreeze, emptySTArray, pushSTArray)
+import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
@@ -125,7 +126,6 @@ import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
-
 import Partial.Unsafe (unsafePartial)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
@@ -548,14 +548,16 @@ group' = group <<< sort
 -- | Group equal, consecutive elements of an array into arrays, using the
 -- | specified equivalence relation to detemine equality.
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
-groupBy op = go []
-  where
-  go :: Array (NonEmpty Array a) -> Array a -> Array (NonEmpty Array a)
-  go acc xs = case uncons xs of
-    Just o ->
-      let sp = span (op o.head) o.tail
-      in go ((o.head :| sp.init) : acc) sp.rest
-    Nothing -> reverse acc
+groupBy op xs =
+  pureST do
+    result <- emptySTArray
+    iter <- iterator (xs !! _)
+    iterate iter \x -> void do
+      sub <- emptySTArray
+      pushWhile (op x) iter sub
+      sub_ <- unsafeFreeze sub
+      pushSTArray result (x :| sub_)
+    unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
 nub :: forall a. Eq a => Array a -> Array a

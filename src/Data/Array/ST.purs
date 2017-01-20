@@ -13,13 +13,16 @@ module Data.Array.ST
   , pushAllSTArray
   , spliceSTArray
   , freeze, thaw
+  , unsafeFreeze
   , toAssocArray
   ) where
 
+import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
 
 import Data.Maybe (Maybe(..))
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | A reference to a mutable array.
 -- |
@@ -33,6 +36,8 @@ foreign import data STArray :: * -> * -> *
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
 
+-- | **DEPRECATED**: Use `unsafeFreeze` together with `runST` instead.
+-- |
 -- | Freeze a mutable array, creating an immutable array. Use this function as you would use
 -- | `runST` to freeze a mutable reference.
 -- |
@@ -41,6 +46,11 @@ foreign import runSTArray
   :: forall a r
    . (forall h. Eff (st :: ST h | r) (STArray h a))
   -> Eff r (Array a)
+
+-- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
+-- | array must not be mutated afterwards.
+unsafeFreeze :: forall a r h. STArray h a -> Eff (st :: ST h | r) (Array a)
+unsafeFreeze = pure <<< (unsafeCoerce :: STArray h a -> Array a)
 
 -- | Create an empty mutable array.
 foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
