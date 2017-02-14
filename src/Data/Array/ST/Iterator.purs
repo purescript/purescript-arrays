@@ -45,7 +45,7 @@ iterate iter f = do
 next :: forall a h r. Iterator h a -> Eff (st :: ST h | r) (Maybe a)
 next (Iterator f currentIndex) = do
   i <- readSTRef currentIndex
-  modifySTRef currentIndex (_ + 1)
+  _ <- modifySTRef currentIndex (_ + 1)
   pure (f i)
 
 -- | Get the next item out of an iterator without advancing it.
@@ -67,7 +67,7 @@ pushWhile p iter array = do
     mx <- peek iter
     case mx of
       Just x | p x -> do
-        pushSTArray array x
+        _ <- pushSTArray array x
         void $ next iter
       _ ->
         void $ writeSTRef break true
