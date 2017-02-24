@@ -188,14 +188,7 @@ exports.reverse = function (l) {
 };
 
 exports.concat = function (xss) {
-  var result = [];
-  for (var i = 0, l = xss.length; i < l; i++) {
-    var xs = xss[i];
-    for (var j = 0, m = xs.length; j < m; j++) {
-      result.push(xs[j]);
-    }
-  }
-  return result;
+  return Array.prototype.concat.apply([], xss);
 };
 
 exports.filter = function (f) {
