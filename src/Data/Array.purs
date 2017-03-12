@@ -164,7 +164,7 @@ infix 8 range as ..
 -- |
 -- | The `Lazy` constraint is used to generate the result lazily, to ensure
 -- | termination.
-some :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+some :: forall f a. Alternative f => Lazy (f (Array a)) => f a -> f (Array a)
 some v = (:) <$> v <*> defer (\_ -> many v)
 
 -- | Attempt a computation multiple times, returning as many successful results
@@ -172,7 +172,7 @@ some v = (:) <$> v <*> defer (\_ -> many v)
 -- |
 -- | The `Lazy` constraint is used to generate the result lazily, to ensure
 -- | termination.
-many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+many :: forall f a. Alternative f => Lazy (f (Array a)) => f a -> f (Array a)
 many v = some v <|> pure []
 
 --------------------------------------------------------------------------------
