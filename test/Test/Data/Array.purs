@@ -228,6 +228,9 @@ testArray = do
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
+  log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
+  assert $ A.sortWith id [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]
   assert $ (A.take 2 [1, 2, 3]) == [1, 2]
