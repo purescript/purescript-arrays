@@ -68,7 +68,6 @@ module Data.Array
   , filter
   , partition
   , filterA
-  , filterM
   , mapMaybe
   , catMaybes
   , mapWithIndex
@@ -428,10 +427,6 @@ filterA :: forall a f. Applicative f => (a -> f Boolean) -> Array a -> f (Array 
 filterA p =
   traverse (\x -> Tuple x <$> p x)
   >>> map (mapMaybe (\(Tuple x b) -> if b then Just x else Nothing))
-
--- | Deprecated alias for `filterA`.
-filterM :: forall a m. Monad m => (a -> m Boolean) -> Array a -> m (Array a)
-filterM = filterA
 
 -- | Apply a function to each element in an array, keeping only the results
 -- | which contain a value, creating a new array.
