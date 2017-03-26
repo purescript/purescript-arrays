@@ -75,7 +75,7 @@ module Data.Array
 
   , sort
   , sortBy
-
+  , sortWith
   , slice
   , take
   , takeWhile
@@ -468,6 +468,11 @@ sortBy comp xs = sortImpl comp' xs
     GT -> 1
     EQ -> 0
     LT -> -1
+
+-- | Sort the elements of an array in increasing order, where elements are
+-- | sorted based on a projection
+sortWith :: forall a b. Ord b => (a -> b) -> Array a -> Array a
+sortWith f = sortBy (comparing f)
 
 foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
 
