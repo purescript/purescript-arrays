@@ -31,7 +31,7 @@ import Unsafe.Coerce (unsafeCoerce)
 -- |
 -- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
 -- | except that mutation is allowed.
-foreign import data STArray :: * -> * -> *
+foreign import data STArray :: Type -> Type -> Type
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }

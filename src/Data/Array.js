@@ -8,8 +8,10 @@ exports.range = function (start) {
   return function (end) {
     var step = start > end ? -1 : 1;
     var result = [];
-    for (var i = start, n = 0; i !== end; i += step) {
+    var i = start, n = 0;
+    while (i !== end) {
       result[n++] = i;
+      i += step;
     }
     result[n] = i;
     return result;
@@ -59,9 +61,10 @@ exports.fromFoldableImpl = (function () {
   function listToArray(list) {
     var result = [];
     var count = 0;
-    while (list !== emptyList) {
-      result[count++] = list.head;
-      list = list.tail;
+    var xs = list;
+    while (xs !== emptyList) {
+      result[count++] = xs.head;
+      xs = xs.tail;
     }
     return result;
   }

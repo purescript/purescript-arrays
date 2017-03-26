@@ -113,7 +113,7 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
-import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
+import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2, tailRec)
 import Control.Monad.ST (pureST)
 import Data.Array.ST (unsafeFreeze, emptySTArray, pushSTArray)
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
@@ -163,7 +163,7 @@ infix 8 range as ..
 -- |
 -- | The `Lazy` constraint is used to generate the result lazily, to ensure
 -- | termination.
-some :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+some :: forall f a. Alternative f => Lazy (f (Array a)) => f a -> f (Array a)
 some v = (:) <$> v <*> defer (\_ -> many v)
 
 -- | Attempt a computation multiple times, returning as many successful results
@@ -171,7 +171,7 @@ some v = (:) <$> v <*> defer (\_ -> many v)
 -- |
 -- | The `Lazy` constraint is used to generate the result lazily, to ensure
 -- | termination.
-many :: forall f a. (Alternative f, Lazy (f (Array a))) => f a -> f (Array a)
+many :: forall f a. Alternative f => Lazy (f (Array a)) => f a -> f (Array a)
 many v = some v <|> pure []
 
 --------------------------------------------------------------------------------
@@ -521,13 +521,13 @@ span p arr =
       { init: arr, rest: [] }
   where
   breakIndex = go 0
-  go i =
+  go = tailRec \i ->
     -- This looks like a good opportunity to use the Monad Maybe instance,
     -- but it's important to write out an explicit case expression here in
     -- order to ensure that TCO is triggered.
     case index arr i of
-      Just x -> if p x then go (i+1) else Just i
-      Nothing -> Nothing
+      Just x -> if p x then Loop (i + 1) else Done (Just i)
+      Nothing -> Done Nothing
 
 -- | Group equal, consecutive elements of an array into arrays.
 -- |
