@@ -16,7 +16,17 @@ exports.range = function (start) {
   };
 };
 
-exports.replicate = function (count) {
+var replicate = function (count) {
+  return function (value) {
+    if (count < 1) {
+      return [];
+    }
+    var result = new Array(count);
+    return result.fill(value);
+  };
+};
+
+var replicatePolyfill = function (count) {
   return function (value) {
     var result = [];
     var n = 0;
@@ -26,6 +36,11 @@ exports.replicate = function (count) {
     return result;
   };
 };
+
+// In browsers that have Array.prototype.fill we use it, as it's faster.
+exports.replicate = typeof Array.prototype.fill === "function" ?
+    replicate :
+    replicatePolyfill;
 
 exports.fromFoldableImpl = (function () {
   // jshint maxparams: 2
