@@ -203,6 +203,12 @@ exports.reverse = function (l) {
 };
 
 exports.concat = function (xss) {
+  if (xss.length <= 10000) {
+    // This method is faster, but it crashes on big arrays.
+    // So we use it when can and fallback to simple variant otherwise.
+    return Array.prototype.concat.apply([], xss);
+  }
+
   var result = [];
   for (var i = 0, l = xss.length; i < l; i++) {
     var xs = xss[i];
