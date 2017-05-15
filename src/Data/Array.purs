@@ -71,6 +71,8 @@ module Data.Array
   , mapMaybe
   , catMaybes
   , mapWithIndex
+  , updateAtIndices
+  , modifyAtIndices
 
   , sort
   , sortBy
@@ -115,15 +117,15 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST (pureST)
-import Data.Array.ST (unsafeFreeze, emptySTArray, pushSTArray)
+import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
-import Data.Foldable (class Foldable, foldl, foldr)
+import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), uncurry)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 
@@ -445,6 +447,17 @@ mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
 mapWithIndex f xs =
   zipWith f (range 0 (length xs - 1)) xs
 
+-- | Change the elements at the specified indices in index/value pairs.
+-- | Out-of-bounds indices will have no effect.
+updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
+updateAtIndices us xs =
+  pureST (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
+
+-- | Apply a function to the element at the specified indices,
+-- | creating a new array. Out-of-bounds indices will have no effect.
+modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
+modifyAtIndices is f xs =
+  pureST (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------

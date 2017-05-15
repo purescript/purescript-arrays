@@ -222,6 +222,16 @@ testArray = do
   log "mapWithIndex applies a function with an index for every element"
   assert $ A.mapWithIndex (\i x -> x - i) [9,8,7,6,5] == [9,7,5,3,1]
 
+  log "updateAtIndices changes the elements at specified indices"
+  assert $ A.updateAtIndices
+             [Tuple 0 false, Tuple 2 false, Tuple 8 false]
+             [true,  true, true,  true] ==
+             [false, true, false, true]
+
+  log "modifyAtIndices modifies the elements at specified indices"
+  assert $ A.modifyAtIndices [0, 2, 8] not [true,  true, true,  true] ==
+                                           [false, true, false, true]
+
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
 
