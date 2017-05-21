@@ -59,7 +59,9 @@ module Data.Array
   , insertAt
   , deleteAt
   , updateAt
+  , updateAtIndices
   , modifyAt
+  , modifyAtIndices
   , alterAt
 
   , reverse
@@ -71,8 +73,6 @@ module Data.Array
   , mapMaybe
   , catMaybes
   , mapWithIndex
-  , updateAtIndices
-  , modifyAtIndices
 
   , sort
   , sortBy
