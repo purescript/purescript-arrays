@@ -6,10 +6,12 @@ module Data.Array.ST
   ( STArray(..)
   , Assoc()
   , runSTArray
+  , withArray
   , emptySTArray
   , peekSTArray
   , pokeSTArray
   , pushSTArray
+  , modifySTArray
   , pushAllSTArray
   , spliceSTArray
   , freeze, thaw
@@ -46,6 +48,18 @@ foreign import runSTArray
   :: forall a r
    . (forall h. Eff (st :: ST h | r) (STArray h a))
   -> Eff r (Array a)
+
+-- Perform an effect requiring a mutable array on a copy of an immutable array,
+-- safely returning the result as an immutable array.
+withArray
+  :: forall a b r h
+   . (STArray h a -> Eff (st :: ST h | r) b)
+   -> Array a
+   -> Eff (st :: ST h | r) (Array a)
+withArray f xs = do
+  result <- thaw xs
+  _ <- f result
+  unsafeFreeze result
 
 -- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
 -- | array must not be mutated afterwards.
@@ -96,6 +110,14 @@ foreign import pushAllSTArray
    . STArray h a
   -> Array a
   -> Eff (st :: ST h | r) Int
+
+-- | Mutate the element at the specified index using the supplied function.
+modifySTArray :: forall a h r. STArray h a -> Int -> (a -> a) -> Eff (st :: ST h | r) Boolean
+modifySTArray xs i f = do
+  entry <- peekSTArray xs i
+  case entry of
+    Just x  -> pokeSTArray xs i (f x)
+    Nothing -> pure false
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
 foreign import spliceSTArray
