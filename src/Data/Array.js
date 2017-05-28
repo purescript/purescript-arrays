@@ -297,6 +297,21 @@ exports.zipWith = function (f) {
   };
 };
 
+exports.zipWith3=function(f) {
+    return function(a) {
+        return function(b) {
+            return function(c) {
+                var l = Math.min(a.length, b.length, c.length);
+                var result=[];
+                for (var i=0; i<l; i++) {
+                    result.push(f(a[i])(b[i])(c[i]));
+                }
+                return result;
+            };
+        };
+    };
+};
+
 //------------------------------------------------------------------------------
 // Partial ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
