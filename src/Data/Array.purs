@@ -30,6 +30,7 @@
 module Data.Array
   ( fromFoldable
   , toUnfoldable
+  , fromIndexation
   , singleton
   , (..), range
   , replicate
@@ -118,7 +119,7 @@ import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST (pureST)
 import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
-import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
+import Data.Array.ST.Iterator (iterator, iterate, pushWhile, pushAll)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
@@ -141,6 +142,14 @@ toUnfoldable xs = unfoldr f 0
 -- | Convert a `Foldable` structure into an `Array`.
 fromFoldable :: forall f. Foldable f => f ~> Array
 fromFoldable = fromFoldableImpl foldr
+
+-- | Convert an indexing function into a populated array.
+fromIndexation :: forall a. (Int -> Maybe a) -> Array a
+fromIndexation f = pureST do
+  iter <- iterator f
+  result <- emptySTArray
+  pushAll iter result
+  unsafeFreeze result
 
 foreign import fromFoldableImpl
   :: forall f a
