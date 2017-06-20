@@ -671,8 +671,17 @@ zip = zipWith Tuple
 -- | Transforms a list of pairs into a list of first components and a list of
 -- | second components.
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
-unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
-  Tuple as bs -> Tuple (a : as) (b : bs)
+unzip xs =
+  pureST do
+    fsts <- emptySTArray
+    snds <- emptySTArray
+    iter <- iterator (xs !! _)
+    iterate iter \(Tuple fst snd) -> do
+      void $ pushSTArray fsts fst
+      void $ pushSTArray snds snd
+    fsts' <- unsafeFreeze fsts
+    snds' <- unsafeFreeze snds
+    pure $ Tuple fsts' snds'
 
 -- | Perform a fold using a monadic step function.
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
