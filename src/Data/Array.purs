@@ -662,14 +662,14 @@ zipWithA
   -> m (Array c)
 zipWithA f xs ys = sequence (zipWith f xs ys)
 
--- | Rakes two lists and returns a list of corresponding pairs.
--- | If one input list is short, excess elements of the longer list are
+-- | Takes two arrays and returns an array of corresponding pairs.
+-- | If one input array is short, excess elements of the longer array are
 -- | discarded.
 zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
 zip = zipWith Tuple
 
--- | Transforms a list of pairs into a list of first components and a list of
--- | second components.
+-- | Transforms an array of pairs into an array of first components and an
+-- | array of second components.
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip = uncons' (\_ -> Tuple [] []) \(Tuple a b) ts -> case unzip ts of
   Tuple as bs -> Tuple (a : as) (b : bs)
