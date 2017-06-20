@@ -49,8 +49,8 @@ foreign import runSTArray
    . (forall h. Eff (st :: ST h | r) (STArray h a))
   -> Eff r (Array a)
 
--- Perform an effect requiring a mutable array on a copy of an immutable array,
--- safely returning the result as an immutable array.
+-- | Perform an effect requiring a mutable array on a copy of an immutable array,
+-- | safely returning the result as an immutable array.
 withArray
   :: forall a b r h
    . (STArray h a -> Eff (st :: ST h | r) b)
