@@ -42,6 +42,12 @@ testArrayST = do
     void $ pushSTArray arr 4
     pure arr) == [1, 2, 3, 4]
 
+  log "pushSTArray should return the new length of the array"
+
+  assert $ pureST (do
+    arr <- thaw [unit, unit, unit]
+    pushSTArray arr unit) == 4
+
   log "pushAllSTArray should append multiple values to the end of the array"
 
   assert $ run (do
@@ -53,6 +59,12 @@ testArrayST = do
     arr <- thaw [1, 2, 3]
     void $ pushAllSTArray arr [4, 5, 6]
     pure arr) == [1, 2, 3, 4, 5, 6]
+
+  log "pushAllSTArray should return the new length of the array"
+
+  assert $ pureST (do
+    arr <- thaw [unit, unit, unit]
+    pushAllSTArray arr [unit, unit]) == 5
 
   log "peekSTArray should return Nothing when peeking a value outside the array bounds"
 
