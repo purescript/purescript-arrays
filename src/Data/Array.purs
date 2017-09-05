@@ -497,27 +497,27 @@ foreign import slice :: forall a. Int -> Int -> Array a -> Array a
 -- | array.
 foreign import take :: forall a. Int -> Array a -> Array a
 
--- | Calculate the longest initial subarray for which all element satisfy the
--- | specified predicate, creating a new array.
-takeWhile :: forall a. (a -> Boolean) -> Array a -> Array a
-takeWhile p xs = (span p xs).init
-
 -- | Keep only a number of elements from the end of an array, creating a new
 -- | array.
 takeEnd :: forall a. Int -> Array a -> Array a
 takeEnd n xs = drop (length xs - n) xs
 
+-- | Calculate the longest initial subarray for which all element satisfy the
+-- | specified predicate, creating a new array.
+takeWhile :: forall a. (a -> Boolean) -> Array a -> Array a
+takeWhile p xs = (span p xs).init
+
 -- | Drop a number of elements from the start of an array, creating a new array.
 foreign import drop :: forall a. Int -> Array a -> Array a
+
+-- | Drop a number of elements from the start of an array, creating a new array.
+dropEnd :: forall a. Int -> Array a -> Array a
+dropEnd n xs = take (length xs - n) xs
 
 -- | Remove the longest initial subarray for which all element satisfy the
 -- | specified predicate, creating a new array.
 dropWhile :: forall a. (a -> Boolean) -> Array a -> Array a
 dropWhile p xs = (span p xs).rest
-
--- | Drop a number of elements from the start of an array, creating a new array.
-dropEnd :: forall a. Int -> Array a -> Array a
-dropEnd n xs = take (length xs - n) xs
 
 -- | Split an array into two parts:
 -- |
