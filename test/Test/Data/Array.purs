@@ -251,6 +251,11 @@ testArray = do
   assert $ (A.takeWhile (_ /= 3) [1, 2, 3]) == [1, 2]
   assert $ (A.takeWhile (_ /= 1) nil) == nil
 
+  log "take should keep the specified number of items from the end of an array, discarding the rest"
+  assert $ (A.takeEnd 1 [1, 2, 3]) == [3]
+  assert $ (A.takeEnd 2 [1, 2, 3]) == [2, 3]
+  assert $ (A.takeEnd 1 nil) == nil
+
   log "drop should remove the specified number of items from the front of an array"
   assert $ (A.drop 1 [1, 2, 3]) == [2, 3]
   assert $ (A.drop 2 [1, 2, 3]) == [3]
@@ -260,6 +265,11 @@ testArray = do
   assert $ (A.dropWhile (_ /= 1) [1, 2, 3]) == [1, 2, 3]
   assert $ (A.dropWhile (_ /= 2) [1, 2, 3]) == [2, 3]
   assert $ (A.dropWhile (_ /= 1) nil) == nil
+
+  log "drop should remove the specified number of items from the end of an array"
+  assert $ (A.dropEnd 1 [1, 2, 3]) == [1, 2]
+  assert $ (A.dropEnd 2 [1, 2, 3]) == [1]
+  assert $ (A.dropEnd 1 nil) == nil
 
   log "take and drop should treat negative arguments as zero"
   assert $ (A.take (-2) [1, 2, 3]) == nil
