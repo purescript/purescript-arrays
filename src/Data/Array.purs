@@ -79,8 +79,10 @@ module Data.Array
   , sortWith
   , slice
   , take
+  , takeEnd
   , takeWhile
   , drop
+  , dropEnd
   , dropWhile
   , span
   , group
@@ -500,6 +502,11 @@ foreign import take :: forall a. Int -> Array a -> Array a
 takeWhile :: forall a. (a -> Boolean) -> Array a -> Array a
 takeWhile p xs = (span p xs).init
 
+-- | Keep only a number of elements from the end of an array, creating a new
+-- | array.
+takeEnd :: forall a. Int -> Array a -> Array a
+takeEnd n xs = drop (length xs - n) xs
+
 -- | Drop a number of elements from the start of an array, creating a new array.
 foreign import drop :: forall a. Int -> Array a -> Array a
 
@@ -507,6 +514,10 @@ foreign import drop :: forall a. Int -> Array a -> Array a
 -- | specified predicate, creating a new array.
 dropWhile :: forall a. (a -> Boolean) -> Array a -> Array a
 dropWhile p xs = (span p xs).rest
+
+-- | Drop a number of elements from the start of an array, creating a new array.
+dropEnd :: forall a. Int -> Array a -> Array a
+dropEnd n xs = take (length xs - n) xs
 
 -- | Split an array into two parts:
 -- |
