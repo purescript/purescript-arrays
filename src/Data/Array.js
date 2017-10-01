@@ -7,7 +7,7 @@
 exports.range = function (start) {
   return function (end) {
     var step = start > end ? -1 : 1;
-    var result = [];
+    var result = new Array(step * (end - start) + 1);
     var i = start, n = 0;
     while (i !== end) {
       result[n++] = i;
