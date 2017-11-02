@@ -91,7 +91,7 @@ foreign import peekSTArrayImpl
   :: forall a h e r
    . (a -> r)
   -> r
-  -> (STArray h a)
+  -> STArray h a
   -> Int
   -> (Eff (st :: ST h | e) r)
 
