@@ -604,10 +604,10 @@ filterA p =
 -- | which contain a value, creating a new array.
 -- |
 -- | ```purescript
--- | parseEmail :: String → Maybe Email
+-- | parseEmail :: String -> Maybe Email
 -- | parseEmail = ...
 -- |
--- | mapMaybe parseEmail ["a.com", "email@example.com", "--"] = [Email {user: "email", domain: "example.com"}]
+-- | mapMaybe parseEmail ["a.com", "hello@example.com", "--"] = [Email {user: "hello", domain: "example.com"}]
 -- | ```
 -- |
 mapMaybe :: forall a b. (a -> Maybe b) -> Array a -> Array b
@@ -628,7 +628,7 @@ catMaybes = mapMaybe id
 -- | with the new elements.
 -- |
 -- | ```purescript
--- | mapWithIndex (\index element → (show index) <> element) ["Hello", "World"] = ["0Hello", "1World"]
+-- | mapWithIndex (\index element -> (show index) <> element) ["Hello", "World"] = ["0Hello", "1World"]
 -- | ```
 -- |
 mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
@@ -844,7 +844,7 @@ group' = group <<< sort
 -- | specified equivalence relation to detemine equality.
 -- |
 -- | ```purescript
--- | groupBy (\a b → odd a && odd b) [1, 3, 2, 4, 3, 3] = [[1], [3], [2, 4], [3], [3]]
+-- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3] = [[1], [3], [2, 4], [3], [3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
@@ -862,7 +862,7 @@ groupBy op xs =
 -- | Remove the duplicates from an array, creating a new array.
 -- |
 -- | ```purescript
--- | nub [1, 1, 2, 3, 3] = [1, 2, 3]
+-- | nub [1, 2, 1, 3, 3] = [1, 2, 3]
 -- | ```
 -- |
 nub :: forall a. Eq a => Array a -> Array a
@@ -872,7 +872,7 @@ nub = nubBy eq
 -- | by the specified equivalence relation, creating a new array.
 -- |
 -- | ```purescript
--- | nubBy (\a b → a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
+-- | nubBy (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
 -- | ```
 -- |
 nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
@@ -989,7 +989,7 @@ foreign import zipWith
 -- | `Applicative` functor.
 -- |
 -- | ```purescript
--- | sndChars = zipWithA (\a b → charAt 2 (a <> b))
+-- | sndChars = zipWithA (\a b -> charAt 2 (a <> b))
 -- | sndChars ["a", "b"] ["A", "B"] = Nothing -- since "aA" does not have a 3rd char
 -- | sndChars ["aa", "b"] ["AA", "BBB"] = Just ['A', 'B']
 -- | ```
@@ -1037,7 +1037,7 @@ unzip xs =
 -- | Perform a fold using a monadic step function.
 -- |
 -- | ```purescript
--- | foldM (\x y → Just (x + y)) 0 [1, 4] = Just 5
+-- | foldM (\x y -> Just (x + y)) 0 [1, 4] = Just 5
 -- | ```
 -- |
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
@@ -1055,8 +1055,8 @@ foldRecM f a array = tailRecM2 go a 0
 -- | Find the element of an array at the specified index.
 -- |
 -- | ```purescript
--- | unsafeIndex ["a", "b", "c"] 1 = "b"
--- | unsafeIndex ["a", "b", "c"] 10 -- runtime exception
+-- | unsafePartial $ unsafeIndex ["a", "b", "c"] 1 = "b"
+-- | unsafeIndex ["a", "b", "c"] 10 -- runtime error
 -- | ```
 -- |
 unsafeIndex :: forall a. Partial => Array a -> Int -> a
