@@ -309,7 +309,7 @@ tail = uncons' (const Nothing) (\_ xs -> Just xs)
 -- | `Nothing` if the array is empty.
 -- |
 -- | ```purescript
--- | init [1, 2, 3, 4] = Just [2, 3, 4]
+-- | init [1, 2, 3, 4] = Just [1, 2, 3]
 -- | init [] = Nothing
 -- | ```
 -- |
@@ -844,7 +844,7 @@ group' = group <<< sort
 -- | specified equivalence relation to detemine equality.
 -- |
 -- | ```purescript
--- | groupBy (\a b → odd a && odd b) [1, 1, 2, 2, 3, 3] = [[1, 1], 2, 2, [3, 3]]
+-- | groupBy (\a b → odd a && odd b) [1, 3, 2, 4, 3, 3] = [[1], [3], [2, 4], [3], [3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
