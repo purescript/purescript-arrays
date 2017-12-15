@@ -628,7 +628,7 @@ catMaybes = mapMaybe id
 -- | with the new elements.
 -- |
 -- | ```purescript
--- | mapWithIndex (\index element -> (show index) <> element) ["Hello", "World"] = ["0Hello", "1World"]
+-- | mapWithIndex (\index element -> show index <> element) ["Hello", "World"] = ["0Hello", "1World"]
 -- | ```
 -- |
 mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
