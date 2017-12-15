@@ -827,7 +827,7 @@ span p arr =
 -- | Group equal, consecutive elements of an array into arrays.
 -- |
 -- | ```purescript
--- | group [1,1,2,2,1] == [(NonEmpty 1 [1]),(NonEmpty 2 [2]),(NonEmpty 1 [])]
+-- | group [1,1,2,2,1] == [NonEmpty 1 [1], NonEmpty 2 [2], NonEmpty 1 []]
 -- | ```
 group :: forall a. Eq a => Array a -> Array (NonEmpty Array a)
 group xs = groupBy eq xs
@@ -835,7 +835,7 @@ group xs = groupBy eq xs
 -- | Sort and then group the elements of an array into arrays.
 -- |
 -- | ```purescript
--- | group' [1,1,2,2,1] == [(NonEmpty 1 [1,1]),(NonEmpty 2 [2])]
+-- | group' [1,1,2,2,1] == [NonEmpty 1 [1,1],NonEmpty 2 [2]]
 -- | ```
 group' :: forall a. Ord a => Array a -> Array (NonEmpty Array a)
 group' = group <<< sort
@@ -844,7 +844,7 @@ group' = group <<< sort
 -- | specified equivalence relation to detemine equality.
 -- |
 -- | ```purescript
--- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3] = [(NonEmpty 1 [3]),(NonEmpty 2 []),(NonEmpty 4 []),(NonEmpty 3 [3])]
+-- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3] = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
