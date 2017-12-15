@@ -1056,7 +1056,7 @@ foldRecM f a array = tailRecM2 go a 0
 -- |
 -- | ```purescript
 -- | unsafePartial $ unsafeIndex ["a", "b", "c"] 1 = "b"
--- | unsafeIndex ["a", "b", "c"] 10 -- runtime error
+-- | unsafePartial $ unsafeIndex ["a", "b", "c"] 10 -- runtime error
 -- | ```
 -- |
 unsafeIndex :: forall a. Partial => Array a -> Int -> a
