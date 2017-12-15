@@ -257,7 +257,9 @@ insert = insertBy compare
 -- | determine the ordering of elements.
 -- |
 -- | ```purescript
--- | insertBy (\a b -> invert (compare a b)) 10 [21, 20, 2, 1] = [21, 20, 10, 2, 1]
+-- | invertCompare a b = invert $ compare a b
+-- |
+-- | insertBy invertCompare 10 [21, 20, 2, 1] = [21, 20, 10, 2, 1]
 -- | ```
 -- |
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
@@ -413,8 +415,8 @@ elemLastIndex x = findLastIndex (_ == x)
 -- | Find the first index for which a predicate holds.
 -- |
 -- | ```purescript
--- | findIndex (_ > 0) [-10, -4, 2, 3] = Just 2
--- | findIndex (_ > 9000) [-10, -4, 2, 3] = Nothing
+-- | findIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just 1
+-- | findIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
 -- | ```
 -- |
 findIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
@@ -431,8 +433,8 @@ foreign import findIndexImpl
 -- | Find the last index for which a predicate holds.
 -- |
 -- | ```purescript
--- | findLastIndex (_ > 0) [-10, -4, 2, 3] = Just 3
--- | findLastIndex (_ > 9000) [-10, -4, 2, 3] = Nothing
+-- | findLastIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just 2
+-- | findLastIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
 -- | ```
 -- |
 findLastIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
@@ -523,8 +525,12 @@ modifyAt i f xs = maybe Nothing go (xs !! i)
 -- | index is out-of-bounds.
 -- |
 -- | ```purescript
--- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"] = Just ["Hello", "World"]
--- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"] = Just ["Hello"]
+-- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"] 
+-- |    = Just ["Hello", "World"]
+-- |
+-- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"] 
+-- |    = Just ["Hello"]
+-- |
 -- | alterAt 10 (stripSuffix $ Pattern "!") ["Hello", "World!"] = Nothing
 -- | ```
 -- |
@@ -560,7 +566,12 @@ foreign import concat :: forall a. Array (Array a) -> Array a
 -- | into a single, new array.
 -- |
 -- | ```purescript
--- | concatMap (split $ Pattern " ") ["Hello World", "other thing"] = ["Hello", "World", "other", "thing"]
+-- | concatMap (split $ Pattern " ") ["Hello World", "other thing"]
+-- | ```
+-- |  becomes
+-- |
+-- | ```purescript
+-- | ["Hello", "World", "other", "thing"]
 -- | ```
 -- |
 concatMap :: forall a b. (a -> Array b) -> Array a -> Array b
@@ -580,7 +591,7 @@ foreign import filter :: forall a. (a -> Boolean) -> Array a -> Array a
 -- | and one for values that don't.
 -- |
 -- | ```purescript
--- | partition (_ > 0) [-1, 4, -5, 7] = {yes: [4, 7], no: [-1, -5]}
+-- | partition (_ > 0) [-1, 4, -5, 7] = { yes: [4, 7], no: [-1, -5] }
 -- | ```
 -- |
 foreign import partition
@@ -607,7 +618,12 @@ filterA p =
 -- | parseEmail :: String -> Maybe Email
 -- | parseEmail = ...
 -- |
--- | mapMaybe parseEmail ["a.com", "hello@example.com", "--"] = [Email {user: "hello", domain: "example.com"}]
+-- | mapMaybe parseEmail ["a.com", "hello@example.com", "--"]
+-- | ```
+-- | becomes
+-- |
+-- | ```purescript
+-- | [Email {user: "hello", domain: "example.com"}]
 -- | ```
 -- |
 mapMaybe :: forall a b. (a -> Maybe b) -> Array a -> Array b
@@ -628,7 +644,9 @@ catMaybes = mapMaybe id
 -- | with the new elements.
 -- |
 -- | ```purescript
--- | mapWithIndex (\index element -> show index <> element) ["Hello", "World"] = ["0Hello", "1World"]
+-- | prefixIndex index element = show index <> element
+-- |
+-- | mapWithIndex prefixIndex ["Hello", "World"] = ["0Hello", "1World"]
 -- | ```
 -- |
 mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
@@ -640,6 +658,7 @@ mapWithIndex f xs =
 -- |
 -- | ```purescript
 -- | updates = [Tuple 0 "Hi", Tuple 2 "." , Tuple 10 "foobar"]
+-- |
 -- | updateAtIndices updates ["Hello", "World", "!"] = ["Hi", "World", "."]
 -- | ```
 -- |
@@ -652,7 +671,12 @@ updateAtIndices us xs =
 -- |
 -- | ```purescript
 -- | indices = [1, 3]
--- | modifyAtIndices indices toUpper ["Hello", "World", "and", "others"] = ["Hello", "WORLD", "and", "OTHERS"]
+-- | modifyAtIndices indices toUpper ["Hello", "World", "and", "others"]
+-- | ```
+-- | becomes:
+-- |
+-- | ```purescript
+-- | ["Hello", "WORLD", "and", "OTHERS"]
 -- | ```
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
@@ -844,7 +868,12 @@ group' = group <<< sort
 -- | specified equivalence relation to detemine equality.
 -- |
 -- | ```purescript
--- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3] = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
+-- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
+-- | ```
+-- | becomes
+-- |
+-- | ```purescript
+-- | [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
@@ -990,7 +1019,7 @@ foreign import zipWith
 -- |
 -- | ```purescript
 -- | sndChars = zipWithA (\a b -> charAt 2 (a <> b))
--- | sndChars ["a", "b"] ["A", "B"] = Nothing -- since "aA" does not have a 3rd char
+-- | sndChars ["a", "b"] ["A", "B"] = Nothing -- since "aA" has no 3rd char
 -- | sndChars ["aa", "b"] ["AA", "BBB"] = Just ['A', 'B']
 -- | ```
 -- |
