@@ -1064,9 +1064,15 @@ foldRecM f a array = tailRecM2 go a 0
 -- |
 -- | ```purescript
 -- | unsafePartial $ unsafeIndex ["a", "b", "c"] 1 = "b"
--- | unsafePartial $ unsafeIndex ["a", "b", "c"] 10 -- runtime error
 -- | ```
--- |
+-- | 
+-- | Using `unsafeIndex` with an out-of-range index will not immediately raise a runtime error. 
+-- | Instead, the result will be undefined. Most attempts to subsequently use the result will 
+-- | cause a runtime error, of course, but this is not guaranteed, and is dependent on the backend; 
+-- | some programs will continue to run as if nothing is wrong. For example, in the JavaScript backend, 
+-- | the expression `unsafePartial (unsafeIndex [true] 1)` has type `Boolean`; 
+-- | since this expression evaluates to `undefined`, attempting to use it in an `if` statement will cause
+-- | the else branch to be taken.
 unsafeIndex :: forall a. Partial => Array a -> Int -> a
 unsafeIndex = unsafeIndexImpl
 
