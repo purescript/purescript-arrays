@@ -567,11 +567,7 @@ foreign import concat :: forall a. Array (Array a) -> Array a
 -- |
 -- | ```purescript
 -- | concatMap (split $ Pattern " ") ["Hello World", "other thing"]
--- | ```
--- |  becomes
--- |
--- | ```purescript
--- | ["Hello", "World", "other", "thing"]
+-- |    = ["Hello", "World", "other", "thing"]
 -- | ```
 -- |
 concatMap :: forall a b. (a -> Array b) -> Array a -> Array b
@@ -619,11 +615,7 @@ filterA p =
 -- | parseEmail = ...
 -- |
 -- | mapMaybe parseEmail ["a.com", "hello@example.com", "--"]
--- | ```
--- | becomes
--- |
--- | ```purescript
--- | [Email {user: "hello", domain: "example.com"}]
+-- |    = [Email {user: "hello", domain: "example.com"}]
 -- | ```
 -- |
 mapMaybe :: forall a b. (a -> Maybe b) -> Array a -> Array b
@@ -672,11 +664,7 @@ updateAtIndices us xs =
 -- | ```purescript
 -- | indices = [1, 3]
 -- | modifyAtIndices indices toUpper ["Hello", "World", "and", "others"]
--- | ```
--- | becomes:
--- |
--- | ```purescript
--- | ["Hello", "WORLD", "and", "OTHERS"]
+-- |    = ["Hello", "WORLD", "and", "OTHERS"]
 -- | ```
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
@@ -717,12 +705,7 @@ sortBy comp xs = sortImpl comp' xs
 -- |
 -- | ```purescript
 -- | sortWith (_.age) [{name: "Alice", age: 42}, {name: "Bob", age: 21}]
--- | ```
--- | 
--- | will be:
--- |
--- | ```purescript
--- | [{name: "Bob", age: 21}, {name: "Alice", age: 42}]
+-- |    = [{name: "Bob", age: 21}, {name: "Alice", age: 42}]
 -- | ```
 -- |
 sortWith :: forall a b. Ord b => (a -> b) -> Array a -> Array a
@@ -869,11 +852,7 @@ group' = group <<< sort
 -- |
 -- | ```purescript
 -- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
--- | ```
--- | becomes
--- |
--- | ```purescript
--- | [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
+-- |    = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
