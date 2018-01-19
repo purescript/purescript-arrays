@@ -116,6 +116,7 @@ module Data.Array
 import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
+import Control.Bind (bindFlipped)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST (pureST)
@@ -571,7 +572,7 @@ foreign import concat :: forall a. Array (Array a) -> Array a
 -- | ```
 -- |
 concatMap :: forall a b. (a -> Array b) -> Array a -> Array b
-concatMap = flip bind
+concatMap = bindFlipped
 
 -- | Filter an array, keeping the elements which satisfy a predicate function,
 -- | creating a new array.
