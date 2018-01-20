@@ -14,8 +14,10 @@ module Data.Array.ST
   , modifySTArray
   , pushAllSTArray
   , spliceSTArray
-  , freeze, thaw
+  , freeze
+  , thaw
   , unsafeFreeze
+  , unsafeThaw
   , toAssocArray
   ) where
 
@@ -65,6 +67,11 @@ withArray f xs = do
 -- | array must not be mutated afterwards.
 unsafeFreeze :: forall a r h. STArray h a -> Eff (st :: ST h | r) (Array a)
 unsafeFreeze = pure <<< (unsafeCoerce :: STArray h a -> Array a)
+
+-- | O(1) Convert an immutable array to a mutable array, without copying. The input
+-- | array must not be used afterward.
+unsafeThaw :: forall a r h. Array a -> Eff (st :: ST h | r) (STArray h a)
+unsafeThaw = pure <<< (unsafeCoerce :: Array a -> STArray h a)
 
 -- | Create an empty mutable array.
 foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)

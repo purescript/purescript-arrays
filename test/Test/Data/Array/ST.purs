@@ -4,7 +4,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 import Control.Monad.ST (ST, pureST)
-import Data.Array.ST (STArray, emptySTArray, freeze, peekSTArray, pokeSTArray, pushAllSTArray, pushSTArray, spliceSTArray, thaw, toAssocArray, unsafeFreeze)
+import Data.Array.ST (STArray, emptySTArray, freeze, peekSTArray, pokeSTArray, pushAllSTArray, pushSTArray, spliceSTArray, thaw, toAssocArray, unsafeThaw, unsafeFreeze)
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
 import Test.Assert (assert, ASSERT)
@@ -28,6 +28,10 @@ testArrayST = do
   assert $ pureST (do
     arr <- thaw [1, 2, 3]
     freeze arr) == [1, 2, 3]
+
+  log "unsafeThaw should produce an STArray from a standard array"
+
+  assert $ run (unsafeThaw [1, 2, 3]) == [1, 2, 3]
 
   log "pushSTArray should append a value to the end of the array"
 
