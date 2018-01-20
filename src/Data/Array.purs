@@ -123,6 +123,7 @@ import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modi
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
+import Data.Functor (map) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports

@@ -195,6 +195,9 @@ testArray = do
   assert $ (A.reverse [1, 2, 3]) == [3, 2, 1]
   assert $ (A.reverse nil) == nil
 
+  log "map should apply a function to each item in an array"
+  assert $ (A.map (_ + 1) [1, 2, 3]) == [2, 3, 4]
+
   log "concat should join an array of arrays"
   assert $ (A.concat [[1, 2], [3, 4]]) == [1, 2, 3, 4]
   assert $ (A.concat [[1], nil]) == [1]
