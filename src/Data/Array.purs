@@ -118,6 +118,7 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
+import Control.Monad.Eff (foreachE)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
 import Data.Array.ST as STA
@@ -128,7 +129,7 @@ import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, f
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst, snd, uncurry)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 import Unsafe.Coerce (unsafeCoerce)
@@ -876,8 +877,19 @@ groupBy op xs =
 -- | nub [1, 2, 1, 3, 3] = [1, 2, 3]
 -- | ```
 -- |
-nub :: forall a. Eq a => Array a -> Array a
-nub = nubBy eq
+nub :: forall a. Ord a => Array a -> Array a
+nub arr = case head indexedAndSorted of
+  Nothing -> []
+  Just x -> map fst $ sortWith snd $ pureST do
+     -- TODO: use NonEmptyArrays here to avoid partial functions
+     result <- unsafeThaw $ singleton x
+     foreachE indexedAndSorted \pair@(Tuple x' i) -> do
+       lst <- fst <<< unsafePartial (fromJust <<< last) <$> unsafeFreeze result
+       when (lst /= x') $ void $ pushSTArray result pair
+     unsafeFreeze result
+
+  where
+  indexedAndSorted = sort $ mapWithIndex (flip Tuple) arr
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
