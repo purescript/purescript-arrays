@@ -313,6 +313,9 @@ testArray = do
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
 
+  log "nub should preserve order"
+  assert $ A.nub [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+
   log "nubBy should remove duplicate items from the list using a supplied predicate"
   let nubPred = \x y -> if odd x then false else x == y
   assert $ A.nubBy nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
