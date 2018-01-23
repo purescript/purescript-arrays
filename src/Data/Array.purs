@@ -123,6 +123,7 @@ import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modi
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
+import Data.Function.Uncurried (Fn2, mkFn2)
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
@@ -695,7 +696,7 @@ sort xs = sortBy compare xs
 sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 sortBy comp xs = sortImpl comp' xs
   where
-  comp' x y = case comp x y of
+  comp' = mkFn2 \x y -> case comp x y of
     GT -> 1
     EQ -> 0
     LT -> -1
@@ -711,7 +712,7 @@ sortBy comp xs = sortImpl comp' xs
 sortWith :: forall a b. Ord b => (a -> b) -> Array a -> Array a
 sortWith f = sortBy (comparing f)
 
-foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
+foreign import sortImpl :: forall a. (Fn2 a a Int) -> Array a -> Array a
 
 --------------------------------------------------------------------------------
 -- Subarrays -------------------------------------------------------------------
