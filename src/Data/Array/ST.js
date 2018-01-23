@@ -58,6 +58,16 @@ exports.copyImpl = function (xs) {
   };
 };
 
+exports.sortByImpl = function (comp) {
+  return function (xs) {
+    return function () {
+      return xs.sort(function (x, y) {
+        return comp(x)(y);
+      });
+    };
+  };
+};
+
 exports.toAssocArray = function (xs) {
   return function () {
     var n = xs.length;
