@@ -90,6 +90,7 @@ module Data.Array
   , groupBy
 
   , nub
+  , nubEq
   , nubBy
   , union
   , unionBy
@@ -890,6 +891,17 @@ nub arr = case head indexedAndSorted of
 
   where
   indexedAndSorted = sort $ mapWithIndex (flip Tuple) arr
+
+-- | Remove the duplicates from an array, creating a new array.
+-- |
+-- | This less efficient version of `nub` only requires an `Eq` instance.
+-- |
+-- | ```purescript
+-- | nub [1, 2, 1, 3, 3] = [1, 2, 3]
+-- | ```
+-- |
+nubEq :: forall a. Eq a => Array a -> Array a
+nubEq = nubBy eq
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
