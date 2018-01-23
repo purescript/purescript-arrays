@@ -249,10 +249,7 @@ exports.partition = function (f) {
 
 exports.sortImpl = function (f) {
   return function (l) {
-    // jshint maxparams: 2
-    return l.slice().sort(function (x, y) {
-      return f(x)(y);
-    });
+    return l.slice().sort(f);
   };
 };
 
