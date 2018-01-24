@@ -92,6 +92,7 @@ module Data.Array
   , nub
   , nubEq
   , nubBy
+  , nubByEq
   , union
   , unionBy
   , delete
@@ -879,41 +880,55 @@ groupBy op xs =
 -- | ```
 -- |
 nub :: forall a. Ord a => Array a -> Array a
-nub arr = case head indexedAndSorted of
-  Nothing -> []
-  Just x -> map fst $ sortWith snd $ pureST do
-     -- TODO: use NonEmptyArrays here to avoid partial functions
-     result <- unsafeThaw $ singleton x
-     foreachE indexedAndSorted \pair@(Tuple x' i) -> do
-       lst <- fst <<< unsafePartial (fromJust <<< last) <$> unsafeFreeze result
-       when (lst /= x') $ void $ pushSTArray result pair
-     unsafeFreeze result
-
-  where
-  indexedAndSorted = sort $ mapWithIndex (flip Tuple) arr
+nub = nubBy compare
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
 -- | This less efficient version of `nub` only requires an `Eq` instance.
 -- |
 -- | ```purescript
--- | nub [1, 2, 1, 3, 3] = [1, 2, 3]
+-- | nubEq [1, 2, 1, 3, 3] = [1, 2, 3]
 -- | ```
 -- |
 nubEq :: forall a. Eq a => Array a -> Array a
-nubEq = nubBy eq
+nubEq = nubByEq eq
+
+-- | Remove the duplicates from an array, where element equality is determined
+-- | by the specified ordering, creating a new array.
+-- |
+-- | ```purescript
+-- | nubBy compare [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+-- | ```
+-- |
+nubBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
+nubBy comp xs = case head indexedAndSorted of
+  Nothing -> []
+  Just x -> map snd $ sortWith fst $ pureST do
+     -- TODO: use NonEmptyArrays here to avoid partial functions
+     result <- unsafeThaw $ singleton x
+     foreachE indexedAndSorted \pair@(Tuple i x') -> do
+       lst <- snd <<< unsafePartial (fromJust <<< last) <$> unsafeFreeze result
+       when (comp lst x' /= EQ) $ void $ pushSTArray result pair
+     unsafeFreeze result
+  where
+  indexedAndSorted :: Array (Tuple Int a)
+  indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y)) 
+                            (mapWithIndex Tuple xs)
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
 -- |
+-- | This less efficient version of `nubBy` only requires an equivalence
+-- | relation.
+-- |
 -- | ```purescript
--- | nubBy (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
+-- | nubByEq (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
 -- | ```
 -- |
-nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
-nubBy eq xs =
+nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
+nubByEq eq xs =
   case uncons xs of
-    Just o -> o.head : nubBy eq (filter (\y -> not (o.head `eq` y)) o.tail)
+    Just o -> o.head : nubByEq eq (filter (\y -> not (o.head `eq` y)) o.tail)
     Nothing -> []
 
 -- | Calculate the union of two arrays. Note that duplicates in the first array
@@ -938,7 +953,7 @@ union = unionBy (==)
 -- | ```
 -- |
 unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
-unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) xs
+unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubByEq eq ys) xs
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.
