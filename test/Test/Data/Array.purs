@@ -323,8 +323,11 @@ testArray = do
   assert $ A.nubEq [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
 
   log "nubBy should remove duplicate items from the list using a supplied predicate"
+  assert $ A.nubBy compare [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+
+  log "nubByEq should remove duplicate items from the list using a supplied predicate"
   let nubPred = \x y -> if odd x then false else x == y
-  assert $ A.nubBy nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
+  assert $ A.nubByEq nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
 
   log "union should produce the union of two arrays"
   assert $ A.union [1, 2, 3] [2, 3, 4] == [1, 2, 3, 4]
