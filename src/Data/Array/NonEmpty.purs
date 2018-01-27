@@ -13,6 +13,7 @@ import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (class Ord1)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
@@ -90,8 +91,14 @@ fromArray xs
 unsafeFromArray :: forall a. Array a -> NonEmptyArray a
 unsafeFromArray = NonEmptyArray
 
+fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
+fromNonEmpty (x :| xs) = cons' x xs
+
 toArray :: forall a. NonEmptyArray a -> Array a
 toArray (NonEmptyArray xs) = xs
+
+toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
+toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
 
 toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
 toUnfoldable = adaptAny A.toUnfoldable
@@ -126,6 +133,12 @@ cons :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
 cons = adapt' A.cons
 
 infixr 6 cons as :
+
+cons' :: forall a. a -> Array a -> NonEmptyArray a
+cons' x xs = unsafeFromArray $ A.cons x xs
+
+appendArray :: forall a. NonEmptyArray a -> Array a -> NonEmptyArray a
+appendArray xs ys = unsafeFromArray $ toArray xs <> ys
 
 insert :: forall a. Ord a => a -> NonEmptyArray a -> NonEmptyArray a
 insert = adapt' A.insert
