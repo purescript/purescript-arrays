@@ -12,7 +12,7 @@ module Data.Array.ST.Iterator
 import Prelude
 import Control.Monad.Eff (Eff, whileE)
 import Control.Monad.ST (ST, STRef, newSTRef, readSTRef, writeSTRef, modifySTRef)
-import Data.Array.ST (STArray, pushSTArray)
+import Data.Array.ST (STArray, push)
 
 import Data.Maybe (Maybe(..), isNothing)
 
@@ -67,7 +67,7 @@ pushWhile p iter array = do
     mx <- peek iter
     case mx of
       Just x | p x -> do
-        _ <- pushSTArray array x
+        _ <- push array x
         void $ next iter
       _ ->
         void $ writeSTRef break true

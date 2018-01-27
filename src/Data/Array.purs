@@ -119,7 +119,7 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST (pureST)
-import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
+import Data.Array.ST as STA
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
@@ -656,7 +656,7 @@ mapWithIndex f xs =
 -- |
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
 updateAtIndices us xs =
-  pureST (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
+  pureST (STA.withArray (\res -> traverse_ (uncurry $ STA.poke res) us) xs)
 
 -- | Apply a function to the element at the specified indices,
 -- | creating a new array. Out-of-bounds indices will have no effect.
@@ -669,7 +669,7 @@ updateAtIndices us xs =
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
-  pureST (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
+  pureST (STA.withArray (\res -> traverse_ (\i -> STA.modify res i f) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
@@ -858,14 +858,14 @@ group' = group <<< sort
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
 groupBy op xs =
   pureST do
-    result <- emptySTArray
+    result <- STA.empty
     iter <- iterator (xs !! _)
     iterate iter \x -> void do
-      sub <- emptySTArray
+      sub <- STA.empty
       pushWhile (op x) iter sub
-      sub_ <- unsafeFreeze sub
-      pushSTArray result (x :| sub_)
-    unsafeFreeze result
+      sub_ <- STA.unsafeFreeze sub
+      STA.push result (x :| sub_)
+    STA.unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
@@ -1032,14 +1032,14 @@ zip = zipWith Tuple
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
   pureST do
-    fsts <- emptySTArray
-    snds <- emptySTArray
+    fsts <- STA.empty
+    snds <- STA.empty
     iter <- iterator (xs !! _)
     iterate iter \(Tuple fst snd) -> do
-      void $ pushSTArray fsts fst
-      void $ pushSTArray snds snd
-    fsts' <- unsafeFreeze fsts
-    snds' <- unsafeFreeze snds
+      void $ STA.push fsts fst
+      void $ STA.push snds snd
+    fsts' <- STA.unsafeFreeze fsts
+    snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'
 
 -- | Perform a fold using a monadic step function.

@@ -3,7 +3,11 @@
 -- | This module is particularly helpful when performance is very important.
 
 module Data.Array.ST.Partial
-  ( peekSTArray
+  ( peek
+  , poke
+
+  -- deprecated
+  , peekSTArray
   , pokeSTArray
   ) where
 
@@ -13,31 +17,50 @@ import Data.Array.ST (STArray)
 import Data.Unit (Unit)
 
 -- | Read the value at the specified index in a mutable array.
-peekSTArray
+peek
   :: forall a h r
    . Partial
   => STArray h a
   -> Int
   -> Eff (st :: ST h | r) a
-peekSTArray = peekSTArrayImpl
+peek = peekImpl
 
-foreign import peekSTArrayImpl
+peekSTArray
+  :: forall a h r
+   . Warn "Deprecated `peekSTArray`, use `peek` instead."
+  => Partial
+  => STArray h a
+  -> Int
+  -> Eff (st :: ST h | r) a
+peekSTArray = peek
+
+foreign import peekImpl
   :: forall a h r
    . STArray h a
   -> Int
   -> Eff (st :: ST h | r) a
 
 -- | Change the value at the specified index in a mutable array.
-pokeSTArray
+poke
   :: forall a h r
    . Partial
   => STArray h a
   -> Int
   -> a
   -> Eff (st :: ST h | r) Unit
-pokeSTArray = pokeSTArrayImpl
+poke = pokeImpl
 
-foreign import pokeSTArrayImpl
+pokeSTArray
+  :: forall a h r
+   . Warn "Deprecated `peekSTArray`, use `peek` instead."
+  => Partial
+  => STArray h a
+  -> Int
+  -> a
+  -> Eff (st :: ST h | r) Unit
+pokeSTArray = poke
+
+foreign import pokeImpl
   :: forall a h r
    . STArray h a
   -> Int
