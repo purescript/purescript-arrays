@@ -1,4 +1,98 @@
-module Data.Array.NonEmpty where
+module Data.Array.NonEmpty
+  ( NonEmptyArray
+  , fromArray
+  , fromNonEmpty
+  , toArray
+  , toNonEmpty
+
+  , fromFoldable
+  , toUnfoldable
+  , singleton
+  , (..), range
+  , replicate
+  , some
+-- TODO
+--  , many
+
+  , length
+
+  , (:), cons
+  , cons'
+  , snoc
+  , snoc'
+  , appendArray
+  , insert
+  , insertBy
+
+  , head
+  , last
+  , tail
+  , init
+  , uncons
+  , unsnoc
+
+  , (!!), index
+  , elemIndex
+  , elemLastIndex
+  , findIndex
+  , findLastIndex
+  , insertAt
+  , deleteAt
+  , updateAt
+  , updateAtIndices
+  , modifyAt
+  , modifyAtIndices
+  , alterAt
+
+  , reverse
+  , concat
+  , concatMap
+  , filter
+  , partition
+  , filterA
+  , mapMaybe
+  , catMaybes
+
+  , sort
+  , sortBy
+  , sortWith
+  , slice
+  , take
+  , takeEnd
+  , takeWhile
+  , drop
+  , dropEnd
+  , dropWhile
+  , span
+
+-- TODO
+--  , group
+--  , group'
+--  , groupBy
+
+  , nub
+  , nubBy
+--  , union
+--  , unionBy
+  , delete
+  , deleteBy
+
+--  , (\\), difference
+--  , intersect
+--  , intersectBy
+
+  , zipWith
+  , zipWithA
+  , zip
+  , unzip
+
+  , foldM
+  , foldRecM
+
+  , unsafeIndex
+
+--  , module Exports
+  ) where
 
 import Prelude
 
@@ -99,6 +193,7 @@ fromArray xs
   | A.length xs > 0 = Just (NonEmptyArray xs)
   | otherwise       = Nothing
 
+-- | INTERNAL
 unsafeFromArray :: forall a. Array a -> NonEmptyArray a
 unsafeFromArray = NonEmptyArray
 
@@ -111,11 +206,11 @@ toArray (NonEmptyArray xs) = xs
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
 
-toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
-toUnfoldable = adaptAny A.toUnfoldable
-
 fromFoldable :: forall f a. Foldable f => f a -> Maybe (NonEmptyArray a)
 fromFoldable = fromArray <<< A.fromFoldable
+
+toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
+toUnfoldable = adaptAny A.toUnfoldable
 
 singleton :: forall a. a -> NonEmptyArray a
 singleton = NonEmptyArray <<< A.singleton
@@ -147,6 +242,12 @@ infixr 6 cons as :
 
 cons' :: forall a. a -> Array a -> NonEmptyArray a
 cons' x xs = unsafeFromArray $ A.cons x xs
+
+snoc :: forall a. NonEmptyArray a -> a -> NonEmptyArray a
+snoc xs x = unsafeFromArray $ A.snoc (toArray xs) x
+
+snoc' :: forall a. Array a -> a -> NonEmptyArray a
+snoc' xs x = unsafeFromArray $ A.snoc xs x
 
 appendArray :: forall a. NonEmptyArray a -> Array a -> NonEmptyArray a
 appendArray xs ys = unsafeFromArray $ toArray xs <> ys
@@ -201,8 +302,14 @@ deleteAt = adaptAny' A.deleteAt
 updateAt :: forall a. Int -> a -> NonEmptyArray a -> Maybe (NonEmptyArray a)
 updateAt i x = map NonEmptyArray <<< A.updateAt i x <<< toArray
 
+updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> NonEmptyArray a -> NonEmptyArray a
+updateAtIndices = unsafeAdapt' A.updateAtIndices
+
 modifyAt :: forall a. Int -> (a -> a) -> NonEmptyArray a -> Maybe (NonEmptyArray a)
 modifyAt i f = map NonEmptyArray <<< A.modifyAt i f <<< toArray
+
+modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> NonEmptyArray a -> NonEmptyArray a
+modifyAtIndices = unsafeAdapt'' A.modifyAtIndices
 
 alterAt :: forall a. Int -> (a -> Maybe a) -> NonEmptyArray a -> Maybe (Array a)
 alterAt i f = A.alterAt i f <<< toArray
@@ -239,12 +346,6 @@ mapMaybe = adaptAny' A.mapMaybe
 
 catMaybes :: forall a. NonEmptyArray (Maybe a) -> Array a
 catMaybes = adaptAny A.catMaybes
-
-updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> NonEmptyArray a -> NonEmptyArray a
-updateAtIndices = unsafeAdapt' A.updateAtIndices
-
-modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> NonEmptyArray a -> NonEmptyArray a
-modifyAtIndices = unsafeAdapt'' A.modifyAtIndices
 
 sort :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 sort = unsafeAdapt A.sort
