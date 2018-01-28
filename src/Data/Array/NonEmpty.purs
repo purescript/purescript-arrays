@@ -32,7 +32,6 @@ derive newtype instance eq1NonEmptyArray :: Eq1 NonEmptyArray
 derive newtype instance ordNonEmptyArray :: Ord a => Ord (NonEmptyArray a)
 derive newtype instance ord1NonEmptyArray :: Ord1 NonEmptyArray 
 
-
 derive newtype instance functorNonEmptyArray :: Functor NonEmptyArray
 derive newtype instance functorWithIndexNonEmptyArray :: FunctorWithIndex Int NonEmptyArray
 
@@ -53,19 +52,31 @@ derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 
 -- | Internal - adapt an Array transform to NonEmptyArray
-adapt :: forall a b. (Array a -> Array b) -> NonEmptyArray a -> NonEmptyArray b
-adapt f = NonEmptyArray <<< adaptAny f
+--
+-- Note that this is unsafe: if the transform returns an empty array, this can
+-- explode at runtime.
+unsafeAdapt :: forall a b. (Array a -> Array b) -> NonEmptyArray a -> NonEmptyArray b
+unsafeAdapt f = NonEmptyArray <<< adaptAny f
 
 -- | Internal - adapt an Array transform with argument to NonEmptyArray
-adapt' :: forall a b c. (a -> Array b -> Array c) -> a -> NonEmptyArray b -> NonEmptyArray c
-adapt' f = adapt <<< f
+--
+-- Note that this is unsafe: if the transform returns an empty array, this can
+-- explode at runtime.
+unsafeAdapt' :: forall a b c. (a -> Array b -> Array c) -> a -> NonEmptyArray b -> NonEmptyArray c
+unsafeAdapt' f = unsafeAdapt <<< f
 
 -- | Internal - adapt an Array transform with two arguments to NonEmptyArray
-adapt'' :: forall a b c d. (a -> b -> Array c -> Array d) -> a -> b -> NonEmptyArray c -> NonEmptyArray d
-adapt'' f = adapt' <<< f
+--
+-- Note that this is unsafe: if the transform returns an empty array, this can
+-- explode at runtime.
+unsafeAdapt'' :: forall a b c d. (a -> b -> Array c -> Array d) -> a -> b -> NonEmptyArray c -> NonEmptyArray d
+unsafeAdapt'' f = unsafeAdapt' <<< f
 
 -- | Internal - adapt an Array transform to NonEmptyArray,
 --   with polymorphic result.
+--
+-- Note that this is unsafe: if the transform returns an empty array, this can
+-- explode at runtime.
 adaptAny :: forall a b. (Array a -> b) -> NonEmptyArray a -> b
 adaptAny f = f <<< toArray
 
@@ -130,7 +141,7 @@ length :: forall a. NonEmptyArray a -> Int
 length = adaptAny A.length
 
 cons :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
-cons = adapt' A.cons
+cons = unsafeAdapt' A.cons
 
 infixr 6 cons as :
 
@@ -141,10 +152,10 @@ appendArray :: forall a. NonEmptyArray a -> Array a -> NonEmptyArray a
 appendArray xs ys = unsafeFromArray $ toArray xs <> ys
 
 insert :: forall a. Ord a => a -> NonEmptyArray a -> NonEmptyArray a
-insert = adapt' A.insert
+insert = unsafeAdapt' A.insert
 
 insertBy :: forall a. (a -> a -> Ordering) -> a -> NonEmptyArray a -> NonEmptyArray a
-insertBy = adapt'' A.insertBy
+insertBy = unsafeAdapt'' A.insertBy
 
 head :: forall a. NonEmptyArray a -> a
 head = adaptMaybe A.head
@@ -197,7 +208,7 @@ alterAt :: forall a. Int -> (a -> Maybe a) -> NonEmptyArray a -> Maybe (Array a)
 alterAt i f = A.alterAt i f <<< toArray
 
 reverse :: forall a. NonEmptyArray a -> NonEmptyArray a
-reverse = adapt A.reverse
+reverse = unsafeAdapt A.reverse
 
 concat :: forall a. NonEmptyArray (NonEmptyArray a) -> NonEmptyArray a
 concat = NonEmptyArray <<< A.concat <<< toArray <<< map toArray
@@ -230,19 +241,19 @@ catMaybes :: forall a. NonEmptyArray (Maybe a) -> Array a
 catMaybes = adaptAny A.catMaybes
 
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> NonEmptyArray a -> NonEmptyArray a
-updateAtIndices = adapt' A.updateAtIndices
+updateAtIndices = unsafeAdapt' A.updateAtIndices
 
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> NonEmptyArray a -> NonEmptyArray a
-modifyAtIndices = adapt'' A.modifyAtIndices
+modifyAtIndices = unsafeAdapt'' A.modifyAtIndices
 
 sort :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
-sort = adapt A.sort
+sort = unsafeAdapt A.sort
 
 sortBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray a
-sortBy = adapt' A.sortBy
+sortBy = unsafeAdapt' A.sortBy
 
 sortWith :: forall a b. Ord b => (a -> b) -> NonEmptyArray a -> NonEmptyArray a
-sortWith = adapt' A.sortWith
+sortWith = unsafeAdapt' A.sortWith
 
 slice :: forall a. Int -> Int -> NonEmptyArray a -> Array a
 slice = adaptAny'' A.slice
@@ -282,10 +293,10 @@ span = adaptAny' A.span
 --groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 
 nub :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a
-nub = adapt A.nub
+nub = unsafeAdapt A.nub
 
 nubBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
-nubBy = adapt' A.nubBy
+nubBy = unsafeAdapt' A.nubBy
 
 delete :: forall a. Eq a => a -> NonEmptyArray a -> Array a
 delete = adaptAny' A.delete
