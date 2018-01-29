@@ -45,7 +45,6 @@ exports.replicate = typeof Array.prototype.fill === "function" ?
     replicatePolyfill;
 
 exports.fromFoldableImpl = (function () {
-  // jshint maxparams: 2
   function Cons(head, tail) {
     this.head = head;
     this.tail = tail;
@@ -249,7 +248,6 @@ exports.partition = function (f) {
 
 exports.sortImpl = function (f) {
   return function (l) {
-    // jshint maxparams: 2
     return l.slice().sort(function (x, y) {
       return f(x)(y);
     });
