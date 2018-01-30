@@ -6,6 +6,7 @@ module Data.Array.NonEmpty
   , toNonEmpty
 
   , fromFoldable
+  , fromFoldable1
   , toUnfoldable
   , singleton
   , (..), range
@@ -109,6 +110,7 @@ import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (class Ord1)
+import Data.Semigroup.Foldable (class Foldable1)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
 import Data.Tuple (Tuple)
@@ -208,6 +210,9 @@ toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
 
 fromFoldable :: forall f a. Foldable f => f a -> Maybe (NonEmptyArray a)
 fromFoldable = fromArray <<< A.fromFoldable
+
+fromFoldable1 :: forall f a. Foldable1 f => f a -> NonEmptyArray a
+fromFoldable1 = unsafeFromArray <<< A.fromFoldable
 
 toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
 toUnfoldable = adaptAny A.toUnfoldable
