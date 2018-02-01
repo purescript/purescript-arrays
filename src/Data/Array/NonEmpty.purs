@@ -89,8 +89,6 @@ module Data.Array.NonEmpty
   , foldRecM
 
   , unsafeIndex
-
---  , module Exports
   ) where
 
 import Prelude
