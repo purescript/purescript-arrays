@@ -78,7 +78,8 @@ module Data.Array.NonEmpty
   , delete
   , deleteBy
 
---  , (\\), difference
+  , (\\), difference
+  , difference'
 --  , intersect
 --  , intersectBy
 
@@ -431,6 +432,14 @@ delete = adaptAny' A.delete
 
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> NonEmptyArray a -> Array a
 deleteBy = adaptAny'' A.deleteBy
+
+difference :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
+difference xs = adaptAny $ difference' xs
+
+difference' :: forall a. Eq a => NonEmptyArray a -> Array a -> Array a
+difference' xs = A.difference $ toArray xs
+
+infix 5 difference as \\
 
 zipWith
   :: forall a b c
