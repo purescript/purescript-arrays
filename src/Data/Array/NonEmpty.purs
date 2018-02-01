@@ -12,8 +12,6 @@ module Data.Array.NonEmpty
   , (..), range
   , replicate
   , some
--- TODO
---  , many
 
   , length
 
@@ -73,8 +71,10 @@ module Data.Array.NonEmpty
 
   , nub
   , nubBy
---  , union
---  , unionBy
+  , union
+  , union'
+  , unionBy
+  , unionBy'
   , delete
   , deleteBy
 
@@ -403,6 +403,28 @@ nub = unsafeAdapt A.nub
 
 nubBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
 nubBy = unsafeAdapt' A.nubBy
+
+union :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> NonEmptyArray a
+union = unionBy (==)
+
+union' :: forall a. Eq a => NonEmptyArray a -> Array a -> NonEmptyArray a
+union' = unionBy' (==)
+
+unionBy
+  :: forall a
+   . (a -> a -> Boolean)
+  -> NonEmptyArray a
+  -> NonEmptyArray a
+  -> NonEmptyArray a
+unionBy eq xs ys = unsafeFromArray $ A.unionBy eq (toArray xs) (toArray ys)
+
+unionBy'
+  :: forall a
+   . (a -> a -> Boolean)
+  -> NonEmptyArray a
+  -> Array a
+  -> NonEmptyArray a
+unionBy' eq xs = unsafeFromArray <<< A.unionBy eq (toArray xs)
 
 delete :: forall a. Eq a => a -> NonEmptyArray a -> Array a
 delete = adaptAny' A.delete
