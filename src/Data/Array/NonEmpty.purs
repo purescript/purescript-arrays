@@ -64,11 +64,6 @@ module Data.Array.NonEmpty
   , dropWhile
   , span
 
--- TODO
---  , group
---  , group'
---  , groupBy
-
   , nub
   , nubBy
   , union
@@ -391,15 +386,6 @@ span
   -> NonEmptyArray a
   -> { init :: Array a, rest :: Array a }
 span = adaptAny' A.span
-
---TODO
---group :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
-
---TODO
---group' :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
-
---TODO
---groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 
 nub :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a
 nub = unsafeAdapt A.nub
