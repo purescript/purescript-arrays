@@ -80,8 +80,10 @@ module Data.Array.NonEmpty
 
   , (\\), difference
   , difference'
---  , intersect
---  , intersectBy
+  , intersect
+  , intersect'
+  , intersectBy
+  , intersectBy'
 
   , zipWith
   , zipWithA
@@ -417,7 +419,7 @@ unionBy
   -> NonEmptyArray a
   -> NonEmptyArray a
   -> NonEmptyArray a
-unionBy eq xs ys = unsafeFromArray $ A.unionBy eq (toArray xs) (toArray ys)
+unionBy eq xs = unionBy' eq xs <<< toArray
 
 unionBy'
   :: forall a
@@ -438,6 +440,28 @@ difference xs = adaptAny $ difference' xs
 
 difference' :: forall a. Eq a => NonEmptyArray a -> Array a -> Array a
 difference' xs = A.difference $ toArray xs
+
+intersect :: forall a . Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
+intersect = intersectBy eq
+
+intersect' :: forall a . Eq a => NonEmptyArray a -> Array a -> Array a
+intersect' = intersectBy' eq
+
+intersectBy
+  :: forall a
+   . (a -> a -> Boolean)
+  -> NonEmptyArray a
+  -> NonEmptyArray a
+  -> Array a
+intersectBy eq xs = intersectBy' eq xs <<< toArray
+
+intersectBy'
+  :: forall a
+   . (a -> a -> Boolean)
+  -> NonEmptyArray a
+  -> Array a
+  -> Array a
+intersectBy' eq xs = A.intersectBy eq (toArray xs)
 
 infix 5 difference as \\
 
