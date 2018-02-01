@@ -220,8 +220,8 @@ toUnfoldable = adaptAny A.toUnfoldable
 singleton :: forall a. a -> NonEmptyArray a
 singleton = NonEmptyArray <<< A.singleton
 
-range :: Int -> Int -> NonEmptyArray Int
-range x y = NonEmptyArray $ A.range x y
+range :: Int -> Int -> Maybe (NonEmptyArray Int)
+range x y = fromArray $ A.range x y
 
 infix 8 range as ..
 
