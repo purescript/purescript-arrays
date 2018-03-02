@@ -97,6 +97,7 @@ import Control.Alt (class Alt)
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy)
 import Control.Monad.Rec.Class (class MonadRec)
+import Data.Array (foldl)
 import Data.Array as A
 import Data.Bifunctor (bimap)
 import Data.Eq (class Eq1)
@@ -106,7 +107,7 @@ import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (class Ord1)
-import Data.Semigroup.Foldable (class Foldable1)
+import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
 import Data.Tuple (Tuple)
@@ -129,6 +130,10 @@ derive newtype instance functorWithIndexNonEmptyArray :: FunctorWithIndex Int No
 
 derive newtype instance foldableNonEmptyArray :: Foldable NonEmptyArray
 derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int NonEmptyArray
+
+instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
+  foldMap1 = foldMap1Default
+  fold1 = fold1Impl (<>)
 
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
 derive newtype instance traversableWithIndexNonEmptyArray :: TraversableWithIndex Int NonEmptyArray
@@ -481,3 +486,6 @@ foldRecM = adaptAny'' A.foldRecM
 
 unsafeIndex :: forall a. Partial => NonEmptyArray a -> Int -> a
 unsafeIndex = adaptAny A.unsafeIndex
+
+-- we use FFI here to avoid the unnecessary copy created by `tail`
+foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
