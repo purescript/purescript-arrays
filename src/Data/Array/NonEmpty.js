@@ -16,14 +16,16 @@ exports.traverse1Impl = function () {
     this.fn = fn;
   }
 
+  var emptyList = {};
+
   var ConsCell = function (head, tail) {
     this.head = head;
     this.tail = tail;
   };
 
-  function FinalCell(x) {
-    this.val = x;
-  }
+  function finalCell(head) {
+    return new ConsCell(head, emptyList);
+  };
 
   function consList(x) {
     return function (xs) {
@@ -34,11 +36,10 @@ exports.traverse1Impl = function () {
   function listToArray(list) {
     var arr = [];
     var xs = list;
-    while (xs instanceof ConsCell) {
+    while (xs !== emptyList) {
       arr.push(xs.head);
       xs = xs.tail;
     }
-    arr.push(xs.val);
     return arr;
   }
 
@@ -55,13 +56,14 @@ exports.traverse1Impl = function () {
           } else {
             var last = xs[currentLen - 1];
             return new Cont(function () {
-              return go(buildFrom(last, acc), currentLen - 1, xs);
+              var built = go(buildFrom(last, acc), currentLen - 1, xs);
+              return built;
             });
           }
         };
 
         return function (array) {
-          var acc = new FinalCell(array[array.length - 1]);
+          var acc = map(finalCell)(f(array[array.length - 1]));
           var result = go(acc, array.length - 1, array);
           while (result instanceof Cont) {
             result = result.fn();

@@ -97,7 +97,6 @@ import Control.Alt (class Alt)
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy)
 import Control.Monad.Rec.Class (class MonadRec)
-import Data.Array (foldl)
 import Data.Array as A
 import Data.Bifunctor (bimap)
 import Data.Eq (class Eq1)
@@ -231,10 +230,9 @@ range x y = fromArray $ A.range x y
 
 infix 8 range as ..
 
-replicate :: forall a. Int -> a -> Maybe (NonEmptyArray a)
-replicate i x
-  | i > 0     = Just $ NonEmptyArray $ A.replicate i x
-  | otherwise = Nothing
+-- | Replicate an item at least once
+replicate :: forall a. Int -> a -> NonEmptyArray a
+replicate i x = NonEmptyArray $ A.replicate (max 1 i) x
 
 some
   :: forall f a
@@ -497,8 +495,8 @@ foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
 
 foreign import traverse1Impl
   :: forall m a b
-   . (m (a -> b) -> m a -> m b)
-  -> ((a -> b) -> m a -> m b)
+   . (forall a' b'. (m (a -> b) -> m a -> m b))
+  -> (forall a' b'. (a -> b) -> m a -> m b)
   -> (a -> m b)
   -> NonEmptyArray a
   -> m (NonEmptyArray b)
