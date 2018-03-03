@@ -108,6 +108,7 @@ import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (class Ord1)
 import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
+import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
 import Data.Tuple (Tuple)
@@ -137,6 +138,10 @@ instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
 
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
 derive newtype instance traversableWithIndexNonEmptyArray :: TraversableWithIndex Int NonEmptyArray
+
+instance traversable1NonEmptyArray :: Traversable1 NonEmptyArray where
+  traverse1 = traverse1Impl apply map
+  sequence1 = sequence1Default
 
 derive newtype instance applyNonEmptyArray :: Apply NonEmptyArray
 
@@ -489,3 +494,11 @@ unsafeIndex = adaptAny A.unsafeIndex
 
 -- we use FFI here to avoid the unnecessary copy created by `tail`
 foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+
+foreign import traverse1Impl
+  :: forall m a b
+   . (m (a -> b) -> m a -> m b)
+  -> ((a -> b) -> m a -> m b)
+  -> (a -> m b)
+  -> NonEmptyArray a
+  -> m (NonEmptyArray b)
