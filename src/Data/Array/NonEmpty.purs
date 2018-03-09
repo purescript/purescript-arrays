@@ -495,8 +495,8 @@ foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
 
 foreign import traverse1Impl
   :: forall m a b
-   . (forall a' b'. (m (a -> b) -> m a -> m b))
-  -> (forall a' b'. (a -> b) -> m a -> m b)
+   . (forall a' b'. (m (a' -> b') -> m a' -> m b'))
+  -> (forall a' b'. (a' -> b') -> m a' -> m b')
   -> (a -> m b)
   -> NonEmptyArray a
   -> m (NonEmptyArray b)
