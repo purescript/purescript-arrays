@@ -159,20 +159,6 @@ derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 unsafeAdapt :: forall a b. (Array a -> Array b) -> NonEmptyArray a -> NonEmptyArray b
 unsafeAdapt f = NonEmptyArray <<< adaptAny f
 
--- | Internal - adapt an Array transform with argument to NonEmptyArray
---
--- Note that this is unsafe: if the transform returns an empty array, this can
--- explode at runtime.
-unsafeAdapt' :: forall a b c. (a -> Array b -> Array c) -> a -> NonEmptyArray b -> NonEmptyArray c
-unsafeAdapt' f = unsafeAdapt <<< f
-
--- | Internal - adapt an Array transform with two arguments to NonEmptyArray
---
--- Note that this is unsafe: if the transform returns an empty array, this can
--- explode at runtime.
-unsafeAdapt'' :: forall a b c d. (a -> b -> Array c -> Array d) -> a -> b -> NonEmptyArray c -> NonEmptyArray d
-unsafeAdapt'' f = unsafeAdapt' <<< f
-
 -- | Internal - adapt an Array transform to NonEmptyArray,
 --   with polymorphic result.
 --
@@ -180,16 +166,6 @@ unsafeAdapt'' f = unsafeAdapt' <<< f
 -- explode at runtime.
 adaptAny :: forall a b. (Array a -> b) -> NonEmptyArray a -> b
 adaptAny f = f <<< toArray
-
--- | Internal - adapt an Array transform with argument to NonEmptyArray,
---   with polymorphic result.
-adaptAny' :: forall a b c. (a -> Array b -> c) -> a -> NonEmptyArray b -> c
-adaptAny' f = adaptAny <<< f
-
--- | Internal - adapt an Array transform with two arguments to NonEmptyArray,
---   with polymorphic result.
-adaptAny'' :: forall a b c d. (a -> b -> Array c -> d) -> a -> b -> NonEmptyArray c -> d
-adaptAny'' f = adaptAny' <<< f
 
 -- | Internal - adapt Array functions returning Maybes to NonEmptyArray
 adaptMaybe :: forall a b. (Array a -> Maybe b) -> NonEmptyArray a -> b
@@ -245,7 +221,7 @@ length :: forall a. NonEmptyArray a -> Int
 length = adaptAny A.length
 
 cons :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
-cons = unsafeAdapt' A.cons
+cons x = unsafeAdapt $ A.cons x
 
 infixr 6 cons as :
 
@@ -262,10 +238,10 @@ appendArray :: forall a. NonEmptyArray a -> Array a -> NonEmptyArray a
 appendArray xs ys = unsafeFromArray $ toArray xs <> ys
 
 insert :: forall a. Ord a => a -> NonEmptyArray a -> NonEmptyArray a
-insert = unsafeAdapt' A.insert
+insert x = unsafeAdapt $ A.insert x
 
 insertBy :: forall a. (a -> a -> Ordering) -> a -> NonEmptyArray a -> NonEmptyArray a
-insertBy = unsafeAdapt'' A.insertBy
+insertBy f x = unsafeAdapt $ A.insertBy f x
 
 head :: forall a. NonEmptyArray a -> a
 head = adaptMaybe A.head
@@ -291,34 +267,34 @@ index = adaptAny A.index
 infixl 8 index as !!
 
 elemIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
-elemIndex = adaptAny' A.elemIndex
+elemIndex x = adaptAny $ A.elemIndex x
 
 elemLastIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
-elemLastIndex = adaptAny' A.elemLastIndex
+elemLastIndex x = adaptAny $ A.elemLastIndex x
 
 findIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
-findIndex = adaptAny' A.findIndex
+findIndex x = adaptAny $ A.findIndex x
 
 findLastIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
-findLastIndex = adaptAny' A.findLastIndex
+findLastIndex x = adaptAny $ A.findLastIndex x
 
 insertAt :: forall a. Int -> a -> NonEmptyArray a -> Maybe (NonEmptyArray a)
 insertAt i x = map NonEmptyArray <<< A.insertAt i x <<< toArray
 
 deleteAt :: forall a. Int -> NonEmptyArray a -> Maybe (Array a)
-deleteAt = adaptAny' A.deleteAt
+deleteAt i = adaptAny $ A.deleteAt i
 
 updateAt :: forall a. Int -> a -> NonEmptyArray a -> Maybe (NonEmptyArray a)
 updateAt i x = map NonEmptyArray <<< A.updateAt i x <<< toArray
 
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> NonEmptyArray a -> NonEmptyArray a
-updateAtIndices = unsafeAdapt' A.updateAtIndices
+updateAtIndices pairs = unsafeAdapt $ A.updateAtIndices pairs
 
 modifyAt :: forall a. Int -> (a -> a) -> NonEmptyArray a -> Maybe (NonEmptyArray a)
 modifyAt i f = map NonEmptyArray <<< A.modifyAt i f <<< toArray
 
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> NonEmptyArray a -> NonEmptyArray a
-modifyAtIndices = unsafeAdapt'' A.modifyAtIndices
+modifyAtIndices is f = unsafeAdapt $ A.modifyAtIndices is f
 
 alterAt :: forall a. Int -> (a -> Maybe a) -> NonEmptyArray a -> Maybe (Array a)
 alterAt i f = A.alterAt i f <<< toArray
@@ -333,14 +309,14 @@ concatMap :: forall a b. (a -> NonEmptyArray b) -> NonEmptyArray a -> NonEmptyAr
 concatMap = flip bind
 
 filter :: forall a. (a -> Boolean) -> NonEmptyArray a -> Array a
-filter = adaptAny' A.filter
+filter f = adaptAny $ A.filter f
 
 partition
   :: forall a
    . (a -> Boolean)
   -> NonEmptyArray a
   -> { yes :: Array a, no :: Array a}
-partition = adaptAny' A.partition
+partition f = adaptAny $ A.partition f
 
 filterA
   :: forall a f
@@ -348,10 +324,10 @@ filterA
   => (a -> f Boolean)
   -> NonEmptyArray a
   -> f (Array a)
-filterA = adaptAny' A.filterA
+filterA f = adaptAny $ A.filterA f
 
 mapMaybe :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Array b
-mapMaybe = adaptAny' A.mapMaybe
+mapMaybe f = adaptAny $ A.mapMaybe f
 
 catMaybes :: forall a. NonEmptyArray (Maybe a) -> Array a
 catMaybes = adaptAny A.catMaybes
@@ -360,44 +336,44 @@ sort :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 sort = unsafeAdapt A.sort
 
 sortBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray a
-sortBy = unsafeAdapt' A.sortBy
+sortBy f = unsafeAdapt $ A.sortBy f
 
 sortWith :: forall a b. Ord b => (a -> b) -> NonEmptyArray a -> NonEmptyArray a
-sortWith = unsafeAdapt' A.sortWith
+sortWith f = unsafeAdapt $ A.sortWith f
 
 slice :: forall a. Int -> Int -> NonEmptyArray a -> Array a
-slice = adaptAny'' A.slice
+slice start end = adaptAny $ A.slice start end
 
 take :: forall a. Int -> NonEmptyArray a -> Array a
-take = adaptAny' A.take
+take i = adaptAny $ A.take i
 
 takeEnd :: forall a. Int -> NonEmptyArray a -> Array a
-takeEnd = adaptAny' A.takeEnd
+takeEnd i = adaptAny $ A.takeEnd i
 
 takeWhile :: forall a. (a -> Boolean) -> NonEmptyArray a -> Array a
-takeWhile = adaptAny' A.takeWhile
+takeWhile f = adaptAny $ A.takeWhile f
 
 drop :: forall a. Int -> NonEmptyArray a -> Array a
-drop = adaptAny' A.drop
+drop i = adaptAny $ A.drop i
 
 dropEnd :: forall a. Int -> NonEmptyArray a -> Array a
-dropEnd = adaptAny' A.dropEnd
+dropEnd i = adaptAny $ A.dropEnd i
 
 dropWhile :: forall a. (a -> Boolean) -> NonEmptyArray a -> Array a
-dropWhile = adaptAny' A.dropWhile
+dropWhile f = adaptAny $ A.dropWhile f
 
 span
   :: forall a
    . (a -> Boolean)
   -> NonEmptyArray a
   -> { init :: Array a, rest :: Array a }
-span = adaptAny' A.span
+span f = adaptAny $ A.span f
 
 nub :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a
 nub = unsafeAdapt A.nub
 
 nubBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
-nubBy = unsafeAdapt' A.nubBy
+nubBy f = unsafeAdapt $ A.nubBy f
 
 union :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> NonEmptyArray a
 union = unionBy (==)
@@ -422,10 +398,10 @@ unionBy'
 unionBy' eq xs = unsafeFromArray <<< A.unionBy eq (toArray xs)
 
 delete :: forall a. Eq a => a -> NonEmptyArray a -> Array a
-delete = adaptAny' A.delete
+delete x = adaptAny $ A.delete x
 
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> NonEmptyArray a -> Array a
-deleteBy = adaptAny'' A.deleteBy
+deleteBy f x = adaptAny $ A.deleteBy f x
 
 difference :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
 difference xs = adaptAny $ difference' xs
@@ -482,10 +458,10 @@ unzip :: forall a b. NonEmptyArray (Tuple a b) -> Tuple (NonEmptyArray a) (NonEm
 unzip = bimap NonEmptyArray NonEmptyArray <<< A.unzip <<< toArray
 
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
-foldM = adaptAny'' A.foldM
+foldM f acc = adaptAny $ A.foldM f acc
 
 foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
-foldRecM = adaptAny'' A.foldRecM
+foldRecM f acc = adaptAny $ A.foldRecM f acc
 
 unsafeIndex :: forall a. Partial => NonEmptyArray a -> Int -> a
 unsafeIndex = adaptAny A.unsafeIndex
