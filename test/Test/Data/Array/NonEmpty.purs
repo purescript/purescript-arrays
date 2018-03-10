@@ -26,10 +26,9 @@ testNonEmptyArray = do
   assert $ NEA.toArray (NEA.singleton "foo") == ["foo"]
 
   log "range should create an inclusive array of integers for the specified start and end"
-  assert $ NEA.toArray (unsafePartial fromJust (NEA.range 0 5))
-           == [0, 1, 2, 3, 4, 5]
-  assert $ NEA.toArray (unsafePartial fromJust (NEA.range 2 (-3)))
-           == [2, 1, 0, -1, -2, -3]
+  assert $ NEA.toArray (NEA.range 0 5) == [0, 1, 2, 3, 4, 5]
+  assert $ NEA.toArray (NEA.range 2 (-3)) == [2, 1, 0, -1, -2, -3]
+  assert $ NEA.toArray (NEA.range 0 0) == [0]
 
   log "replicate should produce an array containg an item a specified number of times"
   assert $ NEA.toArray (NEA.replicate 3 true) == [true, true, true]
@@ -162,14 +161,14 @@ testNonEmptyArray = do
   assert $ NEA.concatMap doubleAndOrig (fromArray [1, 2, 3]) == NEA.concat (map doubleAndOrig (fromArray [1, 2, 3]))
 
   log "filter should remove items that don't match a predicate"
-  assert $ (NEA.filter odd <$> NEA.range 0 10) == Just [1, 3, 5, 7, 9]
+  assert $ NEA.filter odd (NEA.range 0 10) == [1, 3, 5, 7, 9]
 
   log "filterA should remove items that don't match a predicate while using an applicative behaviour"
-  assert $ NEA.filterA (Just <<< odd) (unsafePartial $ fromJust $ NEA.range 0 10) == Just [1, 3, 5, 7, 9]
-  assert $ NEA.filterA (const Nothing) (unsafePartial $ fromJust $ NEA.range 0 10) == Nothing
+  assert $ NEA.filterA (Just <<< odd) (NEA.range 0 10) == Just [1, 3, 5, 7, 9]
+  assert $ NEA.filterA (const Nothing) (NEA.range 0 10) == Nothing
 
   log "filterA should apply effects in the right order"
-  assert $ NEA.filterA (Const <<< show) (unsafePartial $ fromJust $ NEA.range 1 5) == Const "12345"
+  assert $ NEA.filterA (Const <<< show) (NEA.range 1 5) == Const "12345"
 
   log "mapMaybe should transform every item in an array, throwing out Nothing values"
   assert $ NEA.mapMaybe (\x -> if x /= 0 then Just x else Nothing) (fromArray [0, 1, 0, 0, 2, 3]) == [1, 2, 3]
