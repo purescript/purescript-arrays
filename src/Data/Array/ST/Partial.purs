@@ -7,39 +7,34 @@ module Data.Array.ST.Partial
   , pokeSTArray
   ) where
 
-import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
 import Data.Array.ST (STArray)
 import Data.Unit (Unit)
 
 -- | Read the value at the specified index in a mutable array.
 peekSTArray
-  :: forall a h r
+  :: forall h a
    . Partial
   => STArray h a
   -> Int
-  -> Eff (st :: ST h | r) a
+  -> ST h a
 peekSTArray = peekSTArrayImpl
 
-foreign import peekSTArrayImpl
-  :: forall a h r
-   . STArray h a
-  -> Int
-  -> Eff (st :: ST h | r) a
+foreign import peekSTArrayImpl :: forall h a. STArray h a -> Int -> ST h a
 
 -- | Change the value at the specified index in a mutable array.
 pokeSTArray
-  :: forall a h r
+  :: forall h a
    . Partial
   => STArray h a
   -> Int
   -> a
-  -> Eff (st :: ST h | r) Unit
+  -> ST h Unit
 pokeSTArray = pokeSTArrayImpl
 
 foreign import pokeSTArrayImpl
-  :: forall a h r
+  :: forall h a
    . STArray h a
   -> Int
   -> a
-  -> Eff (st :: ST h | r) Unit
+  -> ST h Unit

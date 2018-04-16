@@ -1,18 +1,19 @@
 module Test.Data.Array.ST (testArrayST) where
 
 import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE)
-import Control.Monad.ST (ST, pureST)
+import Effect (Effect)
+import Effect.Console (log)
+import Control.Monad.ST (ST)
+import Control.Monad.ST as ST
 import Data.Array.ST (STArray, emptySTArray, freeze, peekSTArray, pokeSTArray, pushAllSTArray, pushSTArray, spliceSTArray, thaw, toAssocArray, unsafeThaw, unsafeFreeze)
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
-import Test.Assert (assert, ASSERT)
+import Test.Assert (assert)
 
-run :: forall a. (forall h. Eff (st :: ST h) (STArray h a)) -> Array a
-run act = pureST (act >>= unsafeFreeze)
+run :: forall a. (forall r. ST r (STArray r a)) -> Array a
+run act = ST.run (act >>= unsafeFreeze)
 
-testArrayST :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testArrayST :: Effect Unit
 testArrayST = do
 
   log "emptySTArray should produce an empty array"
@@ -25,7 +26,7 @@ testArrayST = do
 
   log "freeze should produce a standard array from an STArray"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1, 2, 3]
     freeze arr) == [1, 2, 3]
 
@@ -48,7 +49,7 @@ testArrayST = do
 
   log "pushSTArray should return the new length of the array"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [unit, unit, unit]
     pushSTArray arr unit) == 4
 
@@ -66,55 +67,55 @@ testArrayST = do
 
   log "pushAllSTArray should return the new length of the array"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [unit, unit, unit]
     pushAllSTArray arr [unit, unit]) == 5
 
   log "peekSTArray should return Nothing when peeking a value outside the array bounds"
 
-  assert $ isNothing $ pureST (do
+  assert $ isNothing $ ST.run (do
     arr <- emptySTArray
     peekSTArray arr 0)
 
-  assert $ isNothing $ pureST (do
+  assert $ isNothing $ ST.run (do
     arr <- thaw [1]
     peekSTArray arr 1)
 
-  assert $ isNothing $ pureST (do
+  assert $ isNothing $ ST.run (do
     arr <- emptySTArray
     peekSTArray arr (-1))
 
   log "peekSTArray should return the value at the specified index"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1]
     peekSTArray arr 0) == Just 1
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1, 2, 3]
     peekSTArray arr 2) == Just 3
 
   log "pokeSTArray should return true when a value has been updated succesfully"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1]
     pokeSTArray arr 0 10)
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1, 2, 3]
     pokeSTArray arr 2 30)
 
   log "pokeSTArray should return false when attempting to modify a value outside the array bounds"
 
-  assert $ not $ pureST (do
+  assert $ not $ ST.run (do
     arr <- emptySTArray
     pokeSTArray arr 0 10)
 
-  assert $ not $ pureST (do
+  assert $ not $ ST.run (do
     arr <- thaw [1, 2, 3]
     pokeSTArray arr 3 100)
 
-  assert $ not $ pureST (do
+  assert $ not $ ST.run (do
     arr <- thaw [1, 2, 3]
     pokeSTArray arr (-1) 100)
 
@@ -141,7 +142,7 @@ testArrayST = do
 
   log "spliceSTArray should return the items removed"
 
-  assert $ pureST (do
+  assert $ ST.run (do
     arr <- thaw [1, 2, 3, 4, 5]
     spliceSTArray arr 1 3 []) == [2, 3, 4]
 
@@ -161,11 +162,11 @@ testArrayST = do
 
   log "toAssocArray should return all items in the array with the correct indices and values"
 
-  assert $ all (\{ value: v, index: i } -> v == i + 1) $ pureST (do
+  assert $ all (\{ value: v, index: i } -> v == i + 1) $ ST.run (do
     arr <- thaw [1, 2, 3, 4, 5]
     toAssocArray arr)
 
-  assert $ all (\{ value: v, index: i } -> v == (i + 1) * 10) $ pureST (do
+  assert $ all (\{ value: v, index: i } -> v == (i + 1) * 10) $ ST.run (do
     arr <- thaw [10, 20, 30, 40, 50]
     toAssocArray arr)
 

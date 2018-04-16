@@ -2,24 +2,21 @@ module Test.Data.Array (testArray) where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE)
-
-import Data.Const (Const(..))
-import Data.Array as A
 import Data.Array ((:), (\\), (!!))
+import Data.Array as A
+import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.NonEmpty ((:|))
 import Data.NonEmpty as NE
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
-
+import Effect (Effect)
+import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
+import Test.Assert (assert)
 
-import Test.Assert (assert, ASSERT)
-
-testArray :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testArray :: Effect Unit
 testArray = do
 
   log "singleton should construct an array with a single value"
@@ -239,7 +236,7 @@ testArray = do
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
-  assert $ A.sortWith id [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+  assert $ A.sortWith identity [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]

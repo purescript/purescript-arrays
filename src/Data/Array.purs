@@ -118,7 +118,7 @@ import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
-import Control.Monad.ST (pureST)
+import Control.Monad.ST as ST
 import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
 import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
@@ -299,7 +299,7 @@ last xs = xs !! (length xs - 1)
 -- | `Nothing` if the array is empty
 -- |
 -- | ```purescript
--- | tail [1, 2, 3, 4] = Just [2, 3, 4] 
+-- | tail [1, 2, 3, 4] = Just [2, 3, 4]
 -- | tail [] = Nothing
 -- | ```
 -- |
@@ -348,7 +348,7 @@ foreign import uncons'
 -- | Break an array into its last element and all preceding elements.
 -- |
 -- | ```purescript
--- | unsnoc [1, 2, 3] = Just {init: [1, 2], last: 3} 
+-- | unsnoc [1, 2, 3] = Just {init: [1, 2], last: 3}
 -- | unsnoc [] = Nothing
 -- | ```
 -- |
@@ -511,7 +511,7 @@ foreign import _updateAt
 -- | array, or returning `Nothing` if the index is out of bounds.
 -- |
 -- | ```purescript
--- | modifyAt 1 toUpper ["Hello", "World"] = Just ["Hello", "WORLD"] 
+-- | modifyAt 1 toUpper ["Hello", "World"] = Just ["Hello", "WORLD"]
 -- | modifyAt 10 toUpper ["Hello", "World"] = Nothing
 -- | ```
 -- |
@@ -525,10 +525,10 @@ modifyAt i f xs = maybe Nothing go (xs !! i)
 -- | index is out-of-bounds.
 -- |
 -- | ```purescript
--- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"] 
+-- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"]
 -- |    = Just ["Hello", "World"]
 -- |
--- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"] 
+-- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"]
 -- |    = Just ["Hello"]
 -- |
 -- | alterAt 10 (stripSuffix $ Pattern "!") ["Hello", "World!"] = Nothing
@@ -629,7 +629,7 @@ mapMaybe f = concatMap (maybe [] singleton <<< f)
 -- | ```
 -- |
 catMaybes :: forall a. Array (Maybe a) -> Array a
-catMaybes = mapMaybe id
+catMaybes = mapMaybe identity
 
 -- | Apply a function to each element in an array, supplying a generated
 -- | zero-based index integer along with the element, creating an array
@@ -656,7 +656,7 @@ mapWithIndex f xs =
 -- |
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
 updateAtIndices us xs =
-  pureST (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
+  ST.run (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
 
 -- | Apply a function to the element at the specified indices,
 -- | creating a new array. Out-of-bounds indices will have no effect.
@@ -669,7 +669,7 @@ updateAtIndices us xs =
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
-  pureST (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
+  ST.run (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
@@ -857,7 +857,7 @@ group' = group <<< sort
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
 groupBy op xs =
-  pureST do
+  ST.run do
     result <- emptySTArray
     iter <- iterator (xs !! _)
     iterate iter \x -> void do
@@ -1016,7 +1016,7 @@ zipWithA f xs ys = sequence (zipWith f xs ys)
 -- | discarded.
 -- |
 -- | ```purescript
--- | zip [1, 2, 3] ["a", "b"] = [Tuple 1 "a", Tuple 2 "b"] 
+-- | zip [1, 2, 3] ["a", "b"] = [Tuple 1 "a", Tuple 2 "b"]
 -- | ```
 -- |
 zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
@@ -1031,7 +1031,7 @@ zip = zipWith Tuple
 -- |
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
-  pureST do
+  ST.run do
     fsts <- emptySTArray
     snds <- emptySTArray
     iter <- iterator (xs !! _)
@@ -1065,12 +1065,12 @@ foldRecM f a array = tailRecM2 go a 0
 -- | ```purescript
 -- | unsafePartial $ unsafeIndex ["a", "b", "c"] 1 = "b"
 -- | ```
--- | 
--- | Using `unsafeIndex` with an out-of-range index will not immediately raise a runtime error. 
--- | Instead, the result will be undefined. Most attempts to subsequently use the result will 
--- | cause a runtime error, of course, but this is not guaranteed, and is dependent on the backend; 
--- | some programs will continue to run as if nothing is wrong. For example, in the JavaScript backend, 
--- | the expression `unsafePartial (unsafeIndex [true] 1)` has type `Boolean`; 
+-- |
+-- | Using `unsafeIndex` with an out-of-range index will not immediately raise a runtime error.
+-- | Instead, the result will be undefined. Most attempts to subsequently use the result will
+-- | cause a runtime error, of course, but this is not guaranteed, and is dependent on the backend;
+-- | some programs will continue to run as if nothing is wrong. For example, in the JavaScript backend,
+-- | the expression `unsafePartial (unsafeIndex [true] 1)` has type `Boolean`;
 -- | since this expression evaluates to `undefined`, attempting to use it in an `if` statement will cause
 -- | the else branch to be taken.
 unsafeIndex :: forall a. Partial => Array a -> Int -> a

@@ -4,8 +4,7 @@
 
 module Data.Array.ST
   ( STArray(..)
-  , Assoc()
-  , runSTArray
+  , Assoc
   , withArray
   , emptySTArray
   , peekSTArray
@@ -22,9 +21,8 @@ module Data.Array.ST
   ) where
 
 import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.ST (ST)
 
+import Control.Monad.ST (ST, kind Region)
 import Data.Maybe (Maybe(..))
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -35,29 +33,18 @@ import Unsafe.Coerce (unsafeCoerce)
 -- |
 -- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
 -- | except that mutation is allowed.
-foreign import data STArray :: Type -> Type -> Type
+foreign import data STArray :: Region -> Type -> Type
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
 
--- | **DEPRECATED**: Use `unsafeFreeze` together with `runST` instead.
--- |
--- | Freeze a mutable array, creating an immutable array. Use this function as you would use
--- | `runST` to freeze a mutable reference.
--- |
--- | The rank-2 type prevents the reference from escaping the scope of `runSTArray`.
-foreign import runSTArray
-  :: forall a r
-   . (forall h. Eff (st :: ST h | r) (STArray h a))
-  -> Eff r (Array a)
-
 -- | Perform an effect requiring a mutable array on a copy of an immutable array,
 -- | safely returning the result as an immutable array.
 withArray
-  :: forall a b r h
-   . (STArray h a -> Eff (st :: ST h | r) b)
+  :: forall h a b
+   . (STArray h a -> ST h b)
    -> Array a
-   -> Eff (st :: ST h | r) (Array a)
+   -> ST h (Array a)
 withArray f xs = do
   result <- thaw xs
   _ <- f result
@@ -65,63 +52,63 @@ withArray f xs = do
 
 -- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
 -- | array must not be mutated afterwards.
-unsafeFreeze :: forall a r h. STArray h a -> Eff (st :: ST h | r) (Array a)
+unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
 unsafeFreeze = pure <<< (unsafeCoerce :: STArray h a -> Array a)
 
 -- | O(1) Convert an immutable array to a mutable array, without copying. The input
 -- | array must not be used afterward.
-unsafeThaw :: forall a r h. Array a -> Eff (st :: ST h | r) (STArray h a)
+unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 unsafeThaw = pure <<< (unsafeCoerce :: Array a -> STArray h a)
 
 -- | Create an empty mutable array.
-foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
+foreign import emptySTArray :: forall h a. ST h (STArray h a)
 
 -- | Create a mutable copy of an immutable array.
-thaw :: forall a h r. Array a -> Eff (st :: ST h | r) (STArray h a)
+thaw :: forall h a. Array a -> ST h (STArray h a)
 thaw = copyImpl
 
 -- | Create an immutable copy of a mutable array.
-freeze :: forall a h r. STArray h a -> Eff (st :: ST h | r) (Array a)
+freeze :: forall h a. STArray h a -> ST h (Array a)
 freeze = copyImpl
 
-foreign import copyImpl :: forall a b h r. a -> Eff (st :: ST h | r) b
+foreign import copyImpl :: forall h a b. a -> ST h b
 
 -- | Read the value at the specified index in a mutable array.
 peekSTArray
-  :: forall a h r
+  :: forall h a
    . STArray h a
   -> Int
-  -> Eff (st :: ST h | r) (Maybe a)
+  -> ST h (Maybe a)
 peekSTArray = peekSTArrayImpl Just Nothing
 
 foreign import peekSTArrayImpl
-  :: forall a h e r
+  :: forall h a r
    . (a -> r)
   -> r
   -> STArray h a
   -> Int
-  -> (Eff (st :: ST h | e) r)
+  -> (ST h r)
 
 -- | Change the value at the specified index in a mutable array.
 foreign import pokeSTArray
-  :: forall a h r
-   . STArray h a -> Int -> a -> Eff (st :: ST h | r) Boolean
+  :: forall h a
+   . STArray h a -> Int -> a -> ST h Boolean
 
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
-pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int
+pushSTArray :: forall h a. STArray h a -> a -> ST h Int
 pushSTArray arr a = pushAllSTArray arr [a]
 
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
 foreign import pushAllSTArray
-  :: forall a h r
+  :: forall h a
    . STArray h a
   -> Array a
-  -> Eff (st :: ST h | r) Int
+  -> ST h Int
 
 -- | Mutate the element at the specified index using the supplied function.
-modifySTArray :: forall a h r. STArray h a -> Int -> (a -> a) -> Eff (st :: ST h | r) Boolean
+modifySTArray :: forall h a. STArray h a -> Int -> (a -> a) -> ST h Boolean
 modifySTArray xs i f = do
   entry <- peekSTArray xs i
   case entry of
@@ -130,16 +117,16 @@ modifySTArray xs i f = do
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
 foreign import spliceSTArray
-  :: forall a h r
+  :: forall h a
    . STArray h a
   -> Int
   -> Int
   -> Array a
-  -> Eff (st :: ST h | r) (Array a)
+  -> ST h (Array a)
 
 -- | Create an immutable copy of a mutable array, where each element
 -- | is labelled with its index in the original array.
 foreign import toAssocArray
-  :: forall a h r
+  :: forall h a
    . STArray h a
-  -> Eff (st :: ST h | r) (Array (Assoc a))
+  -> ST h (Array (Assoc a))

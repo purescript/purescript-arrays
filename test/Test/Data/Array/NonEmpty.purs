@@ -2,8 +2,8 @@ module Test.Data.Array.NonEmpty (testNonEmptyArray) where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Effect (Effect)
+import Effect.Console (log)
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, sum, traverse_)
@@ -14,9 +14,9 @@ import Data.Semigroup.Foldable (foldMap1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
-import Test.Assert (ASSERT, assert)
+import Test.Assert (assert)
 
-testNonEmptyArray :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testNonEmptyArray :: Effect Unit
 testNonEmptyArray = do
   let fromArray :: forall a. Array a -> NEA.NonEmptyArray a
       fromArray = unsafePartial fromJust <<< NEA.fromArray
@@ -196,7 +196,7 @@ testNonEmptyArray = do
   assert $ NEA.sortBy (flip compare) (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [6, 5, 4, 3, 2, 1]
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
-  assert $ NEA.sortWith id (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [1, 2, 3, 4, 5, 6]
+  assert $ NEA.sortWith identity (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [1, 2, 3, 4, 5, 6]
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ NEA.take 1 (fromArray [1, 2, 3]) == [1]
@@ -291,7 +291,7 @@ testNonEmptyArray = do
 
   log "foldMap1 should work"
   assert $ foldMap1 Additive (fromArray [1, 2, 3, 4]) == Additive 10
-  
+
   log "traverse1 should work"
   assert $ traverse1 Just (fromArray [1, 2, 3, 4]) == NEA.fromArray [1, 2, 3, 4]
 
