@@ -125,6 +125,8 @@ derive newtype instance eq1NonEmptyArray :: Eq1 NonEmptyArray
 derive newtype instance ordNonEmptyArray :: Ord a => Ord (NonEmptyArray a)
 derive newtype instance ord1NonEmptyArray :: Ord1 NonEmptyArray 
 
+derive newtype instance semigroupNonEmptyArray :: Semigroup (NonEmptyArray a)
+
 derive newtype instance functorNonEmptyArray :: Functor NonEmptyArray
 derive newtype instance functorWithIndexNonEmptyArray :: FunctorWithIndex Int NonEmptyArray
 
