@@ -128,7 +128,7 @@ import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, f
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..), uncurry)
+import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 import Unsafe.Coerce (unsafeCoerce)
@@ -658,7 +658,7 @@ mapWithIndex f xs =
 -- |
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
 updateAtIndices us xs =
-  ST.run (STA.withArray (\res -> traverse_ (uncurry $ STA.pokeSTArray res) us) xs)
+  ST.run (STA.withArray (\res -> traverse_ (\(Tuple i a) -> STA.poke i a res) us) xs)
 
 -- | Apply a function to the element at the specified indices,
 -- | creating a new array. Out-of-bounds indices will have no effect.
@@ -671,7 +671,7 @@ updateAtIndices us xs =
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
-  ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modifySTArray res i f) is) xs)
+  ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modify i f res) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
@@ -860,14 +860,14 @@ group' = group <<< sort
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
 groupBy op xs =
   ST.run do
-    result <- STA.emptySTArray
+    result <- STA.empty
     iter <- STAI.iterator (xs !! _)
     STAI.iterate iter \x -> void do
-      sub <- STA.emptySTArray
+      sub <- STA.empty
       STAI.pushWhile (op x) iter sub
-      _ <- STA.pushSTArray sub x
+      _ <- STA.push x sub
       grp <- STA.unsafeFreeze sub
-      STA.pushSTArray result ((unsafeCoerce :: Array ~> NonEmptyArray) grp)
+      STA.push ((unsafeCoerce :: Array ~> NonEmptyArray) grp) result
     STA.unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
@@ -1035,12 +1035,12 @@ zip = zipWith Tuple
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
   ST.run do
-    fsts <- STA.emptySTArray
-    snds <- STA.emptySTArray
+    fsts <- STA.empty
+    snds <- STA.empty
     iter <- STAI.iterator (xs !! _)
     STAI.iterate iter \(Tuple fst snd) -> do
-      void $ STA.pushSTArray fsts fst
-      void $ STA.pushSTArray snds snd
+      void $ STA.push fst fsts
+      void $ STA.push snd snds
     fsts' <- STA.unsafeFreeze fsts
     snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'

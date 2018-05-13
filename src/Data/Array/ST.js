@@ -1,13 +1,13 @@
 "use strict";
 
-exports.emptySTArray = function () {
+exports.empty = function () {
   return [];
 };
 
-exports.peekSTArrayImpl = function (just) {
+exports.peekImpl = function (just) {
   return function (nothing) {
-    return function (xs) {
-      return function (i) {
+    return function (i) {
+      return function (xs) {
         return function () {
           return i >= 0 && i < xs.length ? just(xs[i]) : nothing;
         };
@@ -16,9 +16,9 @@ exports.peekSTArrayImpl = function (just) {
   };
 };
 
-exports.pokeSTArray = function (xs) {
-  return function (i) {
-    return function (a) {
+exports.poke = function (i) {
+  return function (a) {
+    return function (xs) {
       return function () {
         var ret = i >= 0 && i < xs.length;
         if (ret) xs[i] = a;
@@ -28,18 +28,18 @@ exports.pokeSTArray = function (xs) {
   };
 };
 
-exports.pushAllSTArray = function (xs) {
-  return function (as) {
+exports.pushAll = function (as) {
+  return function (xs) {
     return function () {
       return xs.push.apply(xs, as);
     };
   };
 };
 
-exports.spliceSTArray = function (xs) {
-  return function (i) {
-    return function (howMany) {
-      return function (bs) {
+exports.splice = function (i) {
+  return function (howMany) {
+    return function (bs) {
+      return function (xs) {
         return function () {
           return xs.splice.apply(xs, [i, howMany].concat(bs));
         };

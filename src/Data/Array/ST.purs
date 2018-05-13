@@ -6,13 +6,13 @@ module Data.Array.ST
   ( STArray(..)
   , Assoc
   , withArray
-  , emptySTArray
-  , peekSTArray
-  , pokeSTArray
-  , pushSTArray
-  , modifySTArray
-  , pushAllSTArray
-  , spliceSTArray
+  , empty
+  , peek
+  , poke
+  , push
+  , modify
+  , pushAll
+  , splice
   , freeze
   , thaw
   , unsafeFreeze
@@ -61,7 +61,7 @@ unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 unsafeThaw = pure <<< (unsafeCoerce :: Array a -> STArray h a)
 
 -- | Create an empty mutable array.
-foreign import emptySTArray :: forall h a. ST h (STArray h a)
+foreign import empty :: forall h a. ST h (STArray h a)
 
 -- | Create a mutable copy of an immutable array.
 thaw :: forall h a. Array a -> ST h (STArray h a)
@@ -74,59 +74,54 @@ freeze = copyImpl
 foreign import copyImpl :: forall h a b. a -> ST h b
 
 -- | Read the value at the specified index in a mutable array.
-peekSTArray
+peek
   :: forall h a
-   . STArray h a
-  -> Int
+   . Int
+  -> STArray h a
   -> ST h (Maybe a)
-peekSTArray = peekSTArrayImpl Just Nothing
+peek = peekImpl Just Nothing
 
-foreign import peekSTArrayImpl
+foreign import peekImpl
   :: forall h a r
    . (a -> r)
   -> r
-  -> STArray h a
   -> Int
+  -> STArray h a
   -> (ST h r)
 
 -- | Change the value at the specified index in a mutable array.
-foreign import pokeSTArray
-  :: forall h a
-   . STArray h a -> Int -> a -> ST h Boolean
+foreign import poke :: forall h a. Int -> a -> STArray h a -> ST h Boolean
 
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
-pushSTArray :: forall h a. STArray h a -> a -> ST h Int
-pushSTArray arr a = pushAllSTArray arr [a]
+push :: forall h a. a -> STArray h a -> ST h Int
+push a = pushAll [a]
 
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
-foreign import pushAllSTArray
+foreign import pushAll
   :: forall h a
-   . STArray h a
-  -> Array a
+   . Array a
+  -> STArray h a
   -> ST h Int
 
 -- | Mutate the element at the specified index using the supplied function.
-modifySTArray :: forall h a. STArray h a -> Int -> (a -> a) -> ST h Boolean
-modifySTArray xs i f = do
-  entry <- peekSTArray xs i
+modify :: forall h a. Int -> (a -> a) -> STArray h a -> ST h Boolean
+modify i f xs = do
+  entry <- peek i xs
   case entry of
-    Just x  -> pokeSTArray xs i (f x)
+    Just x  -> poke i (f x) xs
     Nothing -> pure false
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
-foreign import spliceSTArray
+foreign import splice
   :: forall h a
-   . STArray h a
-  -> Int
+   . Int
   -> Int
   -> Array a
+  -> STArray h a
   -> ST h (Array a)
 
 -- | Create an immutable copy of a mutable array, where each element
 -- | is labelled with its index in the original array.
-foreign import toAssocArray
-  :: forall h a
-   . STArray h a
-  -> ST h (Array (Assoc a))
+foreign import toAssocArray :: forall h a. STArray h a -> ST h (Array (Assoc a))
