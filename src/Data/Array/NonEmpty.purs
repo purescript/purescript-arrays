@@ -8,6 +8,7 @@ module Data.Array.NonEmpty
   , fromFoldable
   , fromFoldable1
   , toUnfoldable
+  , toUnfoldable1
   , singleton
   , (..), range
   , replicate
@@ -103,15 +104,16 @@ import Data.Eq (class Eq1)
 import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
-import Data.Maybe (Maybe(..), fromJust)
+import Data.Maybe (Maybe(..), fromJust, isNothing)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (class Ord1)
 import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
 import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable)
+import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
 
 newtype NonEmptyArray a = NonEmptyArray (Array a)
@@ -137,6 +139,9 @@ instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
   foldMap1 = foldMap1Default
   fold1 = fold1Impl (<>)
 
+instance unfoldable1NonEmptyArray :: Unfoldable1 NonEmptyArray where
+  unfoldr1 = unfoldr1Impl isNothing (unsafePartial fromJust) fst snd
+
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
 derive newtype instance traversableWithIndexNonEmptyArray :: TraversableWithIndex Int NonEmptyArray
 
@@ -153,6 +158,16 @@ derive newtype instance bindNonEmptyArray :: Bind NonEmptyArray
 derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
+
+foreign import unfoldr1Impl
+  :: forall a b
+   . (forall x. Maybe x -> Boolean)
+  -> (forall x. Maybe x -> x)
+  -> (forall x y. Tuple x y -> x)
+  -> (forall x y. Tuple x y -> y)
+  -> (b -> Tuple a (Maybe b))
+  -> b
+  -> NonEmptyArray a
 
 -- | Internal - adapt an Array transform to NonEmptyArray
 --
@@ -199,6 +214,13 @@ fromFoldable1 = unsafeFromArray <<< A.fromFoldable
 
 toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
 toUnfoldable = adaptAny A.toUnfoldable
+
+toUnfoldable1 :: forall f a. Unfoldable1 f => NonEmptyArray a -> f a
+toUnfoldable1 xs = unfoldr1 f 0
+  where
+  len = length xs
+  f i = Tuple (unsafePartial unsafeIndex xs i) $
+          if i < (len - 1) then Just (i + 1) else Nothing
 
 singleton :: forall a. a -> NonEmptyArray a
 singleton = NonEmptyArray <<< A.singleton
