@@ -25,7 +25,7 @@
 -- |   `Data.Foldable.or` tests whether an array of `Boolean` values contains
 -- |   at least one `true` value.
 -- | * `Traversable`, which provides the PureScript version of a for-loop,
--- |   allowing you to iterate over an array and accumulate effects.
+-- |   allowing you to STAI.iterate over an array and accumulate effects.
 -- |
 module Data.Array
   ( fromFoldable
@@ -114,22 +114,24 @@ module Data.Array
   ) where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
-import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
-import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
+import Data.Array.ST as STA
+import Data.Array.ST.Iterator as STAI
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
-import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), uncurry)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -656,7 +658,7 @@ mapWithIndex f xs =
 -- |
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
 updateAtIndices us xs =
-  ST.run (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
+  ST.run (STA.withArray (\res -> traverse_ (uncurry $ STA.pokeSTArray res) us) xs)
 
 -- | Apply a function to the element at the specified indices,
 -- | creating a new array. Out-of-bounds indices will have no effect.
@@ -669,7 +671,7 @@ updateAtIndices us xs =
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
-  ST.run (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
+  ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modifySTArray res i f) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
@@ -836,7 +838,7 @@ span p arr =
 -- | ```purescript
 -- | group [1,1,2,2,1] == [NonEmpty 1 [1], NonEmpty 2 [2], NonEmpty 1 []]
 -- | ```
-group :: forall a. Eq a => Array a -> Array (NonEmpty Array a)
+group :: forall a. Eq a => Array a -> Array (NonEmptyArray a)
 group xs = groupBy eq xs
 
 -- | Sort and then group the elements of an array into arrays.
@@ -844,7 +846,7 @@ group xs = groupBy eq xs
 -- | ```purescript
 -- | group' [1,1,2,2,1] == [NonEmpty 1 [1,1],NonEmpty 2 [2]]
 -- | ```
-group' :: forall a. Ord a => Array a -> Array (NonEmpty Array a)
+group' :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
 group' = group <<< sort
 
 -- | Group equal, consecutive elements of an array into arrays, using the
@@ -855,17 +857,18 @@ group' = group <<< sort
 -- |    = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
 -- | ```
 -- |
-groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
+groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
 groupBy op xs =
   ST.run do
-    result <- emptySTArray
-    iter <- iterator (xs !! _)
-    iterate iter \x -> void do
-      sub <- emptySTArray
-      pushWhile (op x) iter sub
-      sub_ <- unsafeFreeze sub
-      pushSTArray result (x :| sub_)
-    unsafeFreeze result
+    result <- STA.emptySTArray
+    iter <- STAI.iterator (xs !! _)
+    STAI.iterate iter \x -> void do
+      sub <- STA.emptySTArray
+      STAI.pushWhile (op x) iter sub
+      _ <- STA.pushSTArray sub x
+      grp <- STA.unsafeFreeze sub
+      STA.pushSTArray result ((unsafeCoerce :: Array ~> NonEmptyArray) grp)
+    STA.unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
@@ -1032,14 +1035,14 @@ zip = zipWith Tuple
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
   ST.run do
-    fsts <- emptySTArray
-    snds <- emptySTArray
-    iter <- iterator (xs !! _)
-    iterate iter \(Tuple fst snd) -> do
-      void $ pushSTArray fsts fst
-      void $ pushSTArray snds snd
-    fsts' <- unsafeFreeze fsts
-    snds' <- unsafeFreeze snds
+    fsts <- STA.emptySTArray
+    snds <- STA.emptySTArray
+    iter <- STAI.iterator (xs !! _)
+    STAI.iterate iter \(Tuple fst snd) -> do
+      void $ STA.pushSTArray fsts fst
+      void $ STA.pushSTArray snds snd
+    fsts' <- STA.unsafeFreeze fsts
+    snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'
 
 -- | Perform a fold using a monadic step function.

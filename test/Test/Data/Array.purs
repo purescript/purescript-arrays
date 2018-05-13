@@ -4,11 +4,10 @@ import Prelude
 
 import Data.Array ((:), (\\), (!!))
 import Data.Array as A
+import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
-import Data.NonEmpty ((:|))
-import Data.NonEmpty as NE
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
@@ -299,13 +298,13 @@ testArray = do
   testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
-  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NE.singleton 1, 2 :| [2], 3:| [3, 3], NE.singleton 1]
+  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NEA.singleton 1, nea [2, 2], nea [3, 3, 3], NEA.singleton 1]
 
   log "group' should sort then group consecutive equal elements into arrays"
-  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [1 :| [1], 2 :| [2], 3 :| [3, 3]]
+  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
@@ -375,6 +374,8 @@ testArray = do
     , [4,0,0,1,25,36,458,5842,23757]
     ]
 
+nea :: Array ~> NEA.NonEmptyArray
+nea = unsafePartial fromJust <<< NEA.fromArray
 
 nil :: Array Int
 nil = []
