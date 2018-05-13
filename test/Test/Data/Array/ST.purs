@@ -4,7 +4,7 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (log, CONSOLE)
 import Control.Monad.ST (ST, pureST)
-import Data.Array.ST (STArray, emptySTArray, freeze, peekSTArray, pokeSTArray, pushAllSTArray, pushSTArray, spliceSTArray, thaw, toAssocArray, unsafeThaw, unsafeFreeze)
+import Data.Array.ST (STArray, emptySTArray, freeze, peekSTArray, pokeSTArray, pushAllSTArray, pushSTArray, sort, sortBy, sortWith, spliceSTArray, thaw, toAssocArray, unsafeThaw, unsafeFreeze)
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
 import Test.Assert (assert, ASSERT)
@@ -131,6 +131,21 @@ testArrayST = do
     arr <- thaw [1]
     void $ pokeSTArray arr 1 2
     pure arr) == [1]
+
+  log "sort should reorder a list into ascending order based on the result of compare"
+  assert $ run (
+    sort =<< unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [1, 2, 3, 4, 5, 6]
+
+  log "sortBy should reorder a list into ascending order based on the result of a comparison function"
+  assert $ run (
+    sortBy (flip compare) =<< unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [6, 5, 4, 3, 2, 1]
+
+  log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
+  assert $ run (
+    sortWith id =<< unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [1, 2, 3, 4, 5, 6]
 
   log "spliceSTArray should be able to delete multiple items at a specified index"
 
