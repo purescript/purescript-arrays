@@ -5,20 +5,30 @@
 module Data.Array.ST
   ( STArray(..)
   , Assoc()
-  , runSTArray
   , withArray
-  , emptySTArray
-  , peekSTArray
-  , pokeSTArray
-  , pushSTArray
-  , modifySTArray
-  , pushAllSTArray
-  , spliceSTArray
+  , empty
+  , peek
+  , poke
+  , push
+  , pushAll
+  , modify
+  , splice
   , freeze
   , thaw
   , unsafeFreeze
   , unsafeThaw
   , toAssocArray
+
+    -- deprecated
+  , runSTArray
+  , emptySTArray
+  , peekSTArray
+  , pokeSTArray
+  , pushSTArray
+  , pushAllSTArray
+  , modifySTArray
+  , spliceSTArray
+
   ) where
 
 import Prelude
@@ -48,7 +58,8 @@ type Assoc a = { value :: a, index :: Int }
 -- | The rank-2 type prevents the reference from escaping the scope of `runSTArray`.
 foreign import runSTArray
   :: forall a r
-   . (forall h. Eff (st :: ST h | r) (STArray h a))
+   . Warn "Deprecated `runSTArray`, use `unsafeFreeze` with `runST` instead."
+  => (forall h. Eff (st :: ST h | r) (STArray h a))
   -> Eff r (Array a)
 
 -- | Perform an effect requiring a mutable array on a copy of an immutable array,
@@ -74,7 +85,13 @@ unsafeThaw :: forall a r h. Array a -> Eff (st :: ST h | r) (STArray h a)
 unsafeThaw = pure <<< (unsafeCoerce :: Array a -> STArray h a)
 
 -- | Create an empty mutable array.
-foreign import emptySTArray :: forall a h r. Eff (st :: ST h | r) (STArray h a)
+foreign import empty :: forall a h r. Eff (st :: ST h | r) (STArray h a)
+
+emptySTArray
+  :: forall a h r
+   . Warn "Deprecated `emptySTArray`, use `empty` instead."
+  => Eff (st :: ST h | r) (STArray h a)
+emptySTArray = empty
 
 -- | Create a mutable copy of an immutable array.
 thaw :: forall a h r. Array a -> Eff (st :: ST h | r) (STArray h a)
@@ -87,14 +104,14 @@ freeze = copyImpl
 foreign import copyImpl :: forall a b h r. a -> Eff (st :: ST h | r) b
 
 -- | Read the value at the specified index in a mutable array.
-peekSTArray
+peek
   :: forall a h r
    . STArray h a
   -> Int
   -> Eff (st :: ST h | r) (Maybe a)
-peekSTArray = peekSTArrayImpl Just Nothing
+peek = peekImpl Just Nothing
 
-foreign import peekSTArrayImpl
+foreign import peekImpl
   :: forall a h e r
    . (a -> r)
   -> r
@@ -102,40 +119,100 @@ foreign import peekSTArrayImpl
   -> Int
   -> (Eff (st :: ST h | e) r)
 
--- | Change the value at the specified index in a mutable array.
-foreign import pokeSTArray
+peekSTArray
   :: forall a h r
-   . STArray h a -> Int -> a -> Eff (st :: ST h | r) Boolean
+   . Warn "Deprecated `peekSTArray`, use `peek` instead."
+  => STArray h a
+  -> Int
+  -> Eff (st :: ST h | r) (Maybe a)
+peekSTArray = peek
+
+-- | Change the value at the specified index in a mutable array.
+foreign import poke
+  :: forall a h r
+   . STArray h a
+  -> Int
+  -> a
+  -> Eff (st :: ST h | r) Boolean
+
+pokeSTArray
+  :: forall a h r
+   . Warn "Deprecated `pokeSTArray`, use `poke` instead."
+  => STArray h a
+  -> Int
+  -> a
+  -> Eff (st :: ST h | r) Boolean
+pokeSTArray = poke
 
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
-pushSTArray :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int
-pushSTArray arr a = pushAllSTArray arr [a]
+push :: forall a h r. STArray h a -> a -> Eff (st :: ST h | r) Int
+push arr a = pushAll arr [a]
+
+pushSTArray
+  :: forall a h r
+   . Warn "Deprecated `pushSTArray`, use `push` instead."
+  => STArray h a
+  -> a
+  -> Eff (st :: ST h | r) Int
+pushSTArray = push
 
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
-foreign import pushAllSTArray
+foreign import pushAll
   :: forall a h r
    . STArray h a
   -> Array a
   -> Eff (st :: ST h | r) Int
 
+pushAllSTArray
+  :: forall a h r
+   . Warn "Deprecated `pushAllSTArray`, use `pushAll` instead."
+  => STArray h a
+  -> Array a
+  -> Eff (st :: ST h | r) Int
+pushAllSTArray = pushAll
+
 -- | Mutate the element at the specified index using the supplied function.
-modifySTArray :: forall a h r. STArray h a -> Int -> (a -> a) -> Eff (st :: ST h | r) Boolean
-modifySTArray xs i f = do
-  entry <- peekSTArray xs i
+modify
+  :: forall a h r
+   . STArray h a
+  -> Int
+  -> (a -> a)
+  -> Eff (st :: ST h | r) Boolean
+modify xs i f = do
+  entry <- peek xs i
   case entry of
-    Just x  -> pokeSTArray xs i (f x)
+    Just x  -> poke xs i (f x)
     Nothing -> pure false
 
+modifySTArray
+  :: forall a h r
+   . Warn "Deprecated `modifySTArray`, use `modify` instead."
+  => STArray h a
+  -> Int
+  -> (a -> a)
+  -> Eff (st :: ST h | r) Boolean
+modifySTArray = modify
+
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
-foreign import spliceSTArray
+foreign import splice
   :: forall a h r
    . STArray h a
   -> Int
   -> Int
   -> Array a
   -> Eff (st :: ST h | r) (Array a)
+
+spliceSTArray
+  :: forall a h r
+   . Warn "Deprecated `spliceSTArray`, use `splice` instead."
+  => STArray h a
+  -> Int
+  -> Int
+  -> Array a
+  -> Eff (st :: ST h | r) (Array a)
+spliceSTArray = splice
 
 -- | Create an immutable copy of a mutable array, where each element
 -- | is labelled with its index in the original array.

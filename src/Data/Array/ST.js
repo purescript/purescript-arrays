@@ -4,11 +4,11 @@ exports.runSTArray = function (f) {
   return f;
 };
 
-exports.emptySTArray = function () {
+exports.empty = function () {
   return [];
 };
 
-exports.peekSTArrayImpl = function (just) {
+exports.peekImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function (i) {
@@ -20,7 +20,7 @@ exports.peekSTArrayImpl = function (just) {
   };
 };
 
-exports.pokeSTArray = function (xs) {
+exports.poke = function (xs) {
   return function (i) {
     return function (a) {
       return function () {
@@ -32,7 +32,7 @@ exports.pokeSTArray = function (xs) {
   };
 };
 
-exports.pushAllSTArray = function (xs) {
+exports.pushAll = function (xs) {
   return function (as) {
     return function () {
       return xs.push.apply(xs, as);
@@ -40,7 +40,7 @@ exports.pushAllSTArray = function (xs) {
   };
 };
 
-exports.spliceSTArray = function (xs) {
+exports.splice = function (xs) {
   return function (i) {
     return function (howMany) {
       return function (bs) {
