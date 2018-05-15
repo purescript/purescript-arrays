@@ -328,11 +328,17 @@ span
   -> { init :: Array a, rest :: Array a }
 span f = adaptAny $ A.span f
 
-nub :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a
+nub :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 nub = unsafeAdapt A.nub
 
-nubBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
+nubEq :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a
+nubEq = unsafeAdapt A.nubEq
+
+nubBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray a
 nubBy f = unsafeAdapt $ A.nubBy f
+
+nubByEq :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
+nubByEq f = unsafeAdapt $ A.nubByEq f
 
 union :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> NonEmptyArray a
 union = unionBy (==)
