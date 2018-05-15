@@ -120,7 +120,6 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
-import Control.Monad.Eff (foreachE)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
 import Data.Array.ST as STA
@@ -131,7 +130,7 @@ import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, f
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..), fst, snd, uncurry)
+import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
 import Unsafe.Coerce (unsafeCoerce)
@@ -903,16 +902,16 @@ nubEq = nubByEq eq
 nubBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 nubBy comp xs = case head indexedAndSorted of
   Nothing -> []
-  Just x -> map snd $ sortWith fst $ pureST do
+  Just x -> map snd $ sortWith fst $ ST.run do
      -- TODO: use NonEmptyArrays here to avoid partial functions
-     result <- unsafeThaw $ singleton x
-     foreachE indexedAndSorted \pair@(Tuple i x') -> do
-       lst <- snd <<< unsafePartial (fromJust <<< last) <$> unsafeFreeze result
-       when (comp lst x' /= EQ) $ void $ pushSTArray result pair
-     unsafeFreeze result
+     result <- STA.unsafeThaw $ singleton x
+     ST.foreach indexedAndSorted \pair@(Tuple i x') -> do
+       lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
+       when (comp lst x' /= EQ) $ void $ STA.push pair result
+     STA.unsafeFreeze result
   where
   indexedAndSorted :: Array (Tuple Int a)
-  indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y)) 
+  indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y))
                             (mapWithIndex Tuple xs)
 
 -- | Remove the duplicates from an array, where element equality is determined
