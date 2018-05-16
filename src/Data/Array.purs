@@ -43,6 +43,7 @@ module Data.Array
   , snoc
   , insert
   , insertBy
+  , (++), merge
 
   , head
   , last
@@ -243,6 +244,21 @@ infixr 6 cons as :
 -- | ```
 -- |
 foreign import snoc :: forall a. Array a -> a -> Array a
+
+-- | An infix synonym for `merge`.
+-- |
+-- | ```purescript
+-- | [3] ++ [6,9] = [3,6,9]
+-- | ```
+infix 5 merge as ++
+
+-- | Join two Arrays into one array
+-- |
+-- | ```purescript
+-- | merge [3] [6,9] = [3,6,9]
+-- | ```
+merge :: forall a. Array a -> Array a -> Array a
+merge a b = a <> b
 
 -- | Insert an element into a sorted array.
 -- |
