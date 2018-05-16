@@ -378,6 +378,12 @@ testArray = do
     , [4,0,0,1,25,36,458,5842,23757]
     ]
 
+  log "merge should append the second array on first"
+  assert $ (A.length $ A.merge [] []) == 0
+  assert $ A.merge [] [1,3] == [1,3]
+  assert $ A.merge [2,5] [] == [2,5]
+  assert $ A.merge [1] [1,2,3] == [1,1,2,3]
+
 
 nil :: Array Int
 nil = []
