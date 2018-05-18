@@ -2,17 +2,20 @@ module Test.Data.Array.NonEmpty (testNonEmptyArray) where
 
 import Prelude
 
+import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, sum, traverse_)
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Monoid.Additive (Additive(..))
+import Data.NonEmpty ((:|))
 import Data.Semigroup.Foldable (foldMap1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable1 as U1
 import Effect (Effect)
-import Effect.Console (log, logShow)
+import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
 
@@ -287,6 +290,12 @@ testNonEmptyArray = do
       , fromArray [2,3,1]
       , fromArray [4,0,0,1,25,36,458,5842,23757]
       ])
+
+  log "toUnfoldable1"
+  assert $ NEA.toUnfoldable1 (NEA.range 0 9) == 0 :| A.range 1 9
+
+  log "Unfoldable instance"
+  assert $ U1.range 0 9 == NEA.range 0 9
 
   log "foldl should work"
   -- test through sum

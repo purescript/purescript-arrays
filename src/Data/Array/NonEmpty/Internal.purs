@@ -7,11 +7,15 @@ import Data.Eq (class Eq1)
 import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
+import Data.Maybe (Maybe, fromJust, isNothing)
 import Data.Ord (class Ord1)
 import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
 import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
+import Data.Tuple (Tuple, fst, snd)
+import Data.Unfoldable1 (class Unfoldable1)
+import Partial.Unsafe (unsafePartial)
 
 newtype NonEmptyArray a = NonEmptyArray (Array a)
 
@@ -24,6 +28,8 @@ derive newtype instance eq1NonEmptyArray :: Eq1 NonEmptyArray
 derive newtype instance ordNonEmptyArray :: Ord a => Ord (NonEmptyArray a)
 derive newtype instance ord1NonEmptyArray :: Ord1 NonEmptyArray
 
+derive newtype instance semigroupNonEmptyArray :: Semigroup (NonEmptyArray a)
+
 derive newtype instance functorNonEmptyArray :: Functor NonEmptyArray
 derive newtype instance functorWithIndexNonEmptyArray :: FunctorWithIndex Int NonEmptyArray
 
@@ -34,10 +40,13 @@ instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
   foldMap1 = foldMap1Default
   fold1 = fold1Impl (<>)
 
+instance unfoldable1NonEmptyArray :: Unfoldable1 NonEmptyArray where
+  unfoldr1 = unfoldr1Impl isNothing (unsafePartial fromJust) fst snd
+
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
 derive newtype instance traversableWithIndexNonEmptyArray :: TraversableWithIndex Int NonEmptyArray
 
-instance traversable1NonEmptyArray :: Traversable1 NonEmptyArray where
+instance traversable1NonEmptyArray :: Traversable1 NonEmptyArray where
   traverse1 = traverse1Impl apply map
   sequence1 = sequence1Default
 
@@ -51,8 +60,18 @@ derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 
--- we use FFI here to avoid the unnecessary copy created by `tail`
+-- we use FFI here to avoid the unncessary copy created by `tail`
 foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+
+foreign import unfoldr1Impl
+  :: forall a b
+   . (forall x. Maybe x -> Boolean)
+  -> (forall x. Maybe x -> x)
+  -> (forall x y. Tuple x y -> x)
+  -> (forall x y. Tuple x y -> y)
+  -> (b -> Tuple a (Maybe b))
+  -> b
+  -> NonEmptyArray a
 
 foreign import traverse1Impl
   :: forall m a b

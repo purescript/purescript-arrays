@@ -8,6 +8,7 @@ module Data.Array.NonEmpty
   , fromFoldable
   , fromFoldable1
   , toUnfoldable
+  , toUnfoldable1
   , singleton
   , (..), range
   , replicate
@@ -105,8 +106,9 @@ import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Semigroup.Foldable (class Foldable1)
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
+import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -158,6 +160,13 @@ fromFoldable1 = unsafeFromArray <<< A.fromFoldable
 
 toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
 toUnfoldable = adaptAny A.toUnfoldable
+
+toUnfoldable1 :: forall f a. Unfoldable1 f => NonEmptyArray a -> f a
+toUnfoldable1 xs = unfoldr1 f 0
+  where
+  len = length xs
+  f i = Tuple (unsafePartial unsafeIndex xs i) $
+          if i < (len - 1) then Just (i + 1) else Nothing
 
 singleton :: forall a. a -> NonEmptyArray a
 singleton = unsafeFromArray <<< A.singleton
