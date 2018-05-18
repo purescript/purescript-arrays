@@ -66,6 +66,8 @@ module Data.Array.NonEmpty
 
   , nub
   , nubBy
+  , nubEq
+  , nubByEq
   , union
   , union'
   , unionBy

@@ -2,8 +2,6 @@ module Test.Data.Array.NonEmpty (testNonEmptyArray) where
 
 import Prelude
 
-import Effect (Effect)
-import Effect.Console (log)
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, sum, traverse_)
@@ -13,6 +11,8 @@ import Data.Monoid.Additive (Additive(..))
 import Data.Semigroup.Foldable (foldMap1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
+import Effect (Effect)
+import Effect.Console (log, logShow)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
 
@@ -234,9 +234,12 @@ testNonEmptyArray = do
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ NEA.nub (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]
 
-  log "nubBy should remove duplicate items from the list using a supplied predicate"
+  log "nubEq should remove duplicate elements from the list, keeping the first occurence"
+  assert $ NEA.nubEq (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]
+
+  log "nubByEq should remove duplicate items from the list using a supplied predicate"
   let nubPred = \x y -> if odd x then false else x == y
-  assert $ NEA.nubBy nubPred (fromArray [1, 2, 2, 3, 3, 4, 4, 1]) == fromArray [1, 2, 3, 3, 4, 1]
+  assert $ NEA.nubByEq nubPred (fromArray [1, 2, 2, 3, 3, 4, 4, 1]) == fromArray [1, 2, 3, 3, 4, 1]
 
   log "union should produce the union of two arrays"
   assert $ NEA.union (fromArray [1, 2, 3]) (fromArray [2, 3, 4]) == fromArray [1, 2, 3, 4]

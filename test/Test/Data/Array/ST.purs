@@ -1,14 +1,15 @@
 module Test.Data.Array.ST (testArrayST) where
 
 import Prelude
-import Effect (Effect)
-import Effect.Console (log)
+
 import Control.Monad.ST (ST)
 import Control.Monad.ST as ST
 import Data.Array.ST (STArray)
 import Data.Array.ST as STA
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
+import Effect (Effect)
+import Effect.Console (log)
 import Test.Assert (assert)
 
 run :: forall a. (forall r. ST r (STArray r a)) -> Array a
@@ -133,6 +134,21 @@ testArrayST = do
     arr <- STA.thaw [1]
     void $ STA.poke 1 2 arr
     pure arr) == [1]
+
+  log "sort should reorder a list into ascending order based on the result of compare"
+  assert $ run (
+    STA.sort =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [1, 2, 3, 4, 5, 6]
+
+  log "sortBy should reorder a list into ascending order based on the result of a comparison function"
+  assert $ run (
+    STA.sortBy (flip compare) =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [6, 5, 4, 3, 2, 1]
+
+  log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
+  assert $ run (
+    STA.sortWith identity =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+  ) == [1, 2, 3, 4, 5, 6]
 
   log "splice should be able to delete multiple items at a specified index"
 

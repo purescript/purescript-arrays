@@ -13,6 +13,9 @@ module Data.Array.ST
   , modify
   , pushAll
   , splice
+  , sort
+  , sortBy
+  , sortWith
   , freeze
   , thaw
   , unsafeFreeze
@@ -66,6 +69,38 @@ foreign import empty :: forall h a. ST h (STArray h a)
 -- | Create a mutable copy of an immutable array.
 thaw :: forall h a. Array a -> ST h (STArray h a)
 thaw = copyImpl
+
+-- | Sort a mutable array in place.
+sort :: forall a h. Ord a => STArray h a -> ST h (STArray h a)
+sort = sortBy compare
+
+-- | Sort a mutable array in place using a comparison function.
+sortBy
+  :: forall a h
+   . (a -> a -> Ordering)
+  -> STArray h a
+  -> ST h (STArray h a)
+sortBy comp = sortByImpl comp'
+  where
+  comp' x y = case comp x y of
+    GT -> 1
+    EQ -> 0
+    LT -> -1
+
+foreign import sortByImpl
+  :: forall a h
+   . (a -> a -> Int)
+  -> STArray h a
+  -> ST h (STArray h a)
+
+-- | Sort a mutable array in place based on a projection.
+sortWith
+  :: forall a b h
+   . Ord b
+  => (a -> b)
+  -> STArray h a
+  -> ST h (STArray h a)
+sortWith f = sortBy (comparing f)
 
 -- | Create an immutable copy of a mutable array.
 freeze :: forall h a. STArray h a -> ST h (Array a)
