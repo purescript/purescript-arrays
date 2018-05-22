@@ -40,9 +40,7 @@ var replicatePolyfill = function (count) {
 };
 
 // In browsers that have Array.prototype.fill we use it, as it's faster.
-exports.replicate = typeof Array.prototype.fill === "function" ?
-    replicate :
-    replicatePolyfill;
+exports.replicate = typeof Array.prototype.fill === "function" ? replicate : replicatePolyfill;
 
 exports.fromFoldableImpl = (function () {
   function Cons(head, tail) {
