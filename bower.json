@@ -1,8 +1,7 @@
 {
   "name": "purescript-arrays",
   "homepage": "https://github.com/purescript/purescript-arrays",
-  "description": "Array utility functions",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
     "url": "git://github.com/purescript/purescript-arrays.git"
@@ -16,18 +15,22 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-foldable-traversable": "#compiler/0.12",
-    "purescript-nonempty": "#compiler/0.12",
-    "purescript-partial": "#compiler/0.12",
-    "purescript-st": "#compiler/0.12",
-    "purescript-tailrec": "#compiler/0.12",
-    "purescript-tuples": "#compiler/0.12",
-    "purescript-unfoldable": "#compiler/0.12",
-    "purescript-unsafe-coerce": "#compiler/0.12"
+    "purescript-bifunctors": "^4.0.0",
+    "purescript-control": "^4.0.0",
+    "purescript-foldable-traversable": "^4.0.0",
+    "purescript-maybe": "^4.0.0",
+    "purescript-nonempty": "^5.0.0",
+    "purescript-partial": "^2.0.0",
+    "purescript-prelude": "^4.0.0",
+    "purescript-st": "^4.0.0",
+    "purescript-tailrec": "^4.0.0",
+    "purescript-tuples": "^5.0.0",
+    "purescript-unfoldable": "^4.0.0",
+    "purescript-unsafe-coerce": "^4.0.0"
   },
   "devDependencies": {
-    "purescript-assert": "#compiler/0.12",
-    "purescript-console": "#compiler/0.12",
-    "purescript-const": "#compiler/0.12"
+    "purescript-assert": "^4.0.0",
+    "purescript-console": "^4.0.0",
+    "purescript-const": "^4.0.0"
   }
 }
