@@ -2,24 +2,20 @@ module Test.Data.Array (testArray) where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE)
-
-import Data.Const (Const(..))
-import Data.Array as A
 import Data.Array ((:), (\\), (!!))
+import Data.Array as A
+import Data.Array.NonEmpty as NEA
+import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
-import Data.NonEmpty ((:|))
-import Data.NonEmpty as NE
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
-
+import Effect (Effect)
+import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
+import Test.Assert (assert)
 
-import Test.Assert (assert, ASSERT)
-
-testArray :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testArray :: Effect Unit
 testArray = do
 
   log "singleton should construct an array with a single value"
@@ -239,7 +235,7 @@ testArray = do
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
-  assert $ A.sortWith id [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+  assert $ A.sortWith identity [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]
@@ -302,20 +298,32 @@ testArray = do
   testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
-  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NE.singleton 1, 2 :| [2], 3:| [3, 3], NE.singleton 1]
+  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NEA.singleton 1, nea [2, 2], nea [3, 3, 3], NEA.singleton 1]
 
   log "group' should sort then group consecutive equal elements into arrays"
-  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [1 :| [1], 2 :| [2], 3 :| [3, 3]]
+  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [1 :| [1], NE.singleton 2, NE.singleton 2, 3 :| [3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
 
+  log "nub should preserve order"
+  assert $ A.nub [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+
+  log "nubEq should remove duplicate elements from the list, keeping the first occurence"
+  assert $ A.nubEq [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
+
+  log "nubEq should preserve order"
+  assert $ A.nubEq [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+
   log "nubBy should remove duplicate items from the list using a supplied predicate"
+  assert $ A.nubBy compare [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+
+  log "nubByEq should remove duplicate items from the list using a supplied predicate"
   let nubPred = \x y -> if odd x then false else x == y
-  assert $ A.nubBy nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
+  assert $ A.nubByEq nubPred [1, 2, 2, 3, 3, 4, 4, 1] == [1, 2, 3, 3, 4, 1]
 
   log "union should produce the union of two arrays"
   assert $ A.union [1, 2, 3] [2, 3, 4] == [1, 2, 3, 4]
@@ -378,6 +386,8 @@ testArray = do
     , [4,0,0,1,25,36,458,5842,23757]
     ]
 
+nea :: Array ~> NEA.NonEmptyArray
+nea = unsafePartial fromJust <<< NEA.fromArray
 
 nil :: Array Int
 nil = []

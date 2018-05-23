@@ -2,16 +2,13 @@ module Test.Data.Array.Partial (testArrayPartial) where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE)
-
 import Data.Array.Partial (init, last, tail, head)
-
+import Effect (Effect)
+import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
+import Test.Assert (assert)
 
-import Test.Assert (assert, ASSERT)
-
-testArrayPartial :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testArrayPartial :: Effect Unit
 testArrayPartial = do
 
   log "head should return the first item in an array"

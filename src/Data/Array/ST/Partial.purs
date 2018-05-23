@@ -3,43 +3,38 @@
 -- | This module is particularly helpful when performance is very important.
 
 module Data.Array.ST.Partial
-  ( peekSTArray
-  , pokeSTArray
+  ( peek
+  , poke
   ) where
 
-import Control.Monad.Eff (Eff)
 import Control.Monad.ST (ST)
 import Data.Array.ST (STArray)
 import Data.Unit (Unit)
 
 -- | Read the value at the specified index in a mutable array.
-peekSTArray
-  :: forall a h r
+peek
+  :: forall h a
    . Partial
-  => STArray h a
-  -> Int
-  -> Eff (st :: ST h | r) a
-peekSTArray = peekSTArrayImpl
+  => Int
+  -> STArray h a
+  -> ST h a
+peek = peekImpl
 
-foreign import peekSTArrayImpl
-  :: forall a h r
-   . STArray h a
-  -> Int
-  -> Eff (st :: ST h | r) a
+foreign import peekImpl :: forall h a. Int -> STArray h a -> ST h a
 
 -- | Change the value at the specified index in a mutable array.
-pokeSTArray
-  :: forall a h r
+poke
+  :: forall h a
    . Partial
-  => STArray h a
-  -> Int
+  => Int
   -> a
-  -> Eff (st :: ST h | r) Unit
-pokeSTArray = pokeSTArrayImpl
+  -> STArray h a
+  -> ST h Unit
+poke = pokeImpl
 
-foreign import pokeSTArrayImpl
-  :: forall a h r
-   . STArray h a
-  -> Int
+foreign import pokeImpl
+  :: forall h a
+   . Int
   -> a
-  -> Eff (st :: ST h | r) Unit
+  -> STArray h a
+  -> ST h Unit

@@ -2,27 +2,24 @@ module Test.Data.Array.ST.Partial (testArraySTPartial) where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (log, CONSOLE)
-import Control.Monad.ST (pureST)
-
+import Control.Monad.ST as ST
 import Data.Array.ST (thaw, unsafeFreeze)
-import Data.Array.ST.Partial (peekSTArray, pokeSTArray)
-
+import Data.Array.ST.Partial as STAP
+import Effect (Effect)
+import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
+import Test.Assert (assert)
 
-import Test.Assert (assert, ASSERT)
-
-testArraySTPartial :: forall eff. Eff (console :: CONSOLE, assert :: ASSERT | eff) Unit
+testArraySTPartial :: Effect Unit
 testArraySTPartial = do
 
   log "peekSTArray should return the value at the specified index"
-  assert $ 2 == pureST do
+  assert $ 2 == ST.run do
     a <- thaw [1, 2, 3]
-    unsafePartial $ peekSTArray a 1
+    unsafePartial $ STAP.peek 1 a
 
   log "pokeSTArray should modify the value at the specified index"
-  assert $ [1, 4, 3] == pureST do
+  assert $ [1, 4, 3] == ST.run do
     a <- thaw [1, 2, 3]
-    unsafePartial $ pokeSTArray a 1 4
+    unsafePartial $ STAP.poke 1 4 a
     unsafeFreeze a

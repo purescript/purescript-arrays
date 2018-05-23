@@ -25,7 +25,7 @@
 -- |   `Data.Foldable.or` tests whether an array of `Boolean` values contains
 -- |   at least one `true` value.
 -- | * `Traversable`, which provides the PureScript version of a for-loop,
--- |   allowing you to iterate over an array and accumulate effects.
+-- |   allowing you to STAI.iterate over an array and accumulate effects.
 -- |
 module Data.Array
   ( fromFoldable
@@ -90,7 +90,9 @@ module Data.Array
   , groupBy
 
   , nub
+  , nubEq
   , nubBy
+  , nubByEq
   , union
   , unionBy
   , delete
@@ -114,22 +116,24 @@ module Data.Array
   ) where
 
 import Prelude
+
 import Control.Alt ((<|>))
 import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
-import Control.Monad.ST (pureST)
-import Data.Array.ST (unsafeFreeze, emptySTArray, pokeSTArray, pushSTArray, modifySTArray, withArray)
-import Data.Array.ST.Iterator (iterator, iterate, pushWhile)
+import Control.Monad.ST as ST
+import Data.Array.ST as STA
+import Data.Array.ST.Iterator as STAI
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
-import Data.NonEmpty (NonEmpty, (:|))
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..), uncurry)
+import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
+import Unsafe.Coerce (unsafeCoerce)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -299,7 +303,7 @@ last xs = xs !! (length xs - 1)
 -- | `Nothing` if the array is empty
 -- |
 -- | ```purescript
--- | tail [1, 2, 3, 4] = Just [2, 3, 4] 
+-- | tail [1, 2, 3, 4] = Just [2, 3, 4]
 -- | tail [] = Nothing
 -- | ```
 -- |
@@ -348,7 +352,7 @@ foreign import uncons'
 -- | Break an array into its last element and all preceding elements.
 -- |
 -- | ```purescript
--- | unsnoc [1, 2, 3] = Just {init: [1, 2], last: 3} 
+-- | unsnoc [1, 2, 3] = Just {init: [1, 2], last: 3}
 -- | unsnoc [] = Nothing
 -- | ```
 -- |
@@ -511,7 +515,7 @@ foreign import _updateAt
 -- | array, or returning `Nothing` if the index is out of bounds.
 -- |
 -- | ```purescript
--- | modifyAt 1 toUpper ["Hello", "World"] = Just ["Hello", "WORLD"] 
+-- | modifyAt 1 toUpper ["Hello", "World"] = Just ["Hello", "WORLD"]
 -- | modifyAt 10 toUpper ["Hello", "World"] = Nothing
 -- | ```
 -- |
@@ -525,10 +529,10 @@ modifyAt i f xs = maybe Nothing go (xs !! i)
 -- | index is out-of-bounds.
 -- |
 -- | ```purescript
--- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"] 
+-- | alterAt 1 (stripSuffix $ Pattern "!") ["Hello", "World!"]
 -- |    = Just ["Hello", "World"]
 -- |
--- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"] 
+-- | alterAt 1 (stripSuffix $ Pattern "!!!!!") ["Hello", "World!"]
 -- |    = Just ["Hello"]
 -- |
 -- | alterAt 10 (stripSuffix $ Pattern "!") ["Hello", "World!"] = Nothing
@@ -629,7 +633,7 @@ mapMaybe f = concatMap (maybe [] singleton <<< f)
 -- | ```
 -- |
 catMaybes :: forall a. Array (Maybe a) -> Array a
-catMaybes = mapMaybe id
+catMaybes = mapMaybe identity
 
 -- | Apply a function to each element in an array, supplying a generated
 -- | zero-based index integer along with the element, creating an array
@@ -656,7 +660,7 @@ mapWithIndex f xs =
 -- |
 updateAtIndices :: forall t a. Foldable t => t (Tuple Int a) -> Array a -> Array a
 updateAtIndices us xs =
-  pureST (withArray (\res -> traverse_ (uncurry $ pokeSTArray res) us) xs)
+  ST.run (STA.withArray (\res -> traverse_ (\(Tuple i a) -> STA.poke i a res) us) xs)
 
 -- | Apply a function to the element at the specified indices,
 -- | creating a new array. Out-of-bounds indices will have no effect.
@@ -669,7 +673,7 @@ updateAtIndices us xs =
 -- |
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
-  pureST (withArray (\res -> traverse_ (\i -> modifySTArray res i f) is) xs)
+  ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modify i f res) is) xs)
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
@@ -836,7 +840,7 @@ span p arr =
 -- | ```purescript
 -- | group [1,1,2,2,1] == [NonEmpty 1 [1], NonEmpty 2 [2], NonEmpty 1 []]
 -- | ```
-group :: forall a. Eq a => Array a -> Array (NonEmpty Array a)
+group :: forall a. Eq a => Array a -> Array (NonEmptyArray a)
 group xs = groupBy eq xs
 
 -- | Sort and then group the elements of an array into arrays.
@@ -844,7 +848,7 @@ group xs = groupBy eq xs
 -- | ```purescript
 -- | group' [1,1,2,2,1] == [NonEmpty 1 [1,1],NonEmpty 2 [2]]
 -- | ```
-group' :: forall a. Ord a => Array a -> Array (NonEmpty Array a)
+group' :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
 group' = group <<< sort
 
 -- | Group equal, consecutive elements of an array into arrays, using the
@@ -855,17 +859,18 @@ group' = group <<< sort
 -- |    = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
 -- | ```
 -- |
-groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmpty Array a)
+groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
 groupBy op xs =
-  pureST do
-    result <- emptySTArray
-    iter <- iterator (xs !! _)
-    iterate iter \x -> void do
-      sub <- emptySTArray
-      pushWhile (op x) iter sub
-      sub_ <- unsafeFreeze sub
-      pushSTArray result (x :| sub_)
-    unsafeFreeze result
+  ST.run do
+    result <- STA.empty
+    iter <- STAI.iterator (xs !! _)
+    STAI.iterate iter \x -> void do
+      sub <- STA.empty
+      STAI.pushWhile (op x) iter sub
+      _ <- STA.push x sub
+      grp <- STA.unsafeFreeze sub
+      STA.push ((unsafeCoerce :: Array ~> NonEmptyArray) grp) result
+    STA.unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
@@ -873,20 +878,56 @@ groupBy op xs =
 -- | nub [1, 2, 1, 3, 3] = [1, 2, 3]
 -- | ```
 -- |
-nub :: forall a. Eq a => Array a -> Array a
-nub = nubBy eq
+nub :: forall a. Ord a => Array a -> Array a
+nub = nubBy compare
+
+-- | Remove the duplicates from an array, creating a new array.
+-- |
+-- | This less efficient version of `nub` only requires an `Eq` instance.
+-- |
+-- | ```purescript
+-- | nubEq [1, 2, 1, 3, 3] = [1, 2, 3]
+-- | ```
+-- |
+nubEq :: forall a. Eq a => Array a -> Array a
+nubEq = nubByEq eq
+
+-- | Remove the duplicates from an array, where element equality is determined
+-- | by the specified ordering, creating a new array.
+-- |
+-- | ```purescript
+-- | nubBy compare [1, 3, 4, 2, 2, 1] == [1, 3, 4, 2]
+-- | ```
+-- |
+nubBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
+nubBy comp xs = case head indexedAndSorted of
+  Nothing -> []
+  Just x -> map snd $ sortWith fst $ ST.run do
+     -- TODO: use NonEmptyArrays here to avoid partial functions
+     result <- STA.unsafeThaw $ singleton x
+     ST.foreach indexedAndSorted \pair@(Tuple i x') -> do
+       lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
+       when (comp lst x' /= EQ) $ void $ STA.push pair result
+     STA.unsafeFreeze result
+  where
+  indexedAndSorted :: Array (Tuple Int a)
+  indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y))
+                            (mapWithIndex Tuple xs)
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
 -- |
+-- | This less efficient version of `nubBy` only requires an equivalence
+-- | relation.
+-- |
 -- | ```purescript
--- | nubBy (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
+-- | nubByEq (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
 -- | ```
 -- |
-nubBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a
-nubBy eq xs =
+nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
+nubByEq eq xs =
   case uncons xs of
-    Just o -> o.head : nubBy eq (filter (\y -> not (o.head `eq` y)) o.tail)
+    Just o -> o.head : nubByEq eq (filter (\y -> not (o.head `eq` y)) o.tail)
     Nothing -> []
 
 -- | Calculate the union of two arrays. Note that duplicates in the first array
@@ -911,7 +952,7 @@ union = unionBy (==)
 -- | ```
 -- |
 unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
-unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) xs
+unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubByEq eq ys) xs
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.
@@ -1016,7 +1057,7 @@ zipWithA f xs ys = sequence (zipWith f xs ys)
 -- | discarded.
 -- |
 -- | ```purescript
--- | zip [1, 2, 3] ["a", "b"] = [Tuple 1 "a", Tuple 2 "b"] 
+-- | zip [1, 2, 3] ["a", "b"] = [Tuple 1 "a", Tuple 2 "b"]
 -- | ```
 -- |
 zip :: forall a b. Array a -> Array b -> Array (Tuple a b)
@@ -1031,15 +1072,15 @@ zip = zipWith Tuple
 -- |
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
-  pureST do
-    fsts <- emptySTArray
-    snds <- emptySTArray
-    iter <- iterator (xs !! _)
-    iterate iter \(Tuple fst snd) -> do
-      void $ pushSTArray fsts fst
-      void $ pushSTArray snds snd
-    fsts' <- unsafeFreeze fsts
-    snds' <- unsafeFreeze snds
+  ST.run do
+    fsts <- STA.empty
+    snds <- STA.empty
+    iter <- STAI.iterator (xs !! _)
+    STAI.iterate iter \(Tuple fst snd) -> do
+      void $ STA.push fst fsts
+      void $ STA.push snd snds
+    fsts' <- STA.unsafeFreeze fsts
+    snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'
 
 -- | Perform a fold using a monadic step function.
@@ -1065,12 +1106,12 @@ foldRecM f a array = tailRecM2 go a 0
 -- | ```purescript
 -- | unsafePartial $ unsafeIndex ["a", "b", "c"] 1 = "b"
 -- | ```
--- | 
--- | Using `unsafeIndex` with an out-of-range index will not immediately raise a runtime error. 
--- | Instead, the result will be undefined. Most attempts to subsequently use the result will 
--- | cause a runtime error, of course, but this is not guaranteed, and is dependent on the backend; 
--- | some programs will continue to run as if nothing is wrong. For example, in the JavaScript backend, 
--- | the expression `unsafePartial (unsafeIndex [true] 1)` has type `Boolean`; 
+-- |
+-- | Using `unsafeIndex` with an out-of-range index will not immediately raise a runtime error.
+-- | Instead, the result will be undefined. Most attempts to subsequently use the result will
+-- | cause a runtime error, of course, but this is not guaranteed, and is dependent on the backend;
+-- | some programs will continue to run as if nothing is wrong. For example, in the JavaScript backend,
+-- | the expression `unsafePartial (unsafeIndex [true] 1)` has type `Boolean`;
 -- | since this expression evaluates to `undefined`, attempting to use it in an `if` statement will cause
 -- | the else branch to be taken.
 unsafeIndex :: forall a. Partial => Array a -> Int -> a
