@@ -779,7 +779,7 @@ takeWhile p xs = (span p xs).init
 -- |
 foreign import drop :: forall a. Int -> Array a -> Array a
 
--- | Drop a number of elements from the start of an array, creating a new array.
+-- | Drop a number of elements from the end of an array, creating a new array.
 -- |
 -- | ```purescript
 -- | letters = ["a", "b", "c", "d"]
