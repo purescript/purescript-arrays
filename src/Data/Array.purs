@@ -866,8 +866,8 @@ groupBy op xs =
     iter <- STAI.iterator (xs !! _)
     STAI.iterate iter \x -> void do
       sub <- STA.empty
-      STAI.pushWhile (op x) iter sub
       _ <- STA.push x sub
+      STAI.pushWhile (op x) iter sub
       grp <- STA.unsafeFreeze sub
       STA.push ((unsafeCoerce :: Array ~> NonEmptyArray) grp) result
     STA.unsafeFreeze result

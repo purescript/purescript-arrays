@@ -306,6 +306,9 @@ testArray = do
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
   assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
 
+  log "groupBy should be stable"
+  assert $ A.groupBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
+
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
 
