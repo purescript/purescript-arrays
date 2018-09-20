@@ -151,10 +151,10 @@ modify i f xs = do
 -- | Remove and/or insert elements from/into a mutable array at the specified index.
 foreign import splice
   :: forall h a
-   . Int
-  -> Int
-  -> Array a
-  -> STArray h a
+   . Int          -- ^ Index at which to insert new elements
+  -> Int          -- ^ Number of elements to delete from the mutable array
+  -> Array a      -- ^ Elements to insert
+  -> STArray h a  -- ^ Array that is being mutated
   -> ST h (Array a)
 
 -- | Create an immutable copy of a mutable array, where each element
