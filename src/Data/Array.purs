@@ -856,7 +856,7 @@ group' = group <<< sort
 -- |
 -- | ```purescript
 -- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
--- |    = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
+-- |    = [[1,3], [2], [4], [3,3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
@@ -867,7 +867,7 @@ groupBy op xs =
     STAI.iterate iter \x -> void do
       sub <- STA.empty
       STAI.pushWhile (op x) iter sub
-      _ <- STA.push x sub
+      _ <- STA.splice 0 0 [x] sub
       grp <- STA.unsafeFreeze sub
       STA.push ((unsafeCoerce :: Array ~> NonEmptyArray) grp) result
     STA.unsafeFreeze result

@@ -11,6 +11,7 @@ import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
+import Effect.Class.Console (logShow)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
@@ -305,6 +306,10 @@ testArray = do
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
   assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
+
+  log "groupBy should not change the order of elements"
+  assert $ A.groupBy (\_ _ -> true) [1, 2, 3, 4, 5] == [nea [1,2,3,4,5]]
+  assert $ A.groupBy (\x y -> x `div` 10 == y `div` 10) [1, 5, 2, 11, 21, 25, 39, 38, 31] == [nea [1,5,2], nea [11], nea [21, 25], nea [39,38,31]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
