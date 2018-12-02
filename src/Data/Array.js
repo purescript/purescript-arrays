@@ -18,7 +18,7 @@ exports.range = function (start) {
   };
 };
 
-var replicate = function (count) {
+var replicateFill = function (count) {
   return function (value) {
     if (count < 1) {
       return [];
@@ -40,7 +40,7 @@ var replicatePolyfill = function (count) {
 };
 
 // In browsers that have Array.prototype.fill we use it, as it's faster.
-exports.replicate = typeof Array.prototype.fill === "function" ? replicate : replicatePolyfill;
+exports.replicate = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
 
 exports.fromFoldableImpl = (function () {
   function Cons(head, tail) {
