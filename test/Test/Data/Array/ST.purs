@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.ST (ST)
 import Control.Monad.ST as ST
-import Data.Array.ST (STArray)
+import Data.Array.ST (STArray, withArray)
 import Data.Array.ST as STA
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
@@ -17,6 +17,20 @@ run act = ST.run (act >>= STA.unsafeFreeze)
 
 testArrayST :: Effect Unit
 testArrayST = do
+
+  log "runSTArray should produce an immutable array by running a constructor operation"
+
+  assert $ STA.runSTArray (do
+    arr <- STA.empty
+    void $ STA.push 1 arr
+    void $ STA.push 2 arr
+    pure arr) == [1, 2]
+
+  log "withArray should run an operation on a copy of an array"
+
+  let original = [1, 2, 3]
+  assert $ ST.run (withArray (STA.push 42) original) == [1, 2, 3, 42]
+  assert $ original == [1, 2, 3]
 
   log "empty should produce an empty array"
 
