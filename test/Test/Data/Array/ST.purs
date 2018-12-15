@@ -18,9 +18,9 @@ run act = ST.run (act >>= STA.unsafeFreeze)
 testArrayST :: Effect Unit
 testArrayST = do
 
-  log "runSTArray should produce an immutable array by running a constructor operation"
+  log "run should produce an immutable array by running a constructor operation"
 
-  assert $ STA.runSTArray (do
+  assert $ STA.run (do
     arr <- STA.empty
     void $ STA.push 1 arr
     void $ STA.push 2 arr
