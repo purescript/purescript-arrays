@@ -921,7 +921,8 @@ nubBy comp xs = case head indexedAndSorted of
 -- | relation.
 -- |
 -- | ```purescript
--- | nubByEq (\a b -> a `mod` 3 == b `mod` 3) [1, 3, 4, 5, 6] = [1,3,5]
+-- | mod3eq a b = a `mod` 3 == b `mod` 3
+-- | nubByEq mod3eq [1, 3, 4, 5, 6] = [1, 3, 5]
 -- | ```
 -- |
 nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
