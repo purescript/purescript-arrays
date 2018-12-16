@@ -2,18 +2,14 @@ module Test.Data.Array.ST (testArrayST) where
 
 import Prelude
 
-import Control.Monad.ST (ST)
 import Control.Monad.ST as ST
-import Data.Array.ST (STArray, withArray)
+import Data.Array.ST (withArray)
 import Data.Array.ST as STA
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
 import Effect (Effect)
 import Effect.Console (log)
 import Test.Assert (assert)
-
-run :: forall a. (forall r. ST r (STArray r a)) -> Array a
-run act = ST.run (act >>= STA.unsafeFreeze)
 
 testArrayST :: Effect Unit
 testArrayST = do
@@ -34,11 +30,11 @@ testArrayST = do
 
   log "empty should produce an empty array"
 
-  assert $ run STA.empty == nil
+  assert $ STA.run STA.empty == nil
 
   log "thaw should produce an STArray from a standard array"
 
-  assert $ run (STA.thaw [1, 2, 3]) == [1, 2, 3]
+  assert $ STA.run (STA.thaw [1, 2, 3]) == [1, 2, 3]
 
   log "freeze should produce a standard array from an STArray"
 
@@ -48,17 +44,17 @@ testArrayST = do
 
   log "unsafeThaw should produce an STArray from a standard array"
 
-  assert $ run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]
+  assert $ STA.run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]
 
   log "push should append a value to the end of the array"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.empty
     void $ STA.push 1 arr
     void $ STA.push 2 arr
     pure arr) == [1, 2]
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1, 2, 3]
     void $ STA.push 4 arr
     pure arr) == [1, 2, 3, 4]
@@ -71,12 +67,12 @@ testArrayST = do
 
   log "pushAll should append multiple values to the end of the array"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.empty
     void $ STA.pushAll [1, 2] arr
     pure arr) == [1, 2]
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1, 2, 3]
     void $ STA.pushAll [4, 5, 6] arr
     pure arr) == [1, 2, 3, 4, 5, 6]
@@ -137,36 +133,36 @@ testArrayST = do
 
   log "poke should replace the value at the specified index"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1]
     void $ STA.poke 0 10 arr
     pure arr) == [10]
 
   log "poke should do nothing when attempting to modify a value outside the array bounds"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1]
     void $ STA.poke 1 2 arr
     pure arr) == [1]
 
   log "sort should reorder a list into ascending order based on the result of compare"
-  assert $ run (
+  assert $ STA.run (
     STA.sort =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [1, 2, 3, 4, 5, 6]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
-  assert $ run (
+  assert $ STA.run (
     STA.sortBy (flip compare) =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [6, 5, 4, 3, 2, 1]
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
-  assert $ run (
+  assert $ STA.run (
     STA.sortWith identity =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [1, 2, 3, 4, 5, 6]
 
   log "splice should be able to delete multiple items at a specified index"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1, 2, 3, 4, 5]
     void $ STA.splice 1 3 [] arr
     pure arr) == [1, 5]
@@ -179,14 +175,14 @@ testArrayST = do
 
   log "splice should be able to insert multiple items at a specified index"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1, 2, 3, 4, 5]
     void $ STA.splice 1 0 [0, 100] arr
     pure arr) == [1, 0, 100, 2, 3, 4, 5]
 
   log "splice should be able to delete and insert at the same time"
 
-  assert $ run (do
+  assert $ STA.run (do
     arr <- STA.thaw [1, 2, 3, 4, 5]
     void $ STA.splice 1 2 [0, 100] arr
     pure arr) == [1, 0, 100, 4, 5]
