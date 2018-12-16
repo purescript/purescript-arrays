@@ -5,6 +5,7 @@
 module Data.Array.ST
   ( STArray(..)
   , Assoc
+  , run
   , withArray
   , empty
   , peek
@@ -25,6 +26,7 @@ module Data.Array.ST
 
 import Prelude
 
+import Control.Monad.ST as ST
 import Control.Monad.ST (ST, kind Region)
 import Data.Maybe (Maybe(..))
 import Unsafe.Coerce (unsafeCoerce)
@@ -40,6 +42,13 @@ foreign import data STArray :: Region -> Type -> Type
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
+
+-- | A safe way to create and work with a mutable array before returning an
+-- | immutable array for later perusal. This function avoids copying the array
+-- | before returning it - it uses unsafeFreeze internally, but this wrapper is
+-- | a safe interface to that function.
+run :: forall a. (forall h. ST h (STArray h a)) -> Array a
+run st = ST.run (st >>= unsafeFreeze)
 
 -- | Perform an effect requiring a mutable array on a copy of an immutable array,
 -- | safely returning the result as an immutable array.
