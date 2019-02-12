@@ -927,7 +927,7 @@ nubBy comp xs = case head indexedAndSorted of
 -- |
 nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 nubByEq eq xs = ST.run do
-  arr <- STA.unsafeThaw []
+  arr <- STA.empty
   ST.foreach xs \x -> do
     e <- not <<< Exports.any (_ `eq` x) <$> (STA.unsafeFreeze arr)
     when e $ void $ STA.push x arr
