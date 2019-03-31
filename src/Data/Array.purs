@@ -926,10 +926,12 @@ nubBy comp xs = case head indexedAndSorted of
 -- | ```
 -- |
 nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
-nubByEq eq xs =
-  case uncons xs of
-    Just o -> o.head : nubByEq eq (filter (\y -> not (o.head `eq` y)) o.tail)
-    Nothing -> []
+nubByEq eq xs = ST.run do
+  arr <- STA.empty
+  ST.foreach xs \x -> do
+    e <- not <<< Exports.any (_ `eq` x) <$> (STA.unsafeFreeze arr)
+    when e $ void $ STA.push x arr
+  STA.unsafeFreeze arr
 
 -- | Calculate the union of two arrays. Note that duplicates in the first array
 -- | are preserved while duplicates in the second array are removed.
