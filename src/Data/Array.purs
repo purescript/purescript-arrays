@@ -122,12 +122,12 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
-import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.Maybe (Maybe(..), fromJust, isJust, isNothing, maybe)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
@@ -205,12 +205,13 @@ many v = some v <|> pure []
 --------------------------------------------------------------------------------
 
 -- | Test whether an array is empty.
+-- | Running time: O(1)
 -- | ```purescript
 -- | null [] = true
 -- | null [1, 2] = false
 -- | ```
 null :: forall a. Array a -> Boolean
-null xs = length xs == 0
+null = isNothing <<< head 
 
 -- | Get the number of elements in an array.
 -- | ```purescript
