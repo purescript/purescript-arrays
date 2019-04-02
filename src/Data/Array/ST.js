@@ -28,10 +28,38 @@ exports.poke = function (i) {
   };
 };
 
+exports.popImpl = function (just) {
+  return function (nothing) {
+    return function (xs) {
+      return function () {
+        return xs.length ? just(xs.pop()) : nothing;
+      };
+    };
+  };
+};
+
 exports.pushAll = function (as) {
   return function (xs) {
     return function () {
       return xs.push.apply(xs, as);
+    };
+  };
+};
+
+exports.shiftImpl = function (just) {
+  return function (nothing) {
+    return function (xs) {
+      return function () {
+        return xs.length ? just(xs.shift()) : nothing;
+      };
+    };
+  };
+};
+
+exports.unshiftAll = function (as) {
+  return function (xs) {
+    return function () {
+      return xs.unshift.apply(xs, as);
     };
   };
 };

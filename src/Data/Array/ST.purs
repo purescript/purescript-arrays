@@ -10,9 +10,13 @@ module Data.Array.ST
   , empty
   , peek
   , poke
-  , push
   , modify
+  , pop
+  , push
   , pushAll
+  , shift
+  , unshift
+  , unshiftAll
   , splice
   , sort
   , sortBy
@@ -83,6 +87,12 @@ thaw = copyImpl
 sort :: forall a h. Ord a => STArray h a -> ST h (STArray h a)
 sort = sortBy compare
 
+-- | Remove the first element from an array and return that element.
+shift :: forall h a. STArray h a -> ST h (Maybe a)
+shift = shiftImpl Just Nothing
+
+foreign import shiftImpl :: forall h a. (a -> Maybe a) -> Maybe a -> STArray h a -> ST h (Maybe a)
+
 -- | Sort a mutable array in place using a comparison function.
 sortBy
   :: forall a h
@@ -136,6 +146,12 @@ foreign import peekImpl
 -- | Change the value at the specified index in a mutable array.
 foreign import poke :: forall h a. Int -> a -> STArray h a -> ST h Boolean
 
+-- | Remove the last element from an array and return that element.
+pop :: forall h a. STArray h a -> ST h (Maybe a)
+pop = popImpl Just Nothing
+
+foreign import popImpl :: forall h a. (a -> Maybe a) -> Maybe a -> STArray h a -> ST h (Maybe a)
+
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
 push :: forall h a. a -> STArray h a -> ST h Int
@@ -144,6 +160,19 @@ push a = pushAll [a]
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
 foreign import pushAll
+  :: forall h a
+   . Array a
+  -> STArray h a
+  -> ST h Int
+
+-- | Append an element to the front of a mutable array. Returns the new length of
+-- | the array.
+unshift :: forall h a. a -> STArray h a -> ST h Int
+unshift a = unshiftAll [a]
+
+-- | Append the values in an immutable array to the front of a mutable array.
+-- | Returns the new length of the mutable array.
+foreign import unshiftAll
   :: forall h a
    . Array a
   -> STArray h a

@@ -46,6 +46,25 @@ testArrayST = do
 
   assert $ STA.run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]
 
+  log "pop should remove elements from an STArray"
+
+  assert $ STA.run (do
+    arr <- STA.thaw [1, 2, 3]
+    void $ STA.pop arr
+    pure arr) == [1, 2]
+
+  log "pop should return the last element of an STArray"
+
+  assert $ ST.run (do
+    arr <- STA.thaw [1, 2, 3]
+    STA.pop arr) == Just 3
+
+  log "pop should return Nothing when given an empty array"
+
+  assert $ isNothing $ ST.run (do
+    arr <- STA.empty
+    STA.pop arr)
+
   log "push should append a value to the end of the array"
 
   assert $ STA.run (do
@@ -144,6 +163,62 @@ testArrayST = do
     arr <- STA.thaw [1]
     void $ STA.poke 1 2 arr
     pure arr) == [1]
+
+  log "shift should remove elements from an STArray"
+
+  assert $ STA.run (do
+    arr <- STA.thaw [1, 2, 3]
+    void $ STA.shift arr
+    pure arr) == [2, 3]
+
+  log "shift should return the first element of an STArray"
+
+  assert $ ST.run (do
+    arr <- STA.thaw [1, 2, 3]
+    STA.shift arr) == Just 1
+
+  log "shift should return Nothing when given an empty array"
+
+  assert $ isNothing $ ST.run (do
+    arr <- STA.empty
+    STA.shift arr)
+
+  log "unshift should append a value to the front of the array"
+
+  assert $ STA.run (do
+    arr <- STA.empty
+    void $ STA.unshift 1 arr
+    void $ STA.unshift 2 arr
+    pure arr) == [2, 1]
+
+  assert $ STA.run (do
+    arr <- STA.thaw [1, 2, 3]
+    void $ STA.unshift 4 arr
+    pure arr) == [4, 1, 2, 3]
+
+  log "unshift should return the new length of the array"
+
+  assert $ ST.run (do
+    arr <- STA.thaw [unit, unit, unit]
+    STA.unshift unit arr) == 4
+
+  log "unshiftAll should append multiple values to the front of the array"
+
+  assert $ STA.run (do
+    arr <- STA.empty
+    void $ STA.unshiftAll [1, 2] arr
+    pure arr) == [1, 2]
+
+  assert $ STA.run (do
+    arr <- STA.thaw [1, 2, 3]
+    void $ STA.unshiftAll [4, 5, 6] arr
+    pure arr) == [4, 5, 6, 1, 2, 3]
+
+  log "unshiftAll should return the new length of the array"
+
+  assert $ ST.run (do
+    arr <- STA.thaw [unit, unit, unit]
+    STA.unshiftAll [unit, unit] arr) == 5
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ STA.run (
