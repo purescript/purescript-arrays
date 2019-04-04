@@ -32,7 +32,7 @@ exports.popImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
-        return xs.length ? just(xs.pop()) : nothing;
+        return xs.length > 0 ? just(xs.pop()) : nothing;
       };
     };
   };
@@ -50,7 +50,7 @@ exports.shiftImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
-        return xs.length ? just(xs.shift()) : nothing;
+        return xs.length > 0 ? just(xs.shift()) : nothing;
       };
     };
   };
