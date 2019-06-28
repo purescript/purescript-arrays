@@ -681,6 +681,9 @@ modifyAtIndices is f xs =
 
 -- | Sort the elements of an array in increasing order, creating a new array.
 -- |
+-- | The underlying sort may or may not be stable, depending on your JavaScript
+-- | runtime.
+-- |
 -- | ```purescript
 -- | sort [2, -3, 1] = [-3, 1, 2]
 -- | ```
@@ -690,6 +693,9 @@ sort xs = sortBy compare xs
 
 -- | Sort the elements of an array in increasing order, where elements are
 -- | compared using the specified partial ordering, creating a new array.
+-- |
+-- | The underlying sort may or may not be stable, depending on your JavaScript
+-- | runtime.
 -- |
 -- | ```purescript
 -- | compareLength a b = compare (length a) (length b)
@@ -706,6 +712,9 @@ sortBy comp xs = sortImpl comp' xs
 
 -- | Sort the elements of an array in increasing order, where elements are
 -- | sorted based on a projection
+-- |
+-- | The underlying sort may or may not be stable, depending on your JavaScript
+-- | runtime.
 -- |
 -- | ```purescript
 -- | sortWith (_.age) [{name: "Alice", age: 42}, {name: "Bob", age: 21}]
