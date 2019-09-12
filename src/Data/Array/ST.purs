@@ -33,7 +33,6 @@ import Prelude
 import Control.Monad.ST as ST
 import Control.Monad.ST (ST, kind Region)
 import Data.Maybe (Maybe(..))
-import Unsafe.Coerce (unsafeCoerce)
 
 -- | A reference to a mutable array.
 -- |
@@ -68,20 +67,17 @@ withArray f xs = do
 
 -- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
 -- | array must not be mutated afterwards.
-unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
-unsafeFreeze = pure <<< (unsafeCoerce :: STArray h a -> Array a)
+foreign import unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
 
 -- | O(1) Convert an immutable array to a mutable array, without copying. The input
 -- | array must not be used afterward.
-unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
-unsafeThaw = pure <<< (unsafeCoerce :: Array a -> STArray h a)
+foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
 -- | Create an empty mutable array.
 foreign import empty :: forall h a. ST h (STArray h a)
 
 -- | Create a mutable copy of an immutable array.
-thaw :: forall h a. Array a -> ST h (STArray h a)
-thaw = copyImpl
+foreign import thaw :: forall h a. Array a -> ST h (STArray h a)
 
 -- | Sort a mutable array in place.
 sort :: forall a h. Ord a => STArray h a -> ST h (STArray h a)
@@ -127,10 +123,7 @@ sortWith
 sortWith f = sortBy (comparing f)
 
 -- | Create an immutable copy of a mutable array.
-freeze :: forall h a. STArray h a -> ST h (Array a)
-freeze = copyImpl
-
-foreign import copyImpl :: forall h a b. a -> ST h b
+foreign import freeze :: forall h a. STArray h a -> ST h (Array a)
 
 -- | Read the value at the specified index in a mutable array.
 peek
