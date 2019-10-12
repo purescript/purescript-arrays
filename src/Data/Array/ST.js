@@ -76,11 +76,27 @@ exports.splice = function (i) {
   };
 };
 
-exports.copyImpl = function (xs) {
+exports.unsafeFreeze = function (xs) {
+  return function () {
+    return xs;
+  };
+};
+
+exports.unsafeThaw = function (xs) {
+  return function () {
+    return xs;
+  };
+};
+
+function copyImpl(xs) {
   return function () {
     return xs.slice();
   };
-};
+}
+
+exports.freeze = copyImpl;
+
+exports.thaw = copyImpl;
 
 exports.sortByImpl = function (comp) {
   return function (xs) {
