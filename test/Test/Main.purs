@@ -4,6 +4,7 @@ import Prelude
 
 import Effect (Effect)
 import Test.Data.Array (testArray)
+import Test.Data.Array.Builder (testArrayBuilder)
 import Test.Data.Array.Partial (testArrayPartial)
 import Test.Data.Array.ST (testArrayST)
 import Test.Data.Array.ST.Partial (testArraySTPartial)
@@ -16,3 +17,4 @@ main = do
   testArrayPartial
   testArraySTPartial
   testNonEmptyArray
+  testArrayBuilder
