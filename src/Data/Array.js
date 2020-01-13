@@ -300,7 +300,7 @@ exports.zipWith3 = function (f) {
         var l = Math.min(xs.length, ys.length, zs.length);
         var result = new Array(l);
         for (var i = 0; i < l; i++) {
-          result[i] = f(xs[i])(ys[i])(zs[i])
+          result[i] = f(xs[i])(ys[i])(zs[i]);
         }
         return result;
       };
