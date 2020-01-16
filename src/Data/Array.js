@@ -151,6 +151,20 @@ exports.findLastIndexImpl = function (just) {
   };
 };
 
+exports.findMapWithIndexImpl = function (nothing) {
+  return function (isJust) {
+    return function (f) {
+      return function (xs) {
+        for (var i = 0, l = xs.length; i < l; i++) {
+          var y = f(i)(xs[i]);
+          if (isJust(y)) return y;
+        }
+        return nothing;
+      };
+    };
+  };
+};
+
 exports._insertAt = function (just) {
   return function (nothing) {
     return function (i) {

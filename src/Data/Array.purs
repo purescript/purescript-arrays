@@ -56,6 +56,7 @@ module Data.Array
   , elemLastIndex
   , findIndex
   , findLastIndex
+  , findMapWithIndex
   , insertAt
   , deleteAt
   , updateAt
@@ -451,6 +452,25 @@ foreign import findLastIndexImpl
   -> (a -> Boolean)
   -> Array a
   -> Maybe Int
+
+-- | Find the first element which satisfies a predicate mapping.
+-- | The mapping function has access to both index and value at the index.
+-- |
+-- | ```purescript
+-- | findMapWithIndex (\i x -> if contains (Pattern "b") x then Just {i,x} else Nothing) ["a", "bb", "b", "d"] = Just { i: 1, x: "bb" }
+-- | findMapWithIndex (\i x -> if contains (Pattern "x") x then Just {i,x} else Nothing) ["a", "bb", "b", "d"] = Nothing
+-- | ```
+-- |
+findMapWithIndex :: forall a b. (Int -> a -> Maybe b) -> Array a -> Maybe b
+findMapWithIndex = findMapWithIndexImpl Nothing isJust
+
+foreign import findMapWithIndexImpl
+  :: forall a r
+   . (forall b. Maybe b)
+  -> (forall b. Maybe b -> Boolean)
+  -> (Int -> a -> Maybe r)
+  -> Array a
+  -> Maybe r
 
 -- | Insert an element at the specified index, creating a new array, or
 -- | returning `Nothing` if the index is out of bounds.
