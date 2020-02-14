@@ -31,7 +31,7 @@ module Data.Array.ST
 import Prelude
 
 import Control.Monad.ST as ST
-import Control.Monad.ST (ST, kind Region)
+import Control.Monad.ST (ST, Region)
 import Data.Maybe (Maybe(..))
 
 -- | A reference to a mutable array.
