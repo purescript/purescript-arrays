@@ -103,7 +103,7 @@ exports.snoc = function (l) {
 // Non-indexed reads -----------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports["uncons'"] = function (empty) {
+exports.unconsImpl = function (empty) {
   return function (next) {
     return function (xs) {
       return xs.length === 0 ? empty({}) : next(xs[0])(xs.slice(1));

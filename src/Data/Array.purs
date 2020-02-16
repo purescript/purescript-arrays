@@ -309,7 +309,7 @@ last xs = xs !! (length xs - 1)
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 tail :: forall a. Array a -> Maybe (Array a)
-tail = uncons' (const Nothing) (\_ xs -> Just xs)
+tail = unconsImpl (const Nothing) (\_ xs -> Just xs)
 
 -- | Get all but the last element of an array, creating a new array, or
 -- | `Nothing` if the array is empty.
@@ -340,9 +340,9 @@ init xs
 -- |   Nothing -> somethingElse
 -- | ```
 uncons :: forall a. Array a -> Maybe { head :: a, tail :: Array a }
-uncons = uncons' (const Nothing) \x xs -> Just { head: x, tail: xs }
+uncons = unconsImpl (const Nothing) \x xs -> Just { head: x, tail: xs }
 
-foreign import uncons'
+foreign import unconsImpl
   :: forall a b
    . (Unit -> b)
   -> (a -> Array a -> b)
@@ -1093,7 +1093,7 @@ unzip xs =
 -- | ```
 -- |
 foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
-foldM f a = uncons' (\_ -> pure a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
+foldM f a = unconsImpl (\_ -> pure a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
 
 foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> Array b -> m a
 foldRecM f a array = tailRecM2 go a 0
