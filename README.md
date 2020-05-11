@@ -8,6 +8,13 @@ Utility functions for the `Array` type - JavaScript's native arrays.
 ## Installation
 
 ```
+spago install arrays
+```
+
+or
+
+
+```
 bower install purescript-arrays
 ```
 
