@@ -11,13 +11,6 @@ Utility functions for the `Array` type - JavaScript's native arrays.
 spago install arrays
 ```
 
-or
-
-
-```
-bower install purescript-arrays
-```
-
 ## Documentation
 
 Module documentation is [published on Pursuit](http://pursuit.purescript.org/packages/purescript-arrays).
