@@ -4,7 +4,9 @@
 -- | `Data.Sequence` instead, which might give better performance for certain
 -- | use cases. This module is useful when integrating with JavaScript libraries
 -- | which use arrays, but immutable arrays are not a practical data structure
--- | for many use cases due to their poor asymptotics.
+-- | for many use cases due to their poor asymptotics. The running time of all
+-- | array modification operations (`cons`, `snoc`, etc.) are at least as slow as
+-- | `O(n)` because a copy of the array must be created to preserve immutability.
 -- |
 -- | In addition to the functions in this module, Arrays have a number of
 -- | useful instances:
@@ -228,7 +230,7 @@ foreign import length :: forall a. Array a -> Int
 -- | cons 1 [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`. For an `O(1)` alternative, see `snoc`.
+-- | Note, the running time of this function is `O(n)`.
 foreign import cons :: forall a. a -> Array a -> Array a
 
 -- | An infix alias for `cons`.
@@ -237,7 +239,7 @@ foreign import cons :: forall a. a -> Array a -> Array a
 -- | 1 : [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`. For an `O(1)` alternative, see `snoc`.
+-- | Note, the running time of this function is `O(n)`.
 infixr 6 cons as :
 
 -- | Append an element to the end of an array, creating a new array.
@@ -246,7 +248,7 @@ infixr 6 cons as :
 -- | snoc [1, 2, 3] 4 = [1, 2, 3, 4]
 -- | ```
 -- |
--- | The running time of this function is `O(1)`.
+-- | Note, the running time of this function is `O(n)`.
 foreign import snoc :: forall a. Array a -> a -> Array a
 
 -- | Insert an element into a sorted array.
