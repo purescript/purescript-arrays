@@ -228,7 +228,7 @@ foreign import length :: forall a. Array a -> Int
 -- | cons 1 [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`.
+-- | Note, the running time of this function is `O(n)`. For an `O(1)` alternative, see `snoc`.
 foreign import cons :: forall a. a -> Array a -> Array a
 
 -- | An infix alias for `cons`.
@@ -237,7 +237,7 @@ foreign import cons :: forall a. a -> Array a -> Array a
 -- | 1 : [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`.
+-- | Note, the running time of this function is `O(n)`. For an `O(1)` alternative, see `snoc`.
 infixr 6 cons as :
 
 -- | Append an element to the end of an array, creating a new array.
@@ -246,6 +246,7 @@ infixr 6 cons as :
 -- | snoc [1, 2, 3] 4 = [1, 2, 3, 4]
 -- | ```
 -- |
+-- | The running time of this function is `O(1)`.
 foreign import snoc :: forall a. Array a -> a -> Array a
 
 -- | Insert an element into a sorted array.
