@@ -113,7 +113,20 @@ module Data.Array
 
   , unsafeIndex
 
-  , module Exports
+  -- Specialized Re-exports
+  , foldl
+  , foldr
+  , foldMap
+  , fold
+  , intercalate
+  , elem
+  , notElem
+  , find
+  , findMap
+  , any
+  , all
+  , scanl
+  , scanr
   ) where
 
 import Prelude
@@ -126,10 +139,10 @@ import Control.Monad.ST as ST
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
-import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
+import Data.Foldable (class Foldable, traverse_)
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as E
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
-import Data.Traversable (scanl, scanr) as Exports
+import Data.Traversable (scanl, scanr) as E
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -152,7 +165,7 @@ toUnfoldable xs = unfoldr f 0
 -- | ```
 -- |
 fromFoldable :: forall f. Foldable f => f ~> Array
-fromFoldable = fromFoldableImpl foldr
+fromFoldable = fromFoldableImpl E.foldr
 
 foreign import fromFoldableImpl
   :: forall f a
@@ -954,7 +967,7 @@ nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 nubByEq eq xs = ST.run do
   arr <- STA.empty
   ST.foreach xs \x -> do
-    e <- not <<< Exports.any (_ `eq` x) <$> (STA.unsafeFreeze arr)
+    e <- not <<< any (_ `eq` x) <$> (STA.unsafeFreeze arr)
     when e $ void $ STA.push x arr
   STA.unsafeFreeze arr
 
@@ -1145,3 +1158,43 @@ unsafeIndex :: forall a. Partial => Array a -> Int -> a
 unsafeIndex = unsafeIndexImpl
 
 foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a
+
+-- Specialized Re-exports
+foldl :: forall a b. (b -> a -> b) -> b -> Array a -> b
+foldl = E.foldl
+
+foldr :: forall a b. (a -> b -> b) -> b -> Array a -> b
+foldr = E.foldr
+
+foldMap :: forall a m. Monoid m => (a -> m) -> Array a -> m
+foldMap = E.foldMap
+
+fold :: forall m. Monoid m => Array m -> m
+fold = E.fold
+
+intercalate :: forall m. Monoid m => m -> Array m -> m
+intercalate = E.intercalate
+
+elem :: forall a. Eq a => a -> Array a -> Boolean
+elem = E.elem
+
+notElem :: forall a. Eq a => a -> Array a -> Boolean
+notElem = E.notElem
+
+find :: forall a. (a -> Boolean) -> Array a -> Maybe a
+find = E.find
+
+findMap :: forall a b. (a -> Maybe b) -> Array a -> Maybe b
+findMap = E.findMap
+
+any :: forall a b. HeytingAlgebra b => (a -> b) -> Array a -> b
+any = E.any
+
+all :: forall a b. HeytingAlgebra b => (a -> b) -> Array a -> b
+all = E.all
+
+scanl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
+scanl = E.scanl
+
+scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
+scanr = E.scanr
