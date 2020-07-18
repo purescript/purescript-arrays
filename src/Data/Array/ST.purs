@@ -43,6 +43,8 @@ import Data.Maybe (Maybe(..))
 -- | except that mutation is allowed.
 foreign import data STArray :: Region -> Type -> Type
 
+type role STArray nominal representational
+
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
 
