@@ -3,7 +3,10 @@
   "scripts": {
     "clean": "rimraf output && rimraf .pulp-cache",
     "build": "eslint src && pulp build -- --censor-lib --strict",
-    "test": "pulp test"
+    "test": "pulp test",
+    "bench:build": "pulp build --include bench -- --censor-lib --strict",
+    "bench:run": "node --expose-gc -e \"require('./output/Bench.Main/index.js').main()\"",
+    "bench": "npm run bench:build && npm run bench:run"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
