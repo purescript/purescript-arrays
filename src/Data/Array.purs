@@ -69,6 +69,7 @@ module Data.Array
   , concatMap
   , filter
   , partition
+  , splitAt
   , filterA
   , mapMaybe
   , catMaybes
@@ -599,6 +600,16 @@ foreign import partition
    . (a -> Boolean)
   -> Array a
   -> { yes :: Array a, no :: Array a }
+
+-- | Splits an array into two pieces, where the first array has `n` elements
+-- | and the second array has the remaining elements.
+-- |
+-- | ```purescript
+-- | splitAt 3 [1, 2, 3, 4, 5] == Tuple [1, 2, 3] [4, 5]
+-- | ```
+splitAt :: forall a. Int -> Array a -> Tuple (Array a) (Array a)
+splitAt n xs | n <= 0 = Tuple [] xs
+splitAt n xs = Tuple (slice 0 n xs) (slice n (length xs) xs)
 
 -- | Filter where the predicate returns a `Boolean` in some `Applicative`.
 -- |
