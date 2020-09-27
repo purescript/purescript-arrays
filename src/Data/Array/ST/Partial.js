@@ -13,7 +13,6 @@ exports.pokeImpl = function (i) {
     return function (xs) {
       return function () {
         xs[i] = a;
-        return {};
       };
     };
   };
