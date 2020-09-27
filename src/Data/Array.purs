@@ -4,7 +4,9 @@
 -- | `Data.Sequence` instead, which might give better performance for certain
 -- | use cases. This module is useful when integrating with JavaScript libraries
 -- | which use arrays, but immutable arrays are not a practical data structure
--- | for many use cases due to their poor asymptotics.
+-- | for many use cases due to their poor asymptotics. All array modification
+-- | operations (`cons`, `snoc`, etc.) are at least as slow as `O(n)` because a
+-- | copy of the array must be created to preserve immutability.
 -- |
 -- | In addition to the functions in this module, Arrays have a number of
 -- | useful instances:
@@ -205,17 +207,25 @@ many v = some v <|> pure []
 --------------------------------------------------------------------------------
 
 -- | Test whether an array is empty.
+-- |
 -- | ```purescript
 -- | null [] = true
 -- | null [1, 2] = false
 -- | ```
+-- |
+-- | Running time: `O(1)`
+-- |
 null :: forall a. Array a -> Boolean
 null xs = length xs == 0
 
 -- | Get the number of elements in an array.
+-- |
 -- | ```purescript
 -- | length ["Hello", "World"] = 2
 -- | ```
+-- |
+-- | Running time: `O(1)`
+-- |
 foreign import length :: forall a. Array a -> Int
 
 --------------------------------------------------------------------------------
@@ -228,7 +238,8 @@ foreign import length :: forall a. Array a -> Int
 -- | cons 1 [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`.
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 foreign import cons :: forall a. a -> Array a -> Array a
 
 -- | An infix alias for `cons`.
@@ -237,7 +248,8 @@ foreign import cons :: forall a. a -> Array a -> Array a
 -- | 1 : [2, 3, 4] = [1, 2, 3, 4]
 -- | ```
 -- |
--- | Note, the running time of this function is `O(n)`.
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 infixr 6 cons as :
 
 -- | Append an element to the end of an array, creating a new array.
@@ -246,6 +258,8 @@ infixr 6 cons as :
 -- | snoc [1, 2, 3] 4 = [1, 2, 3, 4]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 foreign import snoc :: forall a. Array a -> a -> Array a
 
 -- | Insert an element into a sorted array.
@@ -253,6 +267,8 @@ foreign import snoc :: forall a. Array a -> a -> Array a
 -- | ```purescript
 -- | insert 10 [1, 2, 20, 21] = [1, 2, 10, 20, 21]
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 insert :: forall a. Ord a => a -> Array a -> Array a
 insert = insertBy compare
@@ -266,6 +282,8 @@ insert = insertBy compare
 -- | insertBy invertCompare 10 [21, 20, 2, 1] = [21, 20, 10, 2, 1]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
 insertBy cmp x ys =
   let i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
@@ -277,24 +295,24 @@ insertBy cmp x ys =
 
 -- | Get the first element in an array, or `Nothing` if the array is empty
 -- |
--- | Running time: `O(1)`.
--- |
 -- | ```purescript
 -- | head [1, 2] = Just 1
 -- | head [] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(1)`
 -- |
 head :: forall a. Array a -> Maybe a
 head xs = xs !! 0
 
 -- | Get the last element in an array, or `Nothing` if the array is empty
 -- |
--- | Running time: `O(1)`.
--- |
 -- | ```purescript
 -- | last [1, 2] = Just 2
 -- | last [] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(1)`
 -- |
 last :: forall a. Array a -> Maybe a
 last xs = xs !! (length xs - 1)
@@ -308,6 +326,7 @@ last xs = xs !! (length xs - 1)
 -- | ```
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
+-- |
 tail :: forall a. Array a -> Maybe (Array a)
 tail = unconsImpl (const Nothing) (\_ xs -> Just xs)
 
@@ -320,6 +339,7 @@ tail = unconsImpl (const Nothing) (\_ xs -> Just xs)
 -- | ```
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
+-- |
 init :: forall a. Array a -> Maybe (Array a)
 init xs
   | null xs = Nothing
@@ -339,6 +359,9 @@ init xs
 -- |   Just { head: x, tail: xs } -> something
 -- |   Nothing -> somethingElse
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 uncons :: forall a. Array a -> Maybe { head :: a, tail :: Array a }
 uncons = unconsImpl (const Nothing) \x xs -> Just { head: x, tail: xs }
 
@@ -357,6 +380,7 @@ foreign import unconsImpl
 -- | ```
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
+-- |
 unsnoc :: forall a. Array a -> Maybe { init :: Array a, last :: a }
 unsnoc xs = { init: _, last: _ } <$> init xs <*> last xs
 
@@ -373,6 +397,8 @@ unsnoc xs = { init: _, last: _ } <$> init xs <*> last xs
 -- | index sentence 0 = Just "Hello"
 -- | index sentence 7 = Nothing
 -- | ```
+-- |
+-- | Running time: `O(1)`
 -- |
 index :: forall a. Array a -> Int -> Maybe a
 index = indexImpl Just Nothing
@@ -394,6 +420,8 @@ foreign import indexImpl
 -- | sentence !! 7 = Nothing
 -- | ```
 -- |
+-- | Running time: `O(1)`
+-- |
 infixl 8 index as !!
 
 -- | Find the index of the first element equal to the specified element.
@@ -402,6 +430,8 @@ infixl 8 index as !!
 -- | elemIndex "a" ["a", "b", "a", "c"] = Just 0
 -- | elemIndex "Earth" ["Hello", "World", "!"] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 elemIndex :: forall a. Eq a => a -> Array a -> Maybe Int
 elemIndex x = findIndex (_ == x)
@@ -413,6 +443,8 @@ elemIndex x = findIndex (_ == x)
 -- | elemLastIndex "Earth" ["Hello", "World", "!"] = Nothing
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 elemLastIndex :: forall a. Eq a => a -> Array a -> Maybe Int
 elemLastIndex x = findLastIndex (_ == x)
 
@@ -422,6 +454,8 @@ elemLastIndex x = findLastIndex (_ == x)
 -- | findIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just 1
 -- | findIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 findIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
 findIndex = findIndexImpl Just Nothing
@@ -441,6 +475,8 @@ foreign import findIndexImpl
 -- | findLastIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 findLastIndex :: forall a. (a -> Boolean) -> Array a -> Maybe Int
 findLastIndex = findLastIndexImpl Just Nothing
 
@@ -459,6 +495,8 @@ foreign import findLastIndexImpl
 -- | insertAt 2 "!" ["Hello", "World"] = Just ["Hello", "World", "!"]
 -- | insertAt 10 "!" ["Hello"] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 insertAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
 insertAt = _insertAt Just Nothing
@@ -480,6 +518,8 @@ foreign import _insertAt
 -- | deleteAt 10 ["Hello", "World"] = Nothing
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 deleteAt :: forall a. Int -> Array a -> Maybe (Array a)
 deleteAt = _deleteAt Just Nothing
 
@@ -498,6 +538,8 @@ foreign import _deleteAt
 -- | updateAt 1 "World" ["Hello", "Earth"] = Just ["Hello", "World"]
 -- | updateAt 10 "World" ["Hello", "Earth"] = Nothing
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 updateAt :: forall a. Int -> a -> Array a -> Maybe (Array a)
 updateAt = _updateAt Just Nothing
@@ -519,6 +561,8 @@ foreign import _updateAt
 -- | modifyAt 10 toUpper ["Hello", "World"] = Nothing
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 modifyAt :: forall a. Int -> (a -> a) -> Array a -> Maybe (Array a)
 modifyAt i f xs = maybe Nothing go (xs !! i)
   where
@@ -538,6 +582,8 @@ modifyAt i f xs = maybe Nothing go (xs !! i)
 -- | alterAt 10 (stripSuffix $ Pattern "!") ["Hello", "World!"] = Nothing
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 alterAt :: forall a. Int -> (a -> Maybe a) -> Array a -> Maybe (Array a)
 alterAt i f xs = maybe Nothing go (xs !! i)
   where
@@ -556,6 +602,8 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 -- | reverse [1, 2, 3] = [3, 2, 1]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 foreign import reverse :: forall a. Array a -> Array a
 
 -- | Flatten an array of arrays, creating a new array.
@@ -563,6 +611,8 @@ foreign import reverse :: forall a. Array a -> Array a
 -- | ```purescript
 -- | concat [[1, 2, 3], [], [4, 5, 6]] = [1, 2, 3, 4, 5, 6]
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the output array
 -- |
 foreign import concat :: forall a. Array (Array a) -> Array a
 
@@ -574,6 +624,8 @@ foreign import concat :: forall a. Array (Array a) -> Array a
 -- |    = ["Hello", "World", "other", "thing"]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the output array
+-- |
 concatMap :: forall a b. (a -> Array b) -> Array a -> Array b
 concatMap = flip bind
 
@@ -584,6 +636,8 @@ concatMap = flip bind
 -- | filter (_ > 0) [-1, 4, -5, 7] = [4, 7]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the input array
+-- |
 foreign import filter :: forall a. (a -> Boolean) -> Array a -> Array a
 
 -- | Partition an array using a predicate function, creating a set of
@@ -593,6 +647,8 @@ foreign import filter :: forall a. (a -> Boolean) -> Array a -> Array a
 -- | ```purescript
 -- | partition (_ > 0) [-1, 4, -5, 7] = { yes: [4, 7], no: [-1, -5] }
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the input array
 -- |
 foreign import partition
   :: forall a
@@ -605,6 +661,11 @@ foreign import partition
 -- | ```purescript
 -- | powerSet :: forall a. Array a -> Array (Array a)
 -- | powerSet = filterA (const [true, false])
+-- |
+-- | powerSet [1,2,3] == [[1,2,3],[1,2],[1,3],[1],[2,3],[2],[3],[]]
+-- |
+-- | Running time: At least `O(n)` where `n` is the length of the input array
+-- |
 -- | ```
 filterA :: forall a f. Applicative f => (a -> f Boolean) -> Array a -> f (Array a)
 filterA p =
@@ -622,6 +683,8 @@ filterA p =
 -- |    = [Email {user: "hello", domain: "example.com"}]
 -- | ```
 -- |
+-- | Running time: `O(n)` where `n` is the length of the input array
+-- |
 mapMaybe :: forall a b. (a -> Maybe b) -> Array a -> Array b
 mapMaybe f = concatMap (maybe [] singleton <<< f)
 
@@ -631,6 +694,8 @@ mapMaybe f = concatMap (maybe [] singleton <<< f)
 -- | ```purescript
 -- | catMaybes [Nothing, Just 2, Nothing, Just 4] = [2, 4]
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the input array
 -- |
 catMaybes :: forall a. Array (Maybe a) -> Array a
 catMaybes = mapMaybe identity
@@ -644,6 +709,8 @@ catMaybes = mapMaybe identity
 -- |
 -- | mapWithIndex prefixIndex ["Hello", "World"] = ["0Hello", "1World"]
 -- | ```
+-- |
+-- | Running time: `O(n)` where `n` is the length of the array
 -- |
 mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
 mapWithIndex f xs =
@@ -811,7 +878,8 @@ dropWhile p xs = (span p xs).rest
 -- | span (\n -> n % 2 == 1) [1,3,2,4,5] == { init: [1,3], rest: [2,4,5] }
 -- | ```
 -- |
--- | Running time: `O(n)`.
+-- | Running time: `O(n)` where `n` is the length of the input array
+-- |
 span
   :: forall a
    . (a -> Boolean)
@@ -936,11 +1004,11 @@ nubByEq eq xs = ST.run do
 -- | Calculate the union of two arrays. Note that duplicates in the first array
 -- | are preserved while duplicates in the second array are removed.
 -- |
--- | Running time: `O(n^2)`
--- |
 -- | ```purescript
 -- | union [1, 2, 1, 1] [3, 3, 3, 4] = [1, 2, 1, 1, 3, 4]
 -- | ```
+-- |
+-- | Running time: `O(n*m)` where `n` and `m` are the lengths of the input arrays
 -- |
 union :: forall a. Eq a => Array a -> Array a -> Array a
 union = unionBy (==)
@@ -965,7 +1033,8 @@ unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubByEq eq ys) xs
 -- | delete 7 [1, 2, 3] = [1, 2, 3]
 -- | ```
 -- |
--- | Running time: `O(n)`
+-- | Running time: `O(n)` where `n` is the length of the array
+-- |
 delete :: forall a. Eq a => a -> Array a -> Array a
 delete = deleteBy eq
 
@@ -989,8 +1058,8 @@ deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (fi
 -- | difference [2, 1] [2, 3] = [1]
 -- | ```
 -- |
--- | Running time: `O(n*m)`, where n is the length of the first array, and m is
--- | the length of the second.
+-- | Running time: `O(n*m)` where `n` and `m` are the lengths of the input arrays
+-- |
 difference :: forall a. Eq a => Array a -> Array a -> Array a
 difference = foldr delete
 
