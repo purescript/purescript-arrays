@@ -203,6 +203,7 @@ testArray = do
   assert $ A.filter odd (A.range 0 10) == [1, 3, 5, 7, 9]
 
   log "splitAt should split the array at the given number of elements"
+  assert $ A.splitAt 2 ([] :: Array Int) == { before: [], after: [] }
   assert $ A.splitAt 3 [1, 2, 3, 4, 5] == { before: [1, 2, 3], after: [4, 5] }
   assert $ A.splitAt 1 [1, 2, 3] == { before: [1], after: [2, 3] }
   assert $ A.splitAt 3 [1, 2, 3] == { before: [1, 2, 3], after: [] }

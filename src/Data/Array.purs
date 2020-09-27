@@ -615,6 +615,7 @@ foreign import partition
 -- | be 0.)
 -- |
 -- | ```purescript
+-- | splitAt 2 ([] :: Array Int) == { before: [], after: [] }
 -- | splitAt 3 [1, 2, 3, 4, 5] == { before: [1, 2, 3], after: [4, 5] }
 -- | ```
 splitAt :: forall a. Int -> Array a -> { before :: Array a, after :: Array a }
