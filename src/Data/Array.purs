@@ -122,9 +122,9 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
@@ -229,7 +229,8 @@ foreign import length :: forall a. Array a -> Int
 -- | ```
 -- |
 -- | Note, the running time of this function is `O(n)`.
-foreign import cons :: forall a. a -> Array a -> Array a
+cons :: forall a. a -> Array a -> Array a
+cons x xs = [x] <> xs
 
 -- | An infix alias for `cons`.
 -- |
@@ -246,7 +247,8 @@ infixr 6 cons as :
 -- | snoc [1, 2, 3] 4 = [1, 2, 3, 4]
 -- | ```
 -- |
-foreign import snoc :: forall a. Array a -> a -> Array a
+snoc :: forall a. Array a -> a -> Array a
+snoc xs x = ST.run (STA.withArray (STA.push x) xs)
 
 -- | Insert an element into a sorted array.
 -- |
@@ -742,7 +744,8 @@ foreign import slice :: forall a. Int -> Int -> Array a -> Array a
 -- | take 100 letters = ["a", "b", "c"]
 -- | ```
 -- |
-foreign import take :: forall a. Int -> Array a -> Array a
+take :: forall a. Int -> Array a -> Array a
+take n xs = if n < 1 then [] else slice 0 n xs
 
 -- | Keep only a number of elements from the end of an array, creating a new
 -- | array.
@@ -777,7 +780,8 @@ takeWhile p xs = (span p xs).init
 -- | drop 10 letters = []
 -- | ```
 -- |
-foreign import drop :: forall a. Int -> Array a -> Array a
+drop :: forall a. Int -> Array a -> Array a
+drop n xs = if n < 1 then xs else slice n (length xs) xs
 
 -- | Drop a number of elements from the end of an array, creating a new array.
 -- |
