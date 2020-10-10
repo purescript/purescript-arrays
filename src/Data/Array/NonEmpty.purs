@@ -48,6 +48,7 @@ module Data.Array.NonEmpty
   , concat
   , concatMap
   , filter
+  , splitAt
   , partition
   , filterA
   , mapMaybe
@@ -295,6 +296,9 @@ filterA
   -> NonEmptyArray a
   -> f (Array a)
 filterA f = adaptAny $ A.filterA f
+
+splitAt :: forall a. Int -> NonEmptyArray a -> { before :: Array a, after :: Array a }
+splitAt i xs = A.splitAt i $ toArray xs
 
 mapMaybe :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Array b
 mapMaybe f = adaptAny $ A.mapMaybe f

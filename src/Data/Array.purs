@@ -69,6 +69,7 @@ module Data.Array
   , concatMap
   , filter
   , partition
+  , splitAt
   , filterA
   , mapMaybe
   , catMaybes
@@ -601,6 +602,27 @@ foreign import partition
    . (a -> Boolean)
   -> Array a
   -> { yes :: Array a, no :: Array a }
+
+-- | Splits an array into two subarrays, where `before` contains the elements
+-- | up to (but not including) the given index, and `after` contains the rest
+-- | of the elements, from that index on.
+-- |
+-- | ```purescript
+-- | >>> splitAt 3 [1, 2, 3, 4, 5]
+-- | { before: [1, 2, 3], after: [4, 5] }
+-- | ```
+-- |
+-- | Thus, the length of `(splitAt i arr).before` will equal either `i` or
+-- | `length arr`, if that is shorter. (Or if `i` is negative the length will
+-- | be 0.)
+-- |
+-- | ```purescript
+-- | splitAt 2 ([] :: Array Int) == { before: [], after: [] }
+-- | splitAt 3 [1, 2, 3, 4, 5] == { before: [1, 2, 3], after: [4, 5] }
+-- | ```
+splitAt :: forall a. Int -> Array a -> { before :: Array a, after :: Array a }
+splitAt i xs | i <= 0 = { before: [], after: xs }
+splitAt i xs = { before: slice 0 i xs, after: slice i (length xs) xs }
 
 -- | Filter where the predicate returns a `Boolean` in some `Applicative`.
 -- |

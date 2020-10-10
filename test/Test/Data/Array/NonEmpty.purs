@@ -166,6 +166,14 @@ testNonEmptyArray = do
   log "filter should remove items that don't match a predicate"
   assert $ NEA.filter odd (NEA.range 0 10) == [1, 3, 5, 7, 9]
 
+  log "splitAt should split the array at the given number of elements"
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3, 4, 5]) == { before: [1, 2, 3], after: [4, 5] }
+  assert $ NEA.splitAt 1 (fromArray [1, 2, 3]) == { before: [1], after: [2, 3] }
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 4 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 0 (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
+  assert $ NEA.splitAt (-1) (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
+
   log "filterA should remove items that don't match a predicate while using an applicative behaviour"
   assert $ NEA.filterA (Just <<< odd) (NEA.range 0 10) == Just [1, 3, 5, 7, 9]
   assert $ NEA.filterA (const Nothing) (NEA.range 0 10) == Nothing
