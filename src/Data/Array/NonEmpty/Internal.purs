@@ -35,7 +35,7 @@ derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int 
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
   foldMap1 = foldMap1Default
-  fold1 = foldr1Impl (<>)
+  fold1 = foldl1Impl (<>)
   foldr1 = foldr1Impl
   foldl1 = foldl1Impl
 

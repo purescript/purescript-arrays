@@ -313,12 +313,12 @@ testNonEmptyArray = do
   assert $ sum (fromArray [1, 2, 3, 4]) == 10
 
   log "foldr1 should work"
-  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(((ab)c)d)"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(a(b(cd)))"
   assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
   assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
 
   log "foldl1 should work"
-  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(a(b(cd)))"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(((ab)c)d)"
   assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
   assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
 
