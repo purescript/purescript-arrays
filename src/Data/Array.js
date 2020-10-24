@@ -148,6 +148,16 @@ exports._insertAt = function (just) {
   };
 };
 
+exports._unsafeInsertAt = function (i) {
+  return function (a) {
+    return function (l) {
+      var l1 = l.slice();
+      l1.splice(i, 0, a);
+      return l1;
+    };
+  };
+};
+
 exports._deleteAt = function (just) {
   return function (nothing) {
     return function (i) {
@@ -158,6 +168,14 @@ exports._deleteAt = function (just) {
         return just(l1);
       };
     };
+  };
+};
+
+exports._unsafeDeleteAt = function (i) {
+  return function (l) {
+    var l1 = l.slice();
+    l1.splice(i, 1);
+    return l1;
   };
 };
 
@@ -172,6 +190,26 @@ exports._updateAt = function (just) {
           return just(l1);
         };
       };
+    };
+  };
+};
+
+exports._unsafeUpdateAt = function (i) {
+  return function (a) {
+    return function (l) {
+      var l1 = l.slice();
+      l1[i] = a;
+      return l1;
+    };
+  };
+};
+
+exports._unsafeModifyAt = function (i) {
+  return function (f) {
+    return function (l) {
+      var l1 = l.slice();
+      l1[i] = f(l1[i]);
+      return l1;
     };
   };
 };
