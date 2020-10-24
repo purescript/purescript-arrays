@@ -2,10 +2,9 @@
 
 exports.foldr1Impl = function (f) {
   return function (xs) {
-    var acc = xs[0];
-    var len = xs.length;
-    for (var i = 1; i < len; i++) {
-      acc = f(acc)(xs[i]);
+    var acc = xs[xs.length - 1];
+    for (var i = xs.length - 2; i >= 0; i--) {
+      acc = f(xs[i])(acc);
     }
     return acc;
   };
@@ -13,9 +12,10 @@ exports.foldr1Impl = function (f) {
 
 exports.foldl1Impl = function (f) {
   return function (xs) {
-    var acc = xs[xs.length - 1];
-    for (var i = xs.length - 2; i >= 0; i--) {
-      acc = f(xs[i])(acc);
+    var acc = xs[0];
+    var len = xs.length;
+    for (var i = 1; i < len; i++) {
+      acc = f(acc)(xs[i]);
     }
     return acc;
   };
