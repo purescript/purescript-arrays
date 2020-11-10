@@ -82,28 +82,10 @@ exports.length = function (xs) {
 };
 
 //------------------------------------------------------------------------------
-// Extending arrays ------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-exports.cons = function (e) {
-  return function (l) {
-    return [e].concat(l);
-  };
-};
-
-exports.snoc = function (l) {
-  return function (e) {
-    var l1 = l.slice();
-    l1.push(e);
-    return l1;
-  };
-};
-
-//------------------------------------------------------------------------------
 // Non-indexed reads -----------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports["uncons'"] = function (empty) {
+exports.unconsImpl = function (empty) {
   return function (next) {
     return function (xs) {
       return xs.length === 0 ? empty({}) : next(xs[0])(xs.slice(1));
@@ -261,18 +243,6 @@ exports.slice = function (s) {
     return function (l) {
       return l.slice(s, e);
     };
-  };
-};
-
-exports.take = function (n) {
-  return function (l) {
-    return n < 1 ? [] : l.slice(0, n);
-  };
-};
-
-exports.drop = function (n) {
-  return function (l) {
-    return n < 1 ? l : l.slice(n);
   };
 };
 

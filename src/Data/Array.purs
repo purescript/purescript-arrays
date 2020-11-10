@@ -69,6 +69,7 @@ module Data.Array
   , concatMap
   , filter
   , partition
+  , splitAt
   , filterA
   , mapMaybe
   , catMaybes
@@ -122,9 +123,9 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
+import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
@@ -229,7 +230,8 @@ foreign import length :: forall a. Array a -> Int
 -- | ```
 -- |
 -- | Note, the running time of this function is `O(n)`.
-foreign import cons :: forall a. a -> Array a -> Array a
+cons :: forall a. a -> Array a -> Array a
+cons x xs = [x] <> xs
 
 -- | An infix alias for `cons`.
 -- |
@@ -246,7 +248,8 @@ infixr 6 cons as :
 -- | snoc [1, 2, 3] 4 = [1, 2, 3, 4]
 -- | ```
 -- |
-foreign import snoc :: forall a. Array a -> a -> Array a
+snoc :: forall a. Array a -> a -> Array a
+snoc xs x = ST.run (STA.withArray (STA.push x) xs)
 
 -- | Insert an element into a sorted array.
 -- |
@@ -309,7 +312,7 @@ last xs = xs !! (length xs - 1)
 -- |
 -- | Running time: `O(n)` where `n` is the length of the array
 tail :: forall a. Array a -> Maybe (Array a)
-tail = uncons' (const Nothing) (\_ xs -> Just xs)
+tail = unconsImpl (const Nothing) (\_ xs -> Just xs)
 
 -- | Get all but the last element of an array, creating a new array, or
 -- | `Nothing` if the array is empty.
@@ -340,9 +343,9 @@ init xs
 -- |   Nothing -> somethingElse
 -- | ```
 uncons :: forall a. Array a -> Maybe { head :: a, tail :: Array a }
-uncons = uncons' (const Nothing) \x xs -> Just { head: x, tail: xs }
+uncons = unconsImpl (const Nothing) \x xs -> Just { head: x, tail: xs }
 
-foreign import uncons'
+foreign import unconsImpl
   :: forall a b
    . (Unit -> b)
   -> (a -> Array a -> b)
@@ -600,6 +603,27 @@ foreign import partition
   -> Array a
   -> { yes :: Array a, no :: Array a }
 
+-- | Splits an array into two subarrays, where `before` contains the elements
+-- | up to (but not including) the given index, and `after` contains the rest
+-- | of the elements, from that index on.
+-- |
+-- | ```purescript
+-- | >>> splitAt 3 [1, 2, 3, 4, 5]
+-- | { before: [1, 2, 3], after: [4, 5] }
+-- | ```
+-- |
+-- | Thus, the length of `(splitAt i arr).before` will equal either `i` or
+-- | `length arr`, if that is shorter. (Or if `i` is negative the length will
+-- | be 0.)
+-- |
+-- | ```purescript
+-- | splitAt 2 ([] :: Array Int) == { before: [], after: [] }
+-- | splitAt 3 [1, 2, 3, 4, 5] == { before: [1, 2, 3], after: [4, 5] }
+-- | ```
+splitAt :: forall a. Int -> Array a -> { before :: Array a, after :: Array a }
+splitAt i xs | i <= 0 = { before: [], after: xs }
+splitAt i xs = { before: slice 0 i xs, after: slice i (length xs) xs }
+
 -- | Filter where the predicate returns a `Boolean` in some `Applicative`.
 -- |
 -- | ```purescript
@@ -742,7 +766,8 @@ foreign import slice :: forall a. Int -> Int -> Array a -> Array a
 -- | take 100 letters = ["a", "b", "c"]
 -- | ```
 -- |
-foreign import take :: forall a. Int -> Array a -> Array a
+take :: forall a. Int -> Array a -> Array a
+take n xs = if n < 1 then [] else slice 0 n xs
 
 -- | Keep only a number of elements from the end of an array, creating a new
 -- | array.
@@ -777,7 +802,8 @@ takeWhile p xs = (span p xs).init
 -- | drop 10 letters = []
 -- | ```
 -- |
-foreign import drop :: forall a. Int -> Array a -> Array a
+drop :: forall a. Int -> Array a -> Array a
+drop n xs = if n < 1 then xs else slice n (length xs) xs
 
 -- | Drop a number of elements from the end of an array, creating a new array.
 -- |
@@ -1091,9 +1117,8 @@ unzip xs =
 -- | ```purescript
 -- | foldM (\x y -> Just (x + y)) 0 [1, 4] = Just 5
 -- | ```
--- |
 foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> Array a -> m b
-foldM f b0 = uncons' (\_ -> pure b0) (\a as -> f b0 a >>= \b' -> foldM f b' as)
+foldM f b = unconsImpl (\_ -> pure b) (\a as -> f b a >>= \b' -> foldM f b' as)
 
 foldRecM :: forall m a b. MonadRec m => (b -> a -> m b) -> b -> Array a -> m b
 foldRecM f b array = tailRecM2 go b 0

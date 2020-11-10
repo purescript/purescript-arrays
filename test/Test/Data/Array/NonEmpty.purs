@@ -10,7 +10,7 @@ import Data.FunctorWithIndex (mapWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Monoid.Additive (Additive(..))
 import Data.NonEmpty ((:|))
-import Data.Semigroup.Foldable (foldMap1)
+import Data.Semigroup.Foldable (foldMap1, foldr1, foldl1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable1 as U1
@@ -166,6 +166,14 @@ testNonEmptyArray = do
   log "filter should remove items that don't match a predicate"
   assert $ NEA.filter odd (NEA.range 0 10) == [1, 3, 5, 7, 9]
 
+  log "splitAt should split the array at the given number of elements"
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3, 4, 5]) == { before: [1, 2, 3], after: [4, 5] }
+  assert $ NEA.splitAt 1 (fromArray [1, 2, 3]) == { before: [1], after: [2, 3] }
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 4 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 0 (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
+  assert $ NEA.splitAt (-1) (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
+
   log "filterA should remove items that don't match a predicate while using an applicative behaviour"
   assert $ NEA.filterA (Just <<< odd) (NEA.range 0 10) == Just [1, 3, 5, 7, 9]
   assert $ NEA.filterA (const Nothing) (NEA.range 0 10) == Nothing
@@ -297,12 +305,22 @@ testNonEmptyArray = do
   log "Unfoldable instance"
   assert $ U1.range 0 9 == NEA.range 0 9
 
-  log "foldl should work"
+  log "foldMap1 should work"
+  assert $ foldMap1 Additive (fromArray [1, 2, 3, 4]) == Additive 10
+
+  log "fold1 should work"
   -- test through sum
   assert $ sum (fromArray [1, 2, 3, 4]) == 10
 
-  log "foldMap1 should work"
-  assert $ foldMap1 Additive (fromArray [1, 2, 3, 4]) == Additive 10
+  log "foldr1 should work"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(a(b(cd)))"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
+
+  log "foldl1 should work"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(((ab)c)d)"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
 
   log "traverse1 should work"
   assert $ traverse1 Just (fromArray [1, 2, 3, 4]) == NEA.fromArray [1, 2, 3, 4]

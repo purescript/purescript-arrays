@@ -35,7 +35,9 @@ derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int 
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
   foldMap1 = foldMap1Default
-  fold1 = fold1Impl (<>)
+  fold1 = foldl1Impl (<>)
+  foldr1 = foldr1Impl
+  foldl1 = foldl1Impl
 
 derive newtype instance unfoldable1NonEmptyArray :: Unfoldable1 NonEmptyArray
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
@@ -56,7 +58,8 @@ derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 
 -- we use FFI here to avoid the unncessary copy created by `tail`
-foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foreign import foldr1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foreign import foldl1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
 
 foreign import traverse1Impl
   :: forall m a b
