@@ -437,10 +437,10 @@ zip xs ys = unsafeFromArray $ toArray xs `A.zip` toArray ys
 unzip :: forall a b. NonEmptyArray (Tuple a b) -> Tuple (NonEmptyArray a) (NonEmptyArray b)
 unzip = bimap unsafeFromArray unsafeFromArray <<< A.unzip <<< toArray
 
-foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldM f acc = adaptAny $ A.foldM f acc
 
-foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+foldRecM :: forall m a b. MonadRec m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldRecM f acc = adaptAny $ A.foldRecM f acc
 
 unsafeIndex :: forall a. Partial => NonEmptyArray a -> Int -> a

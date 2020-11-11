@@ -1117,12 +1117,11 @@ unzip xs =
 -- | ```purescript
 -- | foldM (\x y -> Just (x + y)) 0 [1, 4] = Just 5
 -- | ```
--- |
-foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> Array b -> m a
-foldM f a = unconsImpl (\_ -> pure a) (\b bs -> f a b >>= \a' -> foldM f a' bs)
+foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> Array a -> m b
+foldM f b = unconsImpl (\_ -> pure b) (\a as -> f b a >>= \b' -> foldM f b' as)
 
-foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> Array b -> m a
-foldRecM f a array = tailRecM2 go a 0
+foldRecM :: forall m a b. MonadRec m => (b -> a -> m b) -> b -> Array a -> m b
+foldRecM f b array = tailRecM2 go b 0
   where
   go res i
     | i >= length array = pure (Done res)
