@@ -1,4 +1,7 @@
-module Data.Array.NonEmpty.Internal (NonEmptyArray) where
+-- | This module exports the `NonEmptyArray` constructor, which can be
+-- | overlooked when searching for issues in one's code. See the
+-- | constructor's documentation for more information.
+module Data.Array.NonEmpty.Internal (NonEmptyArray(..)) where
 
 import Prelude
 
@@ -14,6 +17,13 @@ import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
 import Data.Unfoldable1 (class Unfoldable1)
 
+-- | An array that is known not to be empty.
+-- |
+-- | You can use the constructor to create a `NonEmptyArray` that isn't
+-- | non-empty, breaking the guarantee behind this newtype. It is
+-- | provided as an escape hatch mainly for the `Data.Array.NonEmpty`
+-- | and `Data.Array` modules. Use this at your own risk when you know
+-- | what you are doing.
 newtype NonEmptyArray a = NonEmptyArray (Array a)
 
 instance showNonEmptyArray :: Show a => Show (NonEmptyArray a) where

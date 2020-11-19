@@ -1,5 +1,5 @@
 module Data.Array.NonEmpty
-  ( module Data.Array.NonEmpty.Internal
+  ( module Internal
   , fromArray
   , fromNonEmpty
   , toArray
@@ -101,7 +101,8 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy)
 import Control.Monad.Rec.Class (class MonadRec)
 import Data.Array as A
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
+import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
+import Data.Array.NonEmpty.Internal (NonEmptyArray) as Internal
 import Data.Bifunctor (bimap)
 import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
@@ -139,7 +140,7 @@ fromArray xs
 
 -- | INTERNAL
 unsafeFromArray :: forall a. Array a -> NonEmptyArray a
-unsafeFromArray = unsafeCoerce
+unsafeFromArray = NonEmptyArray
 
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
@@ -148,7 +149,7 @@ fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
 
 toArray :: forall a. NonEmptyArray a -> Array a
-toArray = unsafeCoerce
+toArray (NonEmptyArray xs) = xs
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
