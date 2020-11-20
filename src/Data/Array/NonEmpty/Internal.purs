@@ -1,6 +1,10 @@
--- | This module exports the `NonEmptyArray` constructor, which can be
--- | overlooked when searching for issues in one's code. See the
--- | constructor's documentation for more information.
+-- | This module exports the `NonEmptyArray` constructor.
+-- |
+-- | It is **NOT** intended for public use and is **NOT** versioned.
+-- |
+-- | Its content may change **in any way**, **at any time** and
+-- | **without notice**.
+
 module Data.Array.NonEmpty.Internal (NonEmptyArray(..)) where
 
 import Prelude
