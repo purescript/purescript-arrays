@@ -123,7 +123,7 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
+import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
@@ -134,7 +134,6 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
-import Unsafe.Coerce (unsafeCoerce)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -895,7 +894,7 @@ groupBy op xs =
       _ <- STA.push x sub
       STAI.pushWhile (op x) iter sub
       grp <- STA.unsafeFreeze sub
-      STA.push ((unsafeCoerce :: Array ~> NonEmptyArray) grp) result
+      STA.push (NonEmptyArray grp) result
     STA.unsafeFreeze result
 
 -- | Remove the duplicates from an array, creating a new array.
