@@ -22,10 +22,11 @@ jobs:
           npm install -g bower
           npm install
           bower install --production
-      - name: Build
+
+      - name: Build source
         run: npm run-script build
 
-      - name: Test
+      - name: Run tests
         run: |
           bower install
           npm run-script test --if-present
