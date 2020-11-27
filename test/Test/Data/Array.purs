@@ -155,12 +155,20 @@ testArray = do
   log "insertAt should return Nothing if the index is out of A.range"
   assert $ (A.insertAt 2 1 nil) == Nothing
 
+  log "unsafeInsertAt should insert the element into the array at the given index if the index is valid"
+  assert $ (unsafePartial $ A.unsafeInsertAt 0 1 [0]) == [1, 0]
+  assert $ (unsafePartial $ A.unsafeInsertAt 1 1 [0]) == [0, 1]
+
   log "deleteAt should remove an item at the specified index"
   assert $ (A.deleteAt 0 [1, 2, 3]) == Just [2, 3]
   assert $ (A.deleteAt 1 [1, 2, 3]) == Just [1, 3]
 
   log "deleteAt should return Nothing if the index is out of A.range"
   assert $ (A.deleteAt 1 nil) == Nothing
+
+  log "unsafeDeleteAt should delete the element at the given index into the array"
+  assert $ (unsafePartial $ A.unsafeDeleteAt 0 [0, 1]) == [1]
+  assert $ (unsafePartial $ A.unsafeDeleteAt 1 [0, 1]) == [0]
 
   log "updateAt should replace an item at the specified index"
   assert $ (A.updateAt 0 9 [1, 2, 3]) == Just [9, 2, 3]
@@ -169,12 +177,20 @@ testArray = do
   log "updateAt should return Nothing if the index is out of A.range"
   assert $ (A.updateAt 1 9 nil) == Nothing
 
+  log "unsafeUpdateAt should update the element at the given index into the array"
+  assert $ (unsafePartial $ A.unsafeUpdateAt 0 2 [0, 1]) == [2, 1]
+  assert $ (unsafePartial $ A.unsafeUpdateAt 1 2 [0, 1]) == [0, 2]
+
   log "modifyAt should update an item at the specified index"
   assert $ (A.modifyAt 0 (_ + 1) [1, 2, 3]) == Just [2, 2, 3]
   assert $ (A.modifyAt 1 (_ + 1) [1, 2, 3]) == Just [1, 3, 3]
 
   log "modifyAt should return Nothing if the index is out of A.range"
   assert $ (A.modifyAt 1 (_ + 1) nil) == Nothing
+
+  log "unsafeModifyAt should update the element at the given index into the array"
+  assert $ (unsafePartial $ A.unsafeModifyAt 0 (_ + 1) [0, 1]) == [1, 1]
+  assert $ (unsafePartial $ A.unsafeModifyAt 1 (_ + 1) [0, 1]) == [0, 2]
 
   log "alterAt should update an item at the specified index when the function returns Just"
   assert $ (A.alterAt 0 (Just <<< (_ + 1)) [1, 2, 3]) == Just [2, 2, 3]
