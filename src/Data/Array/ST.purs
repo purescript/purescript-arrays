@@ -31,7 +31,7 @@ module Data.Array.ST
 import Prelude
 
 import Control.Monad.ST as ST
-import Control.Monad.ST (ST, kind Region)
+import Control.Monad.ST (ST, Region)
 import Data.Maybe (Maybe(..))
 
 -- | A reference to a mutable array.
@@ -42,6 +42,8 @@ import Data.Maybe (Maybe(..))
 -- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
 -- | except that mutation is allowed.
 foreign import data STArray :: Region -> Type -> Type
+
+type role STArray nominal representational
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }

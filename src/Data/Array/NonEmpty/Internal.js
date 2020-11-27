@@ -1,6 +1,16 @@
 "use strict";
 
-exports.fold1Impl = function (f) {
+exports.foldr1Impl = function (f) {
+  return function (xs) {
+    var acc = xs[xs.length - 1];
+    for (var i = xs.length - 2; i >= 0; i--) {
+      acc = f(xs[i])(acc);
+    }
+    return acc;
+  };
+};
+
+exports.foldl1Impl = function (f) {
   return function (xs) {
     var acc = xs[0];
     var len = xs.length;

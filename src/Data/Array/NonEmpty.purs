@@ -1,5 +1,5 @@
 module Data.Array.NonEmpty
-  ( module Data.Array.NonEmpty.Internal
+  ( module Internal
   , fromArray
   , fromNonEmpty
   , toArray
@@ -48,6 +48,7 @@ module Data.Array.NonEmpty
   , concat
   , concatMap
   , filter
+  , splitAt
   , partition
   , filterA
   , mapMaybe
@@ -100,7 +101,8 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy)
 import Control.Monad.Rec.Class (class MonadRec)
 import Data.Array as A
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
+import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
+import Data.Array.NonEmpty.Internal (NonEmptyArray) as Internal
 import Data.Bifunctor (bimap)
 import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
@@ -138,7 +140,7 @@ fromArray xs
 
 -- | INTERNAL
 unsafeFromArray :: forall a. Array a -> NonEmptyArray a
-unsafeFromArray = unsafeCoerce
+unsafeFromArray = NonEmptyArray
 
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
@@ -147,7 +149,7 @@ fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
 
 toArray :: forall a. NonEmptyArray a -> Array a
-toArray = unsafeCoerce
+toArray (NonEmptyArray xs) = xs
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
@@ -296,6 +298,9 @@ filterA
   -> f (Array a)
 filterA f = adaptAny $ A.filterA f
 
+splitAt :: forall a. Int -> NonEmptyArray a -> { before :: Array a, after :: Array a }
+splitAt i xs = A.splitAt i $ toArray xs
+
 mapMaybe :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Array b
 mapMaybe f = adaptAny $ A.mapMaybe f
 
@@ -433,10 +438,10 @@ zip xs ys = unsafeFromArray $ toArray xs `A.zip` toArray ys
 unzip :: forall a b. NonEmptyArray (Tuple a b) -> Tuple (NonEmptyArray a) (NonEmptyArray b)
 unzip = bimap unsafeFromArray unsafeFromArray <<< A.unzip <<< toArray
 
-foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldM f acc = adaptAny $ A.foldM f acc
 
-foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+foldRecM :: forall m a b. MonadRec m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldRecM f acc = adaptAny $ A.foldRecM f acc
 
 unsafeIndex :: forall a. Partial => NonEmptyArray a -> Int -> a
