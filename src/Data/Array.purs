@@ -1166,7 +1166,7 @@ foreign import unsafeDeleteAtImpl :: forall a. Int -> Array a -> Array a
 -- | unsafePartial $ unsafeInsertAt 1 "b" ["a", "c"] = ["a", "b", "c"]
 -- | ```
 unsafeInsertAt :: forall a. Partial => Int -> a -> Array a -> Array a
-unsafeInsertAt = unsafeIndexImpl
+unsafeInsertAt = unsafeInsertAtImpl
 
 foreign import unsafeInsertAtImpl :: forall a. Int -> a -> Array a -> Array a
 
