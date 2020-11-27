@@ -148,7 +148,7 @@ exports._insertAt = function (just) {
   };
 };
 
-exports._unsafeInsertAt = function (i) {
+exports.unsafeInsertAtImpl = function (i) {
   return function (a) {
     return function (l) {
       var l1 = l.slice();
@@ -171,7 +171,7 @@ exports._deleteAt = function (just) {
   };
 };
 
-exports._unsafeDeleteAt = function (i) {
+exports.unsafeDeleteAtImpl = function (i) {
   return function (l) {
     var l1 = l.slice();
     l1.splice(i, 1);
@@ -194,7 +194,7 @@ exports._updateAt = function (just) {
   };
 };
 
-exports._unsafeUpdateAt = function (i) {
+exports.unsafeUpdateAtImpl = function (i) {
   return function (a) {
     return function (l) {
       var l1 = l.slice();
@@ -204,7 +204,7 @@ exports._unsafeUpdateAt = function (i) {
   };
 };
 
-exports._unsafeModifyAt = function (i) {
+exports.unsafeModifyAtImpl = function (i) {
   return function (f) {
     return function (l) {
       var l1 = l.slice();
