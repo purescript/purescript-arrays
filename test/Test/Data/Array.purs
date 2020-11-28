@@ -151,6 +151,10 @@ testArray = do
   assert $ (A.find (_ /= 1) [1, 2, 1]) == Just 2
   assert $ (A.find (_ == 3) [1, 2, 1]) == Nothing
 
+  log "findMap should return the mapping of the first element that satisfies the given predicate"
+  assert $ (A.findMap (\x -> if x > 3 then Just "foo" else Nothing) [1, 2, 4]) == Just "foo"
+  assert $ (A.findMap (\x -> if x > 3 then Just "foo" else Nothing) [1, 2, 1]) == Nothing
+
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.findIndex (_ /= 1) [1, 2, 1]) == Just 1
   assert $ (A.findIndex (_ == 3) [1, 2, 1]) == Nothing

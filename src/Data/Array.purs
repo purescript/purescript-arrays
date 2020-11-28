@@ -57,6 +57,7 @@ module Data.Array
   , elemIndex
   , elemLastIndex
   , find
+  , findMap
   , findIndex
   , findLastIndex
   , insertAt
@@ -130,7 +131,7 @@ import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, findMap, any, all) as Exports
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
@@ -435,6 +436,19 @@ elemLastIndex x = findLastIndex (_ == x)
 -- | ```
 find :: forall a. (a -> Boolean) -> Array a -> Maybe a
 find f xs = unsafePartial (unsafeIndex xs) <$> findIndex f xs
+
+-- | Find the first element in a data structure which satisfies
+-- | a predicate mapping.
+findMap :: forall a b. (a -> Maybe b) -> Array a -> Maybe b
+findMap = findMapImpl Nothing isJust
+
+foreign import findMapImpl
+  :: forall a b
+   . (forall c. Maybe c)
+  -> (forall c. Maybe c -> Boolean)
+  -> (a -> Maybe b)
+  -> Array a
+  -> Maybe b
 
 -- | Find the first index for which a predicate holds.
 -- |

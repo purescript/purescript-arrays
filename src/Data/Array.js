@@ -107,6 +107,20 @@ exports.indexImpl = function (just) {
   };
 };
 
+exports.findMapImpl = function (nothing) {
+  return function (isJust) {
+    return function (f) {
+      return function (xs) {
+        for (var i = 0; i < xs.length; i++) {
+          var result = f(xs[i]);
+          if (isJust(result)) return result;
+        }
+        return nothing;
+      };
+    };
+  };
+};
+
 exports.findIndexImpl = function (just) {
   return function (nothing) {
     return function (f) {
