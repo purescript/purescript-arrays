@@ -78,6 +78,8 @@ module Data.Array
   , mapMaybe
   , catMaybes
   , mapWithIndex
+  , scanl
+  , scanr
 
   , sort
   , sortBy
@@ -729,6 +731,32 @@ updateAtIndices us xs =
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
   ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modify i f res) is) xs)
+
+-- | Fold a data structure from the left, keeping all intermediate results
+-- | instead of only the final result. Note that the initial value does not
+-- | appear in the result (unlike Haskell's `Prelude.scanl`).
+-- |
+-- | ```
+-- | scanl (+) 0  [1,2,3] = [1,3,6]
+-- | scanl (-) 10 [1,2,3] = [9,7,4]
+-- | ```
+scanl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
+scanl = scanlImpl
+
+foreign import scanlImpl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
+
+-- | Fold a data structure from the right, keeping all intermediate results
+-- | instead of only the final result. Note that the initial value does not
+-- | appear in the result (unlike Haskell's `Prelude.scanr`).
+-- |
+-- | ```
+-- | scanr (+) 0 [1,2,3] = [6,5,3]
+-- | scanr (flip (-)) 10 [1,2,3] = [4,5,7]
+-- | ```
+scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
+scanr = scanrImpl
+
+foreign import scanrImpl :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------

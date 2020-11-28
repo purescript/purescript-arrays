@@ -253,6 +253,14 @@ testArray = do
   assert $ A.modifyAtIndices [0, 2, 8] not [true,  true, true,  true] ==
                                            [false, true, false, true]
 
+  log "scanl should return an array that stores the accumulated value at each step"
+  assert $ A.scanl (+)  0 [1,2,3] == [1, 3, 6]
+  assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
+
+  log "scanr should return an array that stores the accumulated value at each step"
+  assert $ A.scanr (+) 0 [1,2,3] == [6,5,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == [4,5,7]
+
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
 

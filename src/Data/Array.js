@@ -236,6 +236,34 @@ exports.partition = function (f) {
   };
 };
 
+exports.scanlImpl = function (f) {
+  return function (b) {
+    return function (xs) {
+      var acc = b;
+      var out = [];
+      for (var i = 0; i < xs.length; i++) {
+        acc = f(acc)(xs[i]);
+        out.push(acc);
+      }
+      return out;
+    };
+  };
+};
+
+exports.scanrImpl = function (f) {
+  return function (b) {
+    return function (xs) {
+      var acc = b;
+      var out = [];
+      for (var i = xs.length - 1; i >= 0; i--) {
+        acc = f(xs[i])(acc);
+        out.push(acc);
+      }
+      return out.reverse();
+    };
+  };
+};
+
 //------------------------------------------------------------------------------
 // Sorting ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
