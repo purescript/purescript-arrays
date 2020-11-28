@@ -131,6 +131,14 @@ testArray = do
   assert $ [1, 2, 3] !! 6 == Nothing
   assert $ [1, 2, 3] !! (-1) == Nothing
 
+  log "elem should return true if the array contains the given element at least once"
+  assert $ (A.elem 1 [1, 2, 1]) == true
+  assert $ (A.elem 4 [1, 2, 1]) == false
+
+  log "notElem should return true if the array does not contain the given element"
+  assert $ (A.notElem 1 [1, 2, 1]) == false
+  assert $ (A.notElem 4 [1, 2, 1]) == true
+
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.elemIndex 1 [1, 2, 1]) == Just 0
   assert $ (A.elemIndex 4 [1, 2, 1]) == Nothing

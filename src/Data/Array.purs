@@ -52,6 +52,8 @@ module Data.Array
   , unsnoc
 
   , (!!), index
+  , elem
+  , notElem
   , elemIndex
   , elemLastIndex
   , find
@@ -128,8 +130,8 @@ import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, findMap, any, all) as Exports
-import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, findMap, any, all) as Exports
+import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
@@ -398,6 +400,12 @@ foreign import indexImpl
 -- | ```
 -- |
 infixl 8 index as !!
+
+elem :: forall a. Eq a => a -> Array a -> Boolean
+elem a arr = isJust $ elemIndex a arr
+
+notElem :: forall a. Eq a => a -> Array a -> Boolean
+notElem a arr = isNothing $ elemIndex a arr
 
 -- | Find the index of the first element equal to the specified element.
 -- |
