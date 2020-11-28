@@ -404,9 +404,11 @@ foreign import indexImpl
 -- |
 infixl 8 index as !!
 
+-- | Returns true if the array has the given element.
 elem :: forall a. Eq a => a -> Array a -> Boolean
 elem a arr = isJust $ elemIndex a arr
 
+-- | Returns true if the array does not have the given element.
 notElem :: forall a. Eq a => a -> Array a -> Boolean
 notElem a arr = isNothing $ elemIndex a arr
 
