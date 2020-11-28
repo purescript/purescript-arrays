@@ -239,11 +239,12 @@ exports.partition = function (f) {
 exports.scanlImpl = function (f) {
   return function (b) {
     return function (xs) {
+      var len = xs.length;
       var acc = b;
-      var out = [];
-      for (var i = 0; i < xs.length; i++) {
+      var out = new Array(len);
+      for (var i = 0; i < len; i++) {
         acc = f(acc)(xs[i]);
-        out.push(acc);
+        out[i] = acc;
       }
       return out;
     };
@@ -253,13 +254,14 @@ exports.scanlImpl = function (f) {
 exports.scanrImpl = function (f) {
   return function (b) {
     return function (xs) {
+      var len = xs.length;
       var acc = b;
-      var out = [];
-      for (var i = xs.length - 1; i >= 0; i--) {
+      var out = new Array(len);
+      for (var i = len - 1; i >= 0; i--) {
         acc = f(xs[i])(acc);
-        out.push(acc);
+        out[i] = acc;
       }
-      return out.reverse();
+      return out;
     };
   };
 };
