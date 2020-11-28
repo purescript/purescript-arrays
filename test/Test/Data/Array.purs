@@ -139,6 +139,10 @@ testArray = do
   assert $ (A.elemLastIndex 1 [1, 2, 1]) == Just 2
   assert $ (A.elemLastIndex 4 [1, 2, 1]) == Nothing
 
+  log "find should return the first element for which a predicate returns true in an array"
+  assert $ (A.find (_ /= 1) [1, 2, 1]) == Just 2
+  assert $ (A.find (_ == 3) [1, 2, 1]) == Nothing
+
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.findIndex (_ /= 1) [1, 2, 1]) == Just 1
   assert $ (A.findIndex (_ == 3) [1, 2, 1]) == Nothing

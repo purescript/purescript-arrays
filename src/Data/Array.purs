@@ -54,6 +54,7 @@ module Data.Array
   , (!!), index
   , elemIndex
   , elemLastIndex
+  , find
   , findIndex
   , findLastIndex
   , insertAt
@@ -127,7 +128,7 @@ import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, findMap, any, all) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
 import Data.Traversable (scanl, scanr) as Exports
 import Data.Traversable (sequence, traverse)
@@ -417,6 +418,15 @@ elemIndex x = findIndex (_ == x)
 -- |
 elemLastIndex :: forall a. Eq a => a -> Array a -> Maybe Int
 elemLastIndex x = findLastIndex (_ == x)
+
+-- | Find the first element for which a predicate holds.
+-- |
+-- | ```purescript
+-- | findIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just "bb"
+-- | findIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
+-- | ```
+find :: forall a. (a -> Boolean) -> Array a -> Maybe a
+find f xs = unsafePartial (unsafeIndex xs) <$> findIndex f xs
 
 -- | Find the first index for which a predicate holds.
 -- |
