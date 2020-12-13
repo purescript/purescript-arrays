@@ -7,7 +7,7 @@ module Data.Array.ST
   , Assoc
   , run
   , withArray
-  , empty
+  , new
   , peek
   , poke
   , modify
@@ -75,8 +75,8 @@ foreign import unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
 -- | array must not be used afterward.
 foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
--- | Create an empty mutable array.
-foreign import empty :: forall h a. ST h (STArray h a)
+-- | Create a new, empty mutable array.
+foreign import new :: forall h a. ST h (STArray h a)
 
 -- | Create a mutable copy of an immutable array.
 foreign import thaw :: forall h a. Array a -> ST h (STArray h a)

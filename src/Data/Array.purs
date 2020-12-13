@@ -887,10 +887,10 @@ group' = group <<< sort
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
 groupBy op xs =
   ST.run do
-    result <- STA.empty
+    result <- STA.new
     iter <- STAI.iterator (xs !! _)
     STAI.iterate iter \x -> void do
-      sub <- STA.empty
+      sub <- STA.new
       _ <- STA.push x sub
       STAI.pushWhile (op x) iter sub
       grp <- STA.unsafeFreeze sub
@@ -952,7 +952,7 @@ nubBy comp xs = case head indexedAndSorted of
 -- |
 nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 nubByEq eq xs = ST.run do
-  arr <- STA.empty
+  arr <- STA.new
   ST.foreach xs \x -> do
     e <- not <<< Exports.any (_ `eq` x) <$> (STA.unsafeFreeze arr)
     when e $ void $ STA.push x arr
@@ -1101,8 +1101,8 @@ zip = zipWith Tuple
 unzip :: forall a b. Array (Tuple a b) -> Tuple (Array a) (Array b)
 unzip xs =
   ST.run do
-    fsts <- STA.empty
-    snds <- STA.empty
+    fsts <- STA.new
+    snds <- STA.new
     iter <- STAI.iterator (xs !! _)
     STAI.iterate iter \(Tuple fst snd) -> do
       void $ STA.push fst fsts
