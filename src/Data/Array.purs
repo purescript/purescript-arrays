@@ -124,7 +124,8 @@ import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
-import Data.Array.ST as STA
+import Data.Array.ST (empty, modify, poke, push, withArray) as STA
+import Data.Array.ST.Unsafe (unsafeFreeze, unsafeThaw) as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports

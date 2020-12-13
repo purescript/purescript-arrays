@@ -3,7 +3,8 @@ module Test.Data.Array.ST.Partial (testArraySTPartial) where
 import Prelude
 
 import Control.Monad.ST as ST
-import Data.Array.ST (thaw, unsafeFreeze)
+import Data.Array.ST (thaw)
+import Data.Array.ST.Unsafe (unsafeFreeze)
 import Data.Array.ST.Partial as STAP
 import Effect (Effect)
 import Effect.Console (log)

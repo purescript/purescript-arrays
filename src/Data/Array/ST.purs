@@ -3,7 +3,7 @@
 -- | This module can be used when performance is important and mutation is a local effect.
 
 module Data.Array.ST
-  ( STArray(..)
+  ( module Data.Array.ST.Internal
   , Assoc
   , run
   , withArray
@@ -23,27 +23,16 @@ module Data.Array.ST
   , sortWith
   , freeze
   , thaw
-  , unsafeFreeze
-  , unsafeThaw
   , toAssocArray
   ) where
 
 import Prelude
 
 import Control.Monad.ST as ST
-import Control.Monad.ST (ST, Region)
+import Control.Monad.ST (ST)
+import Data.Array.ST.Internal (STArray)
+import Data.Array.ST.Unsafe (unsafeFreeze)
 import Data.Maybe (Maybe(..))
-
--- | A reference to a mutable array.
--- |
--- | The first type parameter represents the memory region which the array belongs to.
--- | The second type parameter defines the type of elements of the mutable array.
--- |
--- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
--- | except that mutation is allowed.
-foreign import data STArray :: Region -> Type -> Type
-
-type role STArray nominal representational
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
@@ -66,14 +55,6 @@ withArray f xs = do
   result <- thaw xs
   _ <- f result
   unsafeFreeze result
-
--- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
--- | array must not be mutated afterwards.
-foreign import unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
-
--- | O(1) Convert an immutable array to a mutable array, without copying. The input
--- | array must not be used afterward.
-foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
 -- | Create an empty mutable array.
 foreign import empty :: forall h a. ST h (STArray h a)

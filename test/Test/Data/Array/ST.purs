@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.ST as ST
 import Data.Array.ST (withArray)
 import Data.Array.ST as STA
+import Data.Array.ST.Unsafe (unsafeThaw)
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
 import Effect (Effect)
@@ -44,7 +45,7 @@ testArrayST = do
 
   log "unsafeThaw should produce an STArray from a standard array"
 
-  assert $ STA.run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]
+  assert $ STA.run (unsafeThaw [1, 2, 3]) == [1, 2, 3]
 
   log "pop should remove elements from an STArray"
 
@@ -222,17 +223,17 @@ testArrayST = do
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ STA.run (
-    STA.sort =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+    STA.sort =<< unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [1, 2, 3, 4, 5, 6]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ STA.run (
-    STA.sortBy (flip compare) =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+    STA.sortBy (flip compare) =<< unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [6, 5, 4, 3, 2, 1]
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
   assert $ STA.run (
-    STA.sortWith identity =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
+    STA.sortWith identity =<< unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [1, 2, 3, 4, 5, 6]
 
   log "splice should be able to delete multiple items at a specified index"
