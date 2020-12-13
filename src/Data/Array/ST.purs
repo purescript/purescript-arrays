@@ -23,6 +23,8 @@ module Data.Array.ST
   , sortWith
   , freeze
   , thaw
+  , unsafeFreeze
+  , unsafeThaw
   , toAssocArray
   ) where
 
@@ -31,8 +33,9 @@ import Prelude
 import Control.Monad.ST as ST
 import Control.Monad.ST (ST)
 import Data.Array.ST.Internal (STArray)
-import Data.Array.ST.Unsafe (unsafeFreeze)
+import Data.Array.ST.Unsafe as STA
 import Data.Maybe (Maybe(..))
+import Prim.TypeError (class Warn, Text)
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
@@ -42,7 +45,7 @@ type Assoc a = { value :: a, index :: Int }
 -- | before returning it - it uses unsafeFreeze internally, but this wrapper is
 -- | a safe interface to that function.
 run :: forall a. (forall h. ST h (STArray h a)) -> Array a
-run st = ST.run (st >>= unsafeFreeze)
+run st = ST.run (st >>= STA.unsafeFreeze)
 
 -- | Perform an effect requiring a mutable array on a copy of an immutable array,
 -- | safely returning the result as an immutable array.
@@ -54,7 +57,17 @@ withArray
 withArray f xs = do
   result <- thaw xs
   _ <- f result
-  unsafeFreeze result
+  STA.unsafeFreeze result
+
+-- | O(1). Convert a mutable array to an immutable array, without copying. The mutable
+-- | array must not be mutated afterwards.
+unsafeFreeze :: forall h a. Warn (Text "'Data.Array.ST.unsafeFreeze' is deprecated, use 'Data.Array.ST.Unsafe.unsafeFreeze' instead") => STArray h a -> ST h (Array a)
+unsafeFreeze = STA.unsafeFreeze
+
+-- | O(1) Convert an immutable array to a mutable array, without copying. The input
+-- | array must not be used afterward.
+unsafeThaw :: forall h a. Warn (Text "'Data.Array.ST.unsafeThaw' is deprecated, use 'Data.Array.ST.Unsafe.unsafeThaw' instead") => Array a -> ST h (STArray h a)
+unsafeThaw = STA.unsafeThaw
 
 -- | Create an empty mutable array.
 foreign import empty :: forall h a. ST h (STArray h a)
