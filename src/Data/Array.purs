@@ -553,17 +553,16 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 -- Transformations -------------------------------------------------------------
 --------------------------------------------------------------------------------
 
--- | Inserts the given element in-between each element in the array. The array
+-- | Inserts the given element in between each element in the array. The array
 -- | must have two or more elements for this operation to take effect.
 -- |
--- | For example:
 -- | ```purescript
 -- | intersperse " " [ "a", "b" ] == [ "a", " ", "b" ]
--- |
 -- | intersperse 0 [ 1, 2, 3, 4, 5 ] == [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
 -- | ```
--- | If the array has one or zero elements, the outputted array is the same
--- | as the input array.
+-- |
+-- | If the array has one or zero elements, the resulting array is a copy
+-- | of the input array.
 -- | ```purescript
 -- | intersperse " " [] == []
 -- | intersperse " " ["a"] == ["a"]
