@@ -570,7 +570,7 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 -- | ```
 intersperse :: forall a. a -> Array a -> Array a
 intersperse a arr = case length arr of
-  len | len < 2 -> arr
+  len | len < 2 -> STA.run (STA.thaw arr)
       | otherwise -> STA.run do
           let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
           out <- STA.empty
