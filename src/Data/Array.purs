@@ -124,7 +124,6 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
-import Control.Monad.ST.Internal as STI
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
@@ -573,7 +572,7 @@ intersperse a arr = case length arr of
           let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
           out <- STA.empty
           _ <- STA.push (unsafeGetElem 0) out
-          STI.for 1 len \idx -> do
+          ST.for 1 len \idx -> do
             _ <- STA.push a out
             void (STA.push (unsafeGetElem idx) out)
           pure out
