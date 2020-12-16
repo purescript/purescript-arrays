@@ -236,7 +236,7 @@ exports.partition = function (f) {
   };
 };
 
-exports.scanlImpl = function (f) {
+exports.scanl = function (f) {
   return function (b) {
     return function (xs) {
       var len = xs.length;
@@ -251,7 +251,7 @@ exports.scanlImpl = function (f) {
   };
 };
 
-exports.scanrImpl = function (f) {
+exports.scanr = function (f) {
   return function (b) {
     return function (xs) {
       var len = xs.length;

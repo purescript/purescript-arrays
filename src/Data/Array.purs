@@ -741,10 +741,7 @@ modifyAtIndices is f xs =
 -- | scanl (+) 0  [1,2,3] = [1,3,6]
 -- | scanl (-) 10 [1,2,3] = [9,7,4]
 -- | ```
-scanl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
-scanl = scanlImpl
-
-foreign import scanlImpl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
+foreign import scanl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
 
 -- | Fold a data structure from the right, keeping all intermediate results
 -- | instead of only the final result. Note that the initial value does not
@@ -754,10 +751,7 @@ foreign import scanlImpl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
 -- | scanr (+) 0 [1,2,3] = [6,5,3]
 -- | scanr (flip (-)) 10 [1,2,3] = [4,5,7]
 -- | ```
-scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
-scanr = scanrImpl
-
-foreign import scanrImpl :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
+foreign import scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------
