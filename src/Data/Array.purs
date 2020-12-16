@@ -560,7 +560,7 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 -- | intersperse 0 [ 1, 2, 3, 4, 5 ] == [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
 -- | ```
 -- |
--- | If the array has one or zero elements, the input array is returned.
+-- | If the array has less than two elements, the input array is returned.
 -- | ```purescript
 -- | intersperse " " [] == []
 -- | intersperse " " ["a"] == ["a"]
