@@ -64,6 +64,7 @@ module Data.Array
   , modifyAtIndices
   , alterAt
 
+  , intersperse
   , reverse
   , concat
   , concatMap
@@ -550,6 +551,31 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 --------------------------------------------------------------------------------
 -- Transformations -------------------------------------------------------------
 --------------------------------------------------------------------------------
+
+-- | Inserts the given element in between each element in the array. The array
+-- | must have two or more elements for this operation to take effect.
+-- |
+-- | ```purescript
+-- | intersperse " " [ "a", "b" ] == [ "a", " ", "b" ]
+-- | intersperse 0 [ 1, 2, 3, 4, 5 ] == [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
+-- | ```
+-- |
+-- | If the array has less than two elements, the input array is returned.
+-- | ```purescript
+-- | intersperse " " [] == []
+-- | intersperse " " ["a"] == ["a"]
+-- | ```
+intersperse :: forall a. a -> Array a -> Array a
+intersperse a arr = case length arr of
+  len | len < 2 -> arr
+      | otherwise -> STA.run do
+          let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
+          out <- STA.empty
+          _ <- STA.push (unsafeGetElem 0) out
+          ST.for 1 len \idx -> do
+            _ <- STA.push a out
+            void (STA.push (unsafeGetElem idx) out)
+          pure out
 
 -- | Reverse an array, creating a new array.
 -- |

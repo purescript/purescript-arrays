@@ -187,6 +187,14 @@ testArray = do
   log "alterAt should return Nothing if the index is out of A.range"
   assert $ (A.alterAt 1 (Just <<< (_ + 1)) nil) == Nothing
 
+  log "intersperse should return the original array when given an array with zero or one elements"
+  assert $ (A.intersperse " " []) == []
+  assert $ (A.intersperse " " ["a"]) == ["a"]
+
+  log "intersperse should insert the given element in-between each element in an array with two or more elements"
+  assert $ (A.intersperse " " ["a", "b"]) == ["a", " ", "b"]
+  assert $ (A.intersperse 0 [ 1, 2, 3, 4, 5 ]) == [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
+
   log "reverse should reverse the order of items in an array"
   assert $ (A.reverse [1, 2, 3]) == [3, 2, 1]
   assert $ (A.reverse nil) == nil
