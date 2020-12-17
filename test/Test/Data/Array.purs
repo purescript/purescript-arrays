@@ -6,7 +6,8 @@ import Data.Array ((:), (\\), (!!))
 import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
-import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_, scanl, scanr)
+import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
+import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
