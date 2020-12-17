@@ -52,8 +52,12 @@ module Data.Array
   , unsnoc
 
   , (!!), index
+  , elem
+  , notElem
   , elemIndex
   , elemLastIndex
+  , find
+  , findMap
   , findIndex
   , findLastIndex
   , insertAt
@@ -75,6 +79,8 @@ module Data.Array
   , mapMaybe
   , catMaybes
   , mapWithIndex
+  , scanl
+  , scanr
 
   , sort
   , sortBy
@@ -128,9 +134,8 @@ import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, elem, notElem, find, findMap, any, all) as Exports
-import Data.Maybe (Maybe(..), maybe, isJust, fromJust)
-import Data.Traversable (scanl, scanr) as Exports
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, any, all) as Exports
+import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -399,6 +404,14 @@ foreign import indexImpl
 -- |
 infixl 8 index as !!
 
+-- | Returns true if the array has the given element.
+elem :: forall a. Eq a => a -> Array a -> Boolean
+elem a arr = isJust $ elemIndex a arr
+
+-- | Returns true if the array does not have the given element.
+notElem :: forall a. Eq a => a -> Array a -> Boolean
+notElem a arr = isNothing $ elemIndex a arr
+
 -- | Find the index of the first element equal to the specified element.
 -- |
 -- | ```purescript
@@ -418,6 +431,28 @@ elemIndex x = findIndex (_ == x)
 -- |
 elemLastIndex :: forall a. Eq a => a -> Array a -> Maybe Int
 elemLastIndex x = findLastIndex (_ == x)
+
+-- | Find the first element for which a predicate holds.
+-- |
+-- | ```purescript
+-- | findIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just "bb"
+-- | findIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
+-- | ```
+find :: forall a. (a -> Boolean) -> Array a -> Maybe a
+find f xs = unsafePartial (unsafeIndex xs) <$> findIndex f xs
+
+-- | Find the first element in a data structure which satisfies
+-- | a predicate mapping.
+findMap :: forall a b. (a -> Maybe b) -> Array a -> Maybe b
+findMap = findMapImpl Nothing isJust
+
+foreign import findMapImpl
+  :: forall a b
+   . (forall c. Maybe c)
+  -> (forall c. Maybe c -> Boolean)
+  -> (a -> Maybe b)
+  -> Array a
+  -> Maybe b
 
 -- | Find the first index for which a predicate holds.
 -- |
@@ -723,6 +758,26 @@ updateAtIndices us xs =
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
   ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modify i f res) is) xs)
+
+-- | Fold a data structure from the left, keeping all intermediate results
+-- | instead of only the final result. Note that the initial value does not
+-- | appear in the result (unlike Haskell's `Prelude.scanl`).
+-- |
+-- | ```
+-- | scanl (+) 0  [1,2,3] = [1,3,6]
+-- | scanl (-) 10 [1,2,3] = [9,7,4]
+-- | ```
+foreign import scanl :: forall a b. (b -> a -> b) -> b -> Array a -> Array b
+
+-- | Fold a data structure from the right, keeping all intermediate results
+-- | instead of only the final result. Note that the initial value does not
+-- | appear in the result (unlike Haskell's `Prelude.scanr`).
+-- |
+-- | ```
+-- | scanr (+) 0 [1,2,3] = [6,5,3]
+-- | scanr (flip (-)) 10 [1,2,3] = [4,5,7]
+-- | ```
+foreign import scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
 
 --------------------------------------------------------------------------------
 -- Sorting ---------------------------------------------------------------------

@@ -107,6 +107,20 @@ exports.indexImpl = function (just) {
   };
 };
 
+exports.findMapImpl = function (nothing) {
+  return function (isJust) {
+    return function (f) {
+      return function (xs) {
+        for (var i = 0; i < xs.length; i++) {
+          var result = f(xs[i]);
+          if (isJust(result)) return result;
+        }
+        return nothing;
+      };
+    };
+  };
+};
+
 exports.findIndexImpl = function (just) {
   return function (nothing) {
     return function (f) {
@@ -219,6 +233,36 @@ exports.partition = function (f) {
         no.push(x);
     }
     return { yes: yes, no: no };
+  };
+};
+
+exports.scanl = function (f) {
+  return function (b) {
+    return function (xs) {
+      var len = xs.length;
+      var acc = b;
+      var out = new Array(len);
+      for (var i = 0; i < len; i++) {
+        acc = f(acc)(xs[i]);
+        out[i] = acc;
+      }
+      return out;
+    };
+  };
+};
+
+exports.scanr = function (f) {
+  return function (b) {
+    return function (xs) {
+      var len = xs.length;
+      var acc = b;
+      var out = new Array(len);
+      for (var i = len - 1; i >= 0; i--) {
+        acc = f(xs[i])(acc);
+        out[i] = acc;
+      }
+      return out;
+    };
   };
 };
 

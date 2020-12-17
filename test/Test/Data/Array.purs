@@ -7,6 +7,7 @@ import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
+import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
@@ -131,6 +132,14 @@ testArray = do
   assert $ [1, 2, 3] !! 6 == Nothing
   assert $ [1, 2, 3] !! (-1) == Nothing
 
+  log "elem should return true if the array contains the given element at least once"
+  assert $ (A.elem 1 [1, 2, 1]) == true
+  assert $ (A.elem 4 [1, 2, 1]) == false
+
+  log "notElem should return true if the array does not contain the given element"
+  assert $ (A.notElem 1 [1, 2, 1]) == false
+  assert $ (A.notElem 4 [1, 2, 1]) == true
+
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.elemIndex 1 [1, 2, 1]) == Just 0
   assert $ (A.elemIndex 4 [1, 2, 1]) == Nothing
@@ -138,6 +147,15 @@ testArray = do
   log "elemLastIndex should return the last index of an item in an array"
   assert $ (A.elemLastIndex 1 [1, 2, 1]) == Just 2
   assert $ (A.elemLastIndex 4 [1, 2, 1]) == Nothing
+
+  log "find should return the first element for which a predicate returns true in an array"
+  assert $ (A.find (_ /= 1) [1, 2, 1]) == Just 2
+  assert $ (A.find (_ == 3) [1, 2, 1]) == Nothing
+
+  log "findMap should return the mapping of the first element that satisfies the given predicate"
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [1, 2, 4]) == Just 4
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [1, 2, 1]) == Nothing
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [4, 1, 5]) == Just 4
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.findIndex (_ /= 1) [1, 2, 1]) == Just 1
@@ -244,6 +262,22 @@ testArray = do
   log "modifyAtIndices modifies the elements at specified indices"
   assert $ A.modifyAtIndices [0, 2, 8] not [true,  true, true,  true] ==
                                            [false, true, false, true]
+
+  log "scanl should return an array that stores the accumulated value at each step"
+  assert $ A.scanl (+)  0 [1,2,3] == [1, 3, 6]
+  assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
+
+  log "scanl should return the same results as its Foldable counterpart"
+  assert $ A.scanl (+)  0 [1,2,3] == scanl (+) 0 [1,2,3]
+  assert $ A.scanl (-) 10 [1,2,3] == scanl (-) 10 [1,2,3]
+
+  log "scanr should return an array that stores the accumulated value at each step"
+  assert $ A.scanr (+) 0 [1,2,3] == [6,5,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == [4,5,7]
+
+  log "scanr should return the same results as its Foldable counterpart"
+  assert $ A.scanr (+) 0 [1,2,3] == scanr (+) 0 [1,2,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == scanr (flip (-)) 10 [1,2,3]
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
