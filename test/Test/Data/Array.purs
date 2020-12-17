@@ -6,7 +6,7 @@ import Data.Array ((:), (\\), (!!))
 import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
-import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
+import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_, scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
@@ -258,9 +258,17 @@ testArray = do
   assert $ A.scanl (+)  0 [1,2,3] == [1, 3, 6]
   assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
 
+  log "scanl should return the same results as its Foldable counterpart"
+  assert $ A.scanl (+)  0 [1,2,3] == scanl (+) 0 [1,2,3]
+  assert $ A.scanl (-) 10 [1,2,3] == scanl (-) 10 [1,2,3]
+
   log "scanr should return an array that stores the accumulated value at each step"
   assert $ A.scanr (+) 0 [1,2,3] == [6,5,3]
   assert $ A.scanr (flip (-)) 10 [1,2,3] == [4,5,7]
+
+  log "scanr should return the same results as its Foldable counterpart"
+  assert $ A.scanr (+) 0 [1,2,3] == scanr (+) 0 [1,2,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == scanr (flip (-)) 10 [1,2,3]
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
