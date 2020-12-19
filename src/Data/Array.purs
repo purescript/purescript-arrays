@@ -115,6 +115,9 @@ module Data.Array
   , zip
   , unzip
 
+  , any
+  , all
+
   , foldM
   , foldRecM
 
@@ -134,7 +137,7 @@ import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate, any, all) as Exports
+import Data.Foldable (foldl, foldr, foldMap, fold, intercalate) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
@@ -1035,7 +1038,7 @@ nubByEq :: forall a. (a -> a -> Boolean) -> Array a -> Array a
 nubByEq eq xs = ST.run do
   arr <- STA.empty
   ST.foreach xs \x -> do
-    e <- not <<< Exports.any (_ `eq` x) <$> (STA.unsafeFreeze arr)
+    e <- not <<< any (_ `eq` x) <$> (STA.unsafeFreeze arr)
     when e $ void $ STA.push x arr
   STA.unsafeFreeze arr
 
@@ -1191,6 +1194,12 @@ unzip xs =
     fsts' <- STA.unsafeFreeze fsts
     snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'
+
+-- | Returns true if at least one array element satisfy the given predicate.
+foreign import any :: forall a. (a -> Boolean) -> Array a -> Boolean
+
+-- | Returns true if all the array elements satisfy the given predicate.
+foreign import all :: forall a. (a -> Boolean) -> Array a -> Boolean
 
 -- | Perform a fold using a monadic step function.
 -- |

@@ -89,6 +89,9 @@ module Data.Array.NonEmpty
   , zip
   , unzip
 
+  , any
+  , all
+
   , foldM
   , foldRecM
 
@@ -437,6 +440,12 @@ zip xs ys = unsafeFromArray $ toArray xs `A.zip` toArray ys
 
 unzip :: forall a b. NonEmptyArray (Tuple a b) -> Tuple (NonEmptyArray a) (NonEmptyArray b)
 unzip = bimap unsafeFromArray unsafeFromArray <<< A.unzip <<< toArray
+
+any :: forall a. (a -> Boolean) -> NonEmptyArray a -> Boolean
+any p = adaptAny $ A.any p
+
+all :: forall a. (a -> Boolean) -> NonEmptyArray a -> Boolean
+all p = adaptAny $ A.all p
 
 foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldM f acc = adaptAny $ A.foldM f acc
