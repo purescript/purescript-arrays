@@ -1195,10 +1195,26 @@ unzip xs =
     snds' <- STA.unsafeFreeze snds
     pure $ Tuple fsts' snds'
 
--- | Returns true if at least one array element satisfy the given predicate.
+-- | Returns true if at least one array element satisfies the given predicate,
+-- | iterating the array only as necessary and stopping as soon as the predicate
+-- | yields true.
+-- |
+-- | ```purescript
+-- | any (_ > 0) [] = False
+-- | any (_ > 0) [-1, 0, 1] = True
+-- | any (_ > 0) [-1, -2, -3] = False
+-- | ```
 foreign import any :: forall a. (a -> Boolean) -> Array a -> Boolean
 
 -- | Returns true if all the array elements satisfy the given predicate.
+-- | iterating the array only as necessary and stopping as soon as the predicate
+-- | yields false.
+-- |
+-- | ```purescript
+-- | all (_ > 0) [] = True
+-- | all (_ > 0) [1, 2, 3] = True
+-- | all (_ > 0) [-1, -2, -3] = False
+-- | ```
 foreign import all :: forall a. (a -> Boolean) -> Array a -> Boolean
 
 -- | Perform a fold using a monadic step function.

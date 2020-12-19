@@ -286,12 +286,12 @@ testNonEmptyArray = do
   assert $ NEA.unzip (fromArray [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]) == Tuple (fromArray [1, 2, 3]) (fromArray ["a", "b", "c"])
 
   log "any should return true if at least one array element satisfy the given predicate"
-  assert $ NEA.any (_ > 2) $ fromArray [1, 2, 3]
-  assert $ not $ NEA.any (_ > 3) $ fromArray [1, 2, 3]
+  assert $ NEA.any (_ > 0) $ fromArray [-1, 0, 1]
+  assert $ not $ NEA.any (_ > 0) $ fromArray [-1, -2, -3]
 
   log "all should return true if all the array elements satisfy the given predicate"
   assert $ NEA.all (_ > 0) $ fromArray [1, 2, 3]
-  assert $ not $ NEA.all (_ > 1) $ fromArray [1, 2, 3]
+  assert $ not $ NEA.all (_ > 0) $ fromArray [-1, -2, -3]
 
   log "fromFoldable"
   for_ (fromArray [[], [1], [1,2], [1,2,3,4,5]]) \xs -> do
