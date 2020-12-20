@@ -349,16 +349,22 @@ testArray = do
   testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
-  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NEA.singleton 1, nea [2, 2], nea [3, 3, 3], NEA.singleton 1]
+  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [nea [1], nea [2, 2], nea [3, 3, 3], nea [1]]
 
-  log "group' should sort then group consecutive equal elements into arrays"
-  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
+  log "groupAll should group equal elements into arrays"
+  assert $ A.groupAll [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], nea [2], nea [2], nea [3, 3]]
 
   log "groupBy should be stable"
   assert $ A.groupBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
+
+  log "groupAllBy should group equal elements into arrays based on an equivalence relation"
+  assert $ A.groupAllBy (\x y -> odd x && odd y) [1, 3, 2, 4, 3, 3] == [nea [1], nea [2], nea [3, 3, 3], nea [4]]
+
+  log "groupAllBy should be stable"
+  assert $ A.groupAllBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
