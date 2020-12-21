@@ -18,6 +18,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
+import Test.Data.UndefinedOr (defined, undefined)
 
 testNonEmptyArray :: Effect Unit
 testNonEmptyArray = do
@@ -202,6 +203,7 @@ testNonEmptyArray = do
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ NEA.sort (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [1, 2, 3, 4, 5, 6]
+  assert $ NEA.sort (fromArray [defined 1, undefined, defined 2]) == fromArray [undefined, defined 1, defined 2]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ NEA.sortBy (flip compare) (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [6, 5, 4, 3, 2, 1]

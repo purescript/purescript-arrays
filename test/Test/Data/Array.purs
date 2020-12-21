@@ -15,6 +15,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
+import Test.Data.UndefinedOr (defined, undefined)
 
 testArray :: Effect Unit
 testArray = do
@@ -281,6 +282,7 @@ testArray = do
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+  assert $ A.sort [defined 1, undefined, defined 2] == [undefined, defined 1, defined 2]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]

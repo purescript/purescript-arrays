@@ -270,13 +270,65 @@ exports.scanr = function (f) {
 // Sorting ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.sortImpl = function (f) {
-  return function (l) {
-    return l.slice().sort(function (x, y) {
-      return f(x)(y);
-    });
+exports.sortByImpl = (function () {
+  function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
+    var mid;
+    var i;
+    var j;
+    var k;
+    var x;
+    var y;
+    var c;
+
+    mid = from + ((to - from) >> 1);
+    if (mid - from > 1) mergeFromTo(compare, fromOrdering, xs2, xs1, from, mid);
+    if (to - mid > 1) mergeFromTo(compare, fromOrdering, xs2, xs1, mid, to);
+
+    i = from;
+    j = mid;
+    k = from;
+    while (i < mid && j < to) {
+      x = xs2[i];
+      y = xs2[j];
+      c = fromOrdering(compare(x)(y));
+      if (c > 0) {
+        xs1[k++] = y;
+        ++j;
+      }
+      else if (c === 0) {
+        xs1[k++] = x;
+        xs1[k++] = y;
+        ++i;
+        ++j;
+      }
+      else {
+        xs1[k++] = x;
+        ++i;
+      }
+    }
+    while (i < mid) {
+      xs1[k++] = xs2[i++];
+    }
+    while (j < to) {
+      xs1[k++] = xs2[j++];
+    }
+  }
+
+  return function (compare) {
+    return function (fromOrdering) {
+      return function (xs) {
+        var out;
+
+        if (xs.length < 2) return xs;
+
+        out = xs.slice(0);
+        mergeFromTo(compare, fromOrdering, out, xs.slice(0), 0, xs.length);
+
+        return out;
+      };
+    };
   };
-};
+})();
 
 //------------------------------------------------------------------------------
 // Subarrays -------------------------------------------------------------------
