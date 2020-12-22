@@ -801,12 +801,10 @@ sort xs = sortBy compare xs
 -- | ```
 -- |
 sortBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
-sortBy comp xs = sortImpl comp' xs
-  where
-  comp' x y = case comp x y of
-    GT -> 1
-    EQ -> 0
-    LT -> -1
+sortBy comp = sortByImpl comp case _ of
+  GT -> 1
+  EQ -> 0
+  LT -> -1
 
 -- | Sort the elements of an array in increasing order, where elements are
 -- | sorted based on a projection
@@ -819,7 +817,7 @@ sortBy comp xs = sortImpl comp' xs
 sortWith :: forall a b. Ord b => (a -> b) -> Array a -> Array a
 sortWith f = sortBy (comparing f)
 
-foreign import sortImpl :: forall a. (a -> a -> Int) -> Array a -> Array a
+foreign import sortByImpl :: forall a. (a -> a -> Ordering) -> (Ordering -> Int) -> Array a -> Array a
 
 --------------------------------------------------------------------------------
 -- Subarrays -------------------------------------------------------------------

@@ -102,16 +102,15 @@ sortBy
    . (a -> a -> Ordering)
   -> STArray h a
   -> ST h (STArray h a)
-sortBy comp = sortByImpl comp'
-  where
-  comp' x y = case comp x y of
-    GT -> 1
-    EQ -> 0
-    LT -> -1
+sortBy comp = sortByImpl comp case _ of
+  GT -> 1
+  EQ -> 0
+  LT -> -1
 
 foreign import sortByImpl
   :: forall a h
-   . (a -> a -> Int)
+   . (a -> a -> Ordering)
+  -> (Ordering -> Int)
   -> STArray h a
   -> ST h (STArray h a)
 
