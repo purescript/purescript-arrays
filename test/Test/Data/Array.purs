@@ -423,6 +423,16 @@ testArray = do
   log "unzip should deconstruct a list of tuples into a tuple of lists"
   assert $ A.unzip [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"] == Tuple [1, 2, 3] ["a", "b", "c"]
 
+  log "any should return true if at least one array element satisfy the given predicate"
+  assert $ not $ A.any (_ > 0) []
+  assert $ A.any (_ > 0) [-1, 0, 1]
+  assert $ not $ A.any (_ > 0) [-1, -2, -3]
+
+  log "all should return true if all the array elements satisfy the given predicate"
+  assert $ A.all (_ > 0) []
+  assert $ A.all (_ > 0) [1, 2, 3]
+  assert $ not $ A.all (_ > 0) [-1, -2, -3]
+
   log "foldM should perform a fold using a monadic step function"
   assert $ A.foldM (\x y -> Just (x + y)) 0 (A.range 1 10) == Just 55
   assert $ A.foldM (\_ _ -> Nothing) 0 (A.range 1 10) == Nothing
