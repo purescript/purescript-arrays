@@ -94,8 +94,10 @@ module Data.Array
   , dropWhile
   , span
   , group
+  , groupAll
   , group'
   , groupBy
+  , groupAllBy
 
   , nub
   , nubEq
@@ -140,6 +142,7 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
+import Prim.TypeError (class Warn, Text)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -942,25 +945,29 @@ span p arr =
 -- | Group equal, consecutive elements of an array into arrays.
 -- |
 -- | ```purescript
--- | group [1,1,2,2,1] == [NonEmpty 1 [1], NonEmpty 2 [2], NonEmpty 1 []]
+-- | group [1, 1, 2, 2, 1] == [NonEmptyArray [1, 1], NonEmptyArray [2, 2], NonEmptyArray [1]]
 -- | ```
 group :: forall a. Eq a => Array a -> Array (NonEmptyArray a)
 group xs = groupBy eq xs
 
--- | Sort and then group the elements of an array into arrays.
+-- | Group equal elements of an array into arrays.
 -- |
 -- | ```purescript
--- | group' [1,1,2,2,1] == [NonEmpty 1 [1,1],NonEmpty 2 [2]]
+-- | groupAll [1, 1, 2, 2, 1] == [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
 -- | ```
-group' :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
-group' = group <<< sort
+groupAll :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
+groupAll = groupAllBy eq
+
+-- | Deprecated previous name of `groupAll`.
+group' :: forall a. Warn (Text "'group\'' is deprecated, use groupAll instead") => Ord a => Array a -> Array (NonEmptyArray a)
+group' = groupAll
 
 -- | Group equal, consecutive elements of an array into arrays, using the
--- | specified equivalence relation to detemine equality.
+-- | specified equivalence relation to determine equality.
 -- |
 -- | ```purescript
 -- | groupBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
--- |    = [NonEmpty 1 [3], NonEmpty 2 [] , NonEmpty 4 [], NonEmpty 3 [3]]
+-- |    = [NonEmptyArray [1, 3], NonEmptyArray [2], NonEmptyArray [4], NonEmptyArray [3, 3]]
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
@@ -975,6 +982,17 @@ groupBy op xs =
       grp <- STA.unsafeFreeze sub
       STA.push (NonEmptyArray grp) result
     STA.unsafeFreeze result
+
+-- | Group equal elements of an array into arrays, using the specified
+-- | equivalence relation to determine equality.
+-- |
+-- | ```purescript
+-- | groupAllBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
+-- |    = [NonEmptyArray [1], NonEmptyArray [2], NonEmptyArray [3, 3, 3], NonEmptyArray [4]]
+-- | ```
+-- |
+groupAllBy :: forall a. Ord a => (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
+groupAllBy p = groupBy p <<< sort
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
