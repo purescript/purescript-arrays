@@ -18,7 +18,7 @@ testArrayST = do
   log "run should produce an immutable array by running a constructor operation"
 
   assert $ STA.run (do
-    arr <- STA.empty
+    arr <- STA.new
     void $ STA.push 1 arr
     void $ STA.push 2 arr
     pure arr) == [1, 2]
@@ -31,7 +31,7 @@ testArrayST = do
 
   log "empty should produce an empty array"
 
-  assert $ STA.run STA.empty == nil
+  assert $ STA.run STA.new == nil
 
   log "thaw should produce an STArray from a standard array"
 
@@ -63,13 +63,13 @@ testArrayST = do
   log "pop should return Nothing when given an empty array"
 
   assert $ isNothing $ ST.run (do
-    arr <- STA.empty
+    arr <- STA.new
     STA.pop arr)
 
   log "push should append a value to the end of the array"
 
   assert $ STA.run (do
-    arr <- STA.empty
+    arr <- STA.new
     void $ STA.push 1 arr
     void $ STA.push 2 arr
     pure arr) == [1, 2]
@@ -88,7 +88,7 @@ testArrayST = do
   log "pushAll should append multiple values to the end of the array"
 
   assert $ STA.run (do
-    arr <- STA.empty
+    arr <- STA.new
     void $ STA.pushAll [1, 2] arr
     pure arr) == [1, 2]
 
@@ -106,7 +106,7 @@ testArrayST = do
   log "peek should return Nothing when peeking a value outside the array bounds"
 
   assert $ isNothing $ ST.run (do
-    arr <- STA.empty
+    arr <- STA.new
     STA.peek 0 arr)
 
   assert $ isNothing $ ST.run (do
@@ -114,7 +114,7 @@ testArrayST = do
     STA.peek 1 arr)
 
   assert $ isNothing $ ST.run (do
-    arr <- STA.empty
+    arr <- STA.new
     STA.peek (-1) arr)
 
   log "peek should return the value at the specified index"
@@ -140,7 +140,7 @@ testArrayST = do
   log "poke should return false when attempting to modify a value outside the array bounds"
 
   assert $ not $ ST.run (do
-    arr <- STA.empty
+    arr <- STA.new
     STA.poke 0 10 arr)
 
   assert $ not $ ST.run (do
@@ -181,13 +181,13 @@ testArrayST = do
   log "shift should return Nothing when given an empty array"
 
   assert $ isNothing $ ST.run (do
-    arr <- STA.empty
+    arr <- STA.new
     STA.shift arr)
 
   log "unshift should append a value to the front of the array"
 
   assert $ STA.run (do
-    arr <- STA.empty
+    arr <- STA.new
     void $ STA.unshift 1 arr
     void $ STA.unshift 2 arr
     pure arr) == [2, 1]
@@ -206,7 +206,7 @@ testArrayST = do
   log "unshiftAll should append multiple values to the front of the array"
 
   assert $ STA.run (do
-    arr <- STA.empty
+    arr <- STA.new
     void $ STA.unshiftAll [1, 2] arr
     pure arr) == [1, 2]
 

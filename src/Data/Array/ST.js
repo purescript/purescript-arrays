@@ -1,6 +1,6 @@
 "use strict";
 
-exports.empty = function () {
+exports["new"] = function () {
   return [];
 };
 
