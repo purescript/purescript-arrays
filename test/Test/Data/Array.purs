@@ -9,7 +9,7 @@ import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst)
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
 import Effect.Console (log)
@@ -289,6 +289,11 @@ testArray = do
 
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
   assert $ A.sortWith identity [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+
+  log "sortWith should be stable"
+  assert $ A.sortWith fst 
+             [Tuple "a" 1, Tuple "a" 2, Tuple "a" 3, Tuple "a" 4] ==
+             [Tuple "a" 1, Tuple "a" 2, Tuple "a" 3, Tuple "a" 4]
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]
