@@ -290,7 +290,7 @@ exports.sortByImpl = (function () {
     while (i < mid && j < to) {
       x = xs2[i];
       y = xs2[j];
-      c = fromOrdering(compare(x)(y));
+      c = fromOrdering(compare(x)(y)) || i - j;
       if (c > 0) {
         xs1[k++] = y;
         ++j;
