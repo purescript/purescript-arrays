@@ -363,10 +363,10 @@ testArray = do
   assert $ A.groupBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
 
   log "groupAllBy should group equal elements into arrays based on an equivalence relation"
-  assert $ A.groupAllBy (\x y -> odd x && odd y) [1, 3, 2, 4, 3, 3] == [nea [1], nea [2], nea [3, 3, 3], nea [4]]
+  assert $ A.groupAllBy (\x y -> compare (odd x) (odd y)) [1, 3, 2, 4, 3, 3] == [nea [2, 4], nea [1, 3, 3, 3]]
 
   log "groupAllBy should be stable"
-  assert $ A.groupAllBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
+  assert $ A.groupAllBy (\_ _ -> EQ) [1, 2, 3] == [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]

@@ -260,10 +260,10 @@ testNonEmptyArray = do
   assert $ NEA.groupBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [fromArray [1, 2, 3]]
 
   log "groupAllBy should group equal elements into arrays based on an equivalence relation"
-  assert $ NEA.groupAllBy (\x y -> odd x && odd y) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [1], nea [2], nea [3, 3, 3], nea [4]]
+  assert $ NEA.groupAllBy (\x y -> compare (odd x) (odd y)) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [2, 4], nea [1, 3, 3, 3]]
 
   log "groupAllBy should be stable"
-  assert $ NEA.groupAllBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [nea [1, 2, 3]]
+  assert $ NEA.groupAllBy (\_ _ -> EQ) (fromArray [1, 2, 3]) == fromArray [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ NEA.nub (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]

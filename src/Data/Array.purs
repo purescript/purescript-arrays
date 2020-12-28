@@ -959,7 +959,7 @@ group xs = groupBy eq xs
 -- | groupAll [1, 1, 2, 2, 1] == [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
 -- | ```
 groupAll :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
-groupAll = groupAllBy eq
+groupAll = groupAllBy compare
 
 -- | Deprecated previous name of `groupAll`.
 group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => Array a -> Array (NonEmptyArray a)
@@ -987,15 +987,15 @@ groupBy op xs =
     STA.unsafeFreeze result
 
 -- | Group equal elements of an array into arrays, using the specified
--- | equivalence relation to determine equality.
+-- | comparison relation to determine equality.
 -- |
 -- | ```purescript
--- | groupAllBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
--- |    = [NonEmptyArray [1], NonEmptyArray [2], NonEmptyArray [3, 3, 3], NonEmptyArray [4]]
+-- | groupAllBy (\a b -> compare (odd a) (odd b)) [1, 3, 2, 4, 3, 3]
+-- |    = [NonEmptyArray [2, 4], NonEmptyArray [1, 3, 3, 3]]
 -- | ```
 -- |
-groupAllBy :: forall a. Ord a => (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
-groupAllBy p = groupBy p <<< sort
+groupAllBy :: forall a. (a -> a -> Ordering) -> Array a -> Array (NonEmptyArray a)
+groupAllBy cmp = groupBy (\x y -> cmp x y == EQ) <<< sortBy cmp
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |

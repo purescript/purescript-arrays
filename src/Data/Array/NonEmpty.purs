@@ -369,7 +369,7 @@ group = unsafeAdapt $ A.group
 -- |   NonEmptyArray [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
 -- | `
 groupAll :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
-groupAll = groupAllBy eq
+groupAll = groupAllBy compare
 
 -- | Deprecated previous name of `groupAll`.
 group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
@@ -390,10 +390,10 @@ groupBy op = unsafeAdapt $ A.groupBy op
 -- | equivalence relation to determine equality.
 -- |
 -- | ```purescript
--- | groupAllBy (\a b -> odd a && odd b) (NonEmptyArray [1, 3, 2, 4, 3])
--- |    = NonEmptyArray [NonEmptyArray [1], NonEmptyArray [2], NonEmptyArray [3, 3], NonEmptyArray [4]]
+-- | groupAllBy (\a b -> compare (odd a) (odd b)) (NonEmptyArray [1, 3, 2, 4, 3])
+-- |    = NonEmptyArray [NonEmptyArray [2, 4], NonEmptyArray [1, 3, 3, 3]]
 -- | ```
-groupAllBy :: forall a. Ord a => (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupAllBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 groupAllBy op = unsafeAdapt $ A.groupAllBy op
 
 nub :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
