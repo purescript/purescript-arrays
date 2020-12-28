@@ -387,11 +387,11 @@ groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (No
 groupBy op = unsafeAdapt $ A.groupBy op
 
 -- | Group equal elements of an array into arrays, using the specified
--- | equivalence relation to determine equality.
+-- | partial ordering relation to determine equality.
 -- |
 -- | ```purescript
--- | groupAllBy (\a b -> compare (odd a) (odd b)) (NonEmptyArray [1, 3, 2, 4, 3])
--- |    = NonEmptyArray [NonEmptyArray [2, 4], NonEmptyArray [1, 3, 3, 3]]
+-- | groupAllBy (comparing Down) (NonEmptyArray [1, 3, 2, 4, 3, 3])
+-- |    = NonEmptyArray [NonEmptyArray [4], NonEmptyArray [3, 3, 3], NonEmptyArray [2], NonEmptyArray [1]]
 -- | ```
 groupAllBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 groupAllBy op = unsafeAdapt $ A.groupAllBy op

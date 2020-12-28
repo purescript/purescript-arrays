@@ -10,6 +10,7 @@ import Data.FunctorWithIndex (mapWithIndex)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Monoid.Additive (Additive(..))
 import Data.NonEmpty ((:|))
+import Data.Ord.Down (Down(..))
 import Data.Semigroup.Foldable (foldMap1, foldr1, foldl1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
@@ -259,8 +260,8 @@ testNonEmptyArray = do
   log "groupBy should be stable"
   assert $ NEA.groupBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [fromArray [1, 2, 3]]
 
-  log "groupAllBy should group equal elements into arrays based on an equivalence relation"
-  assert $ NEA.groupAllBy (\x y -> compare (odd x) (odd y)) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [2, 4], nea [1, 3, 3, 3]]
+  log "groupAllBy should group equal elements into arrays based on the result of a comparison function"
+  assert $ NEA.groupAllBy (comparing Down) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [4], nea [3, 3, 3], nea [2], nea [1]]
 
   log "groupAllBy should be stable"
   assert $ NEA.groupAllBy (\_ _ -> EQ) (fromArray [1, 2, 3]) == fromArray [nea [1, 2, 3]]
