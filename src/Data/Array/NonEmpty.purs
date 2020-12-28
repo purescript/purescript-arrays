@@ -66,8 +66,10 @@ module Data.Array.NonEmpty
   , dropWhile
   , span
   , group
+  , groupAll
   , group'
   , groupBy
+  , groupAllBy
 
   , nub
   , nubBy
@@ -118,6 +120,7 @@ import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
+import Prim.TypeError (class Warn, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Internal - adapt an Array transform to NonEmptyArray
@@ -350,14 +353,48 @@ span
   -> { init :: Array a, rest :: Array a }
 span f = adaptAny $ A.span f
 
+-- | Group equal, consecutive elements of an array into arrays.
+-- |
+-- | ```purescript
+-- | group (NonEmptyArray [1, 1, 2, 2, 1]) ==
+-- |   NonEmptyArray [NonEmptyArray [1, 1], NonEmptyArray [2, 2], NonEmptyArray [1]]
+-- | ```
 group :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 group = unsafeAdapt $ A.group
 
-group' :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+-- | Group equal elements of an array into arrays.
+-- |
+-- | ```purescript
+-- | groupAll (NonEmptyArray [1, 1, 2, 2, 1]) ==
+-- |   NonEmptyArray [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
+-- | `
+groupAll :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupAll = groupAllBy eq
+
+-- | Deprecated previous name of `groupAll`.
+group' :: forall a. Warn (Text "'group\'' is deprecated, use groupAll instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 group' = unsafeAdapt $ A.group'
 
+-- | Group equal, consecutive elements of an array into arrays, using the
+-- | specified equivalence relation to determine equality.
+-- |
+-- | ```purescript
+-- | groupBy (\a b -> odd a && odd b) (NonEmptyArray [1, 3, 2, 4, 3, 3])
+-- |    = NonEmptyArray [NonEmptyArray [1, 3], NonEmptyArray [2], NonEmptyArray [4], NonEmptyArray [3, 3]]
+-- | ```
+-- |
 groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 groupBy op = unsafeAdapt $ A.groupBy op
+
+-- | Group equal elements of an array into arrays, using the specified
+-- | equivalence relation to determine equality.
+-- |
+-- | ```purescript
+-- | groupAllBy (\a b -> odd a && odd b) (NonEmptyArray [1, 3, 2, 4, 3])
+-- |    = NonEmptyArray [NonEmptyArray [1], NonEmptyArray [2], NonEmptyArray [3, 3], NonEmptyArray [4]]
+-- | ```
+groupAllBy :: forall a. Ord a => (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupAllBy op = unsafeAdapt $ A.groupAllBy op
 
 nub :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 nub = unsafeAdapt A.nub

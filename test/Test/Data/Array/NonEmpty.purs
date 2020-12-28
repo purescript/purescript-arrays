@@ -25,6 +25,9 @@ testNonEmptyArray = do
   let fromArray :: forall a. Array a -> NEA.NonEmptyArray a
       fromArray = unsafePartial fromJust <<< NEA.fromArray
 
+      nea :: forall a. Array a -> NEA.NonEmptyArray a
+      nea = fromArray
+
   log "singleton should construct an array with a single value"
   assert $ NEA.toArray (NEA.singleton 1) == [1]
   assert $ NEA.toArray (NEA.singleton "foo") == ["foo"]
@@ -247,14 +250,20 @@ testNonEmptyArray = do
   log "group should group consecutive equal elements into arrays"
   assert $ NEA.group (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [NEA.singleton 1, fromArray [2, 2], fromArray [3, 3, 3], NEA.singleton 1]
 
-  log "group' should sort then group consecutive equal elements into arrays"
-  assert $ NEA.group' (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [fromArray [1, 1], fromArray [2, 2], fromArray [3, 3, 3]]
+  log "groupAll should group equal elements into arrays"
+  assert $ NEA.groupAll (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [fromArray [1, 1], fromArray [2, 2], fromArray [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
   assert $ NEA.groupBy (\x y -> odd x && odd y) (fromArray [1, 1, 2, 2, 3, 3]) == fromArray [fromArray [1, 1], NEA.singleton 2, NEA.singleton 2, fromArray [3, 3]]
 
   log "groupBy should be stable"
   assert $ NEA.groupBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [fromArray [1, 2, 3]]
+
+  log "groupAllBy should group equal elements into arrays based on an equivalence relation"
+  assert $ NEA.groupAllBy (\x y -> odd x && odd y) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [1], nea [2], nea [3, 3, 3], nea [4]]
+
+  log "groupAllBy should be stable"
+  assert $ NEA.groupAllBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ NEA.nub (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]
