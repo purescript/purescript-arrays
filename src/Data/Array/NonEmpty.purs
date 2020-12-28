@@ -372,7 +372,7 @@ groupAll :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a
 groupAll = groupAllBy eq
 
 -- | Deprecated previous name of `groupAll`.
-group' :: forall a. Warn (Text "'group\'' is deprecated, use groupAll instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 group' = unsafeAdapt $ A.groupAll
 
 -- | Group equal, consecutive elements of an array into arrays, using the
