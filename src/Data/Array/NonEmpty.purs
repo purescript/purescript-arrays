@@ -32,8 +32,12 @@ module Data.Array.NonEmpty
   , unsnoc
 
   , (!!), index
+  , elem
+  , notElem
   , elemIndex
   , elemLastIndex
+  , find
+  , findMap
   , findIndex
   , findLastIndex
   , insertAt
@@ -44,15 +48,19 @@ module Data.Array.NonEmpty
   , modifyAtIndices
   , alterAt
 
+  , intersperse
   , reverse
   , concat
   , concatMap
   , filter
-  , splitAt
   , partition
+  , splitAt
   , filterA
   , mapMaybe
   , catMaybes
+  , mapWithIndex
+  , scanl
+  , scanr
 
   , sort
   , sortBy
@@ -99,6 +107,8 @@ module Data.Array.NonEmpty
   , foldRecM
 
   , unsafeIndex
+
+  , module Exports
   ) where
 
 import Prelude
@@ -114,6 +124,7 @@ import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Semigroup.Foldable (class Foldable1)
+import Data.Semigroup.Foldable (foldl1, foldr1, foldMap1, fold1, intercalate) as Exports
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
@@ -244,14 +255,26 @@ index = adaptAny A.index
 
 infixl 8 index as !!
 
+elem :: forall a. Eq a => a -> NonEmptyArray a -> Boolean
+elem x = adaptAny $ A.elem x
+
+notElem :: forall a. Eq a => a -> NonEmptyArray a -> Boolean
+notElem x = adaptAny $ A.notElem x
+
 elemIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
 elemIndex x = adaptAny $ A.elemIndex x
 
 elemLastIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
 elemLastIndex x = adaptAny $ A.elemLastIndex x
 
+find :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe a
+find p = adaptAny $ A.find p
+
+findMap :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Maybe b
+findMap p = adaptAny $ A.findMap p
+
 findIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
-findIndex x = adaptAny $ A.findIndex x
+findIndex p = adaptAny $ A.findIndex p
 
 findLastIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
 findLastIndex x = adaptAny $ A.findLastIndex x
@@ -276,6 +299,9 @@ modifyAtIndices is f = unsafeAdapt $ A.modifyAtIndices is f
 
 alterAt :: forall a. Int -> (a -> Maybe a) -> NonEmptyArray a -> Maybe (Array a)
 alterAt i f = A.alterAt i f <<< toArray
+
+intersperse :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
+intersperse x = unsafeAdapt $ A.intersperse x
 
 reverse :: forall a. NonEmptyArray a -> NonEmptyArray a
 reverse = unsafeAdapt A.reverse
@@ -312,6 +338,15 @@ mapMaybe f = adaptAny $ A.mapMaybe f
 
 catMaybes :: forall a. NonEmptyArray (Maybe a) -> Array a
 catMaybes = adaptAny A.catMaybes
+
+mapWithIndex :: forall a b. (Int -> a -> b) -> NonEmptyArray a -> NonEmptyArray b
+mapWithIndex f = unsafeAdapt $ A.mapWithIndex f
+
+scanl :: forall a b. (b -> a -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
+scanl f x = unsafeAdapt $ A.scanl f x
+
+scanr :: forall a b. (a -> b -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
+scanr f x = unsafeAdapt $ A.scanr f x
 
 sort :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 sort = unsafeAdapt A.sort

@@ -269,7 +269,7 @@ testArray = do
   assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
 
   log "scanl should return the same results as its Foldable counterpart"
-  assert $ A.scanl (+)  0 [1,2,3] == scanl (+) 0 [1,2,3]
+  assert $ A.scanl (+)  0 [1,2,3] == scanl (+)  0 [1,2,3]
   assert $ A.scanl (-) 10 [1,2,3] == scanl (-) 10 [1,2,3]
 
   log "scanr should return an array that stores the accumulated value at each step"
