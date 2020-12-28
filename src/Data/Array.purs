@@ -790,6 +790,7 @@ foreign import scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
 --------------------------------------------------------------------------------
 
 -- | Sort the elements of an array in increasing order, creating a new array.
+-- | Sorting is stable: the order of equal elements is preserved.
 -- |
 -- | ```purescript
 -- | sort [2, -3, 1] = [-3, 1, 2]
@@ -800,6 +801,8 @@ sort xs = sortBy compare xs
 
 -- | Sort the elements of an array in increasing order, where elements are
 -- | compared using the specified partial ordering, creating a new array.
+-- | Sorting is stable: the order of elements is preserved if they are equal
+-- | according to the specified partial ordering.
 -- |
 -- | ```purescript
 -- | compareLength a b = compare (length a) (length b)
@@ -813,7 +816,8 @@ sortBy comp = sortByImpl comp case _ of
   LT -> -1
 
 -- | Sort the elements of an array in increasing order, where elements are
--- | sorted based on a projection
+-- | sorted based on a projection. Sorting is stable: the order of elements is
+-- | preserved if they are equal according to the projection.
 -- |
 -- | ```purescript
 -- | sortWith (_.age) [{name: "Alice", age: 42}, {name: "Bob", age: 21}]
