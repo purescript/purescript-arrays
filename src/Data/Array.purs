@@ -611,7 +611,7 @@ intersperse a arr = case length arr of
   len | len < 2 -> arr
       | otherwise -> STA.run do
           let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
-          out <- STA.empty
+          out <- STA.new
           _ <- STA.push (unsafeGetElem 0) out
           ST.for 1 len \idx -> do
             _ <- STA.push a out
