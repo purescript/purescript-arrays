@@ -244,6 +244,18 @@ testNonEmptyArray = do
   let oneToSeven = fromArray [1, 2, 3, 4, 5, 6, 7]
   testSpan { p: (_ < 4), input: oneToSeven, init_: [1, 2, 3], rest_: [4, 5, 6, 7] }
 
+  log "group should group consecutive equal elements into arrays"
+  assert $ NEA.group (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [NEA.singleton 1, fromArray [2, 2], fromArray [3, 3, 3], NEA.singleton 1]
+
+  log "group' should sort then group consecutive equal elements into arrays"
+  assert $ NEA.group' (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [fromArray [1, 1], fromArray [2, 2], fromArray [3, 3, 3]]
+
+  log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
+  assert $ NEA.groupBy (\x y -> odd x && odd y) (fromArray [1, 1, 2, 2, 3, 3]) == fromArray [fromArray [1, 1], NEA.singleton 2, NEA.singleton 2, fromArray [3, 3]]
+
+  log "groupBy should be stable"
+  assert $ NEA.groupBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [fromArray [1, 2, 3]]
+
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ NEA.nub (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]
 
