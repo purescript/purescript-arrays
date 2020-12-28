@@ -387,7 +387,7 @@ groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (No
 groupBy op = unsafeAdapt $ A.groupBy op
 
 -- | Group equal elements of an array into arrays, using the specified
--- | partial ordering relation to determine equality.
+-- | comparison function to determine equality.
 -- |
 -- | ```purescript
 -- | groupAllBy (comparing Down) (NonEmptyArray [1, 3, 2, 4, 3, 3])

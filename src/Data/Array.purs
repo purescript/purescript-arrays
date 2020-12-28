@@ -987,7 +987,7 @@ groupBy op xs =
     STA.unsafeFreeze result
 
 -- | Group equal elements of an array into arrays, using the specified
--- | partial ordering relation to determine equality.
+-- | comparison function to determine equality.
 -- |
 -- | ```purescript
 -- | groupAllBy (comparing Down) [1, 3, 2, 4, 3, 3]
