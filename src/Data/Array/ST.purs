@@ -86,7 +86,8 @@ empty = new
 -- | Create a mutable copy of an immutable array.
 foreign import thaw :: forall h a. Array a -> ST h (STArray h a)
 
--- | Sort a mutable array in place.
+-- | Sort a mutable array in place. Sorting is stable: the order of equal
+-- | elements is preserved.
 sort :: forall a h. Ord a => STArray h a -> ST h (STArray h a)
 sort = sortBy compare
 
@@ -101,7 +102,9 @@ foreign import shiftImpl
   -> STArray h a
   -> ST h (Maybe a)
 
--- | Sort a mutable array in place using a comparison function.
+-- | Sort a mutable array in place using a comparison function. Sorting is
+-- | stable: the order of elements is preserved if they are equal according to
+-- | the comparison function.
 sortBy
   :: forall a h
    . (a -> a -> Ordering)
@@ -119,7 +122,8 @@ foreign import sortByImpl
   -> STArray h a
   -> ST h (STArray h a)
 
--- | Sort a mutable array in place based on a projection.
+-- | Sort a mutable array in place based on a projection. Sorting is stable: the
+-- | order of elements is preserved if they are equal according to the projection.
 sortWith
   :: forall a b h
    . Ord b

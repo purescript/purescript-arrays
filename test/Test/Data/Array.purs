@@ -10,7 +10,7 @@ import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
 import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
 import Data.Ord.Down (Down(..))
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst)
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
 import Effect.Console (log)
@@ -288,8 +288,16 @@ testArray = do
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
+  log "sortBy should not reorder elements that are equal according to a comparison function"
+  let s1 = map (Tuple "a") (A.range 1 100)
+  assert $ A.sortBy (comparing fst) s1 == s1
+
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
   assert $ A.sortWith identity [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+
+  log "sortWith should not reorder elements that are equal according to a projection"
+  let s2 = map (Tuple "a") (A.range 1 100)
+  assert $ A.sortWith fst s2 == s2
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]
