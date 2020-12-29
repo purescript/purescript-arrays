@@ -295,12 +295,6 @@ exports.sortByImpl = (function () {
         xs1[k++] = y;
         ++j;
       }
-      else if (c === 0) {
-        xs1[k++] = x;
-        xs1[k++] = y;
-        ++i;
-        ++j;
-      }
       else {
         xs1[k++] = x;
         ++i;

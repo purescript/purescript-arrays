@@ -15,7 +15,7 @@ import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Ord (class Ord1)
-import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
+import Data.Semigroup.Foldable (class Foldable1, foldMap1DefaultL)
 import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
@@ -48,8 +48,7 @@ derive newtype instance foldableNonEmptyArray :: Foldable NonEmptyArray
 derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int NonEmptyArray
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
-  foldMap1 = foldMap1Default
-  fold1 = foldl1Impl (<>)
+  foldMap1 = foldMap1DefaultL
   foldr1 = foldr1Impl
   foldl1 = foldl1Impl
 

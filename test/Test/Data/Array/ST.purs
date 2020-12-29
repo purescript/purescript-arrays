@@ -3,10 +3,12 @@ module Test.Data.Array.ST (testArrayST) where
 import Prelude
 
 import Control.Monad.ST as ST
+import Data.Array (range)
 import Data.Array.ST (withArray)
 import Data.Array.ST as STA
 import Data.Foldable (all)
 import Data.Maybe (Maybe(..), isNothing)
+import Data.Tuple (Tuple(..), fst)
 import Effect (Effect)
 import Effect.Console (log)
 import Test.Assert (assert)
@@ -234,10 +236,22 @@ testArrayST = do
     STA.sortBy (flip compare) =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [6, 5, 4, 3, 2, 1]
 
+  log "sortBy should not reorder elements that are equal according to a comparison function"
+  let s1 = map (Tuple "a") (range 1 100)
+  assert $ STA.run (
+    STA.sortBy (comparing fst) =<< STA.unsafeThaw s1
+  ) == s1
+
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
   assert $ STA.run (
     STA.sortWith identity =<< STA.unsafeThaw [1, 3, 2, 5, 6, 4]
   ) == [1, 2, 3, 4, 5, 6]
+
+  log "sortWith should not reorder elements that are equal according to a projection"
+  let s2 = map (Tuple "a") (range 1 100)
+  assert $ STA.run (
+    STA.sortWith fst =<< STA.unsafeThaw s2
+  ) == s2
 
   log "splice should be able to delete multiple items at a specified index"
 

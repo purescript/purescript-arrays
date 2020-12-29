@@ -790,6 +790,7 @@ foreign import scanr :: forall a b. (a -> b -> b) -> b -> Array a -> Array b
 --------------------------------------------------------------------------------
 
 -- | Sort the elements of an array in increasing order, creating a new array.
+-- | Sorting is stable: the order of equal elements is preserved.
 -- |
 -- | ```purescript
 -- | sort [2, -3, 1] = [-3, 1, 2]
@@ -800,6 +801,8 @@ sort xs = sortBy compare xs
 
 -- | Sort the elements of an array in increasing order, where elements are
 -- | compared using the specified partial ordering, creating a new array.
+-- | Sorting is stable: the order of elements is preserved if they are equal
+-- | according to the specified partial ordering.
 -- |
 -- | ```purescript
 -- | compareLength a b = compare (length a) (length b)
@@ -813,7 +816,8 @@ sortBy comp = sortByImpl comp case _ of
   LT -> -1
 
 -- | Sort the elements of an array in increasing order, where elements are
--- | sorted based on a projection
+-- | sorted based on a projection. Sorting is stable: the order of elements is
+-- | preserved if they are equal according to the projection.
 -- |
 -- | ```purescript
 -- | sortWith (_.age) [{name: "Alice", age: 42}, {name: "Bob", age: 21}]
@@ -959,10 +963,10 @@ group xs = groupBy eq xs
 -- | groupAll [1, 1, 2, 2, 1] == [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
 -- | ```
 groupAll :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
-groupAll = groupAllBy eq
+groupAll = groupAllBy compare
 
 -- | Deprecated previous name of `groupAll`.
-group' :: forall a. Warn (Text "'group\'' is deprecated, use groupAll instead") => Ord a => Array a -> Array (NonEmptyArray a)
+group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => Array a -> Array (NonEmptyArray a)
 group' = groupAll
 
 -- | Group equal, consecutive elements of an array into arrays, using the
@@ -987,15 +991,15 @@ groupBy op xs =
     STA.unsafeFreeze result
 
 -- | Group equal elements of an array into arrays, using the specified
--- | equivalence relation to determine equality.
+-- | comparison function to determine equality.
 -- |
 -- | ```purescript
--- | groupAllBy (\a b -> odd a && odd b) [1, 3, 2, 4, 3, 3]
--- |    = [NonEmptyArray [1], NonEmptyArray [2], NonEmptyArray [3, 3, 3], NonEmptyArray [4]]
+-- | groupAllBy (comparing Down) [1, 3, 2, 4, 3, 3]
+-- |    = [NonEmptyArray [4], NonEmptyArray [3, 3, 3], NonEmptyArray [2], NonEmptyArray [1]]
 -- | ```
 -- |
-groupAllBy :: forall a. Ord a => (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
-groupAllBy p = groupBy p <<< sort
+groupAllBy :: forall a. (a -> a -> Ordering) -> Array a -> Array (NonEmptyArray a)
+groupAllBy cmp = groupBy (\x y -> cmp x y == EQ) <<< sortBy cmp
 
 -- | Remove the duplicates from an array, creating a new array.
 -- |
