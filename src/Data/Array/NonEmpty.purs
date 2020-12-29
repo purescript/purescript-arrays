@@ -59,6 +59,11 @@ module Data.Array.NonEmpty
   , mapMaybe
   , catMaybes
   , mapWithIndex
+  , foldl1
+  , foldr1
+  , foldMap1
+  , fold1
+  , intercalate
   , scanl
   , scanr
 
@@ -109,8 +114,6 @@ module Data.Array.NonEmpty
   , foldRecM
 
   , unsafeIndex
-
-  , module Exports
   ) where
 
 import Prelude
@@ -126,7 +129,7 @@ import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Semigroup.Foldable (class Foldable1)
-import Data.Semigroup.Foldable (foldl1, foldr1, foldMap1, fold1, intercalate) as Exports
+import Data.Semigroup.Foldable as F
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
@@ -344,6 +347,21 @@ catMaybes = adaptAny A.catMaybes
 
 mapWithIndex :: forall a b. (Int -> a -> b) -> NonEmptyArray a -> NonEmptyArray b
 mapWithIndex f = unsafeAdapt $ A.mapWithIndex f
+
+foldl1 :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foldl1 = F.foldl1
+
+foldr1 :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foldr1 = F.foldr1
+
+foldMap1 :: forall a m. Semigroup m => (a -> m) -> NonEmptyArray a -> m
+foldMap1 = F.foldMap1
+
+fold1 :: forall m. Semigroup m => NonEmptyArray m -> m
+fold1 = F.fold1
+
+intercalate :: forall a. Semigroup a => a -> NonEmptyArray a -> a
+intercalate = F.intercalate
 
 scanl :: forall a b. (b -> a -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
 scanl f x = unsafeAdapt $ A.scanl f x

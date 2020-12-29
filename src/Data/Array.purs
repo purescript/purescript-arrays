@@ -79,6 +79,11 @@ module Data.Array
   , mapMaybe
   , catMaybes
   , mapWithIndex
+  , foldl
+  , foldr
+  , foldMap
+  , fold
+  , intercalate
   , scanl
   , scanr
 
@@ -124,8 +129,6 @@ module Data.Array
   , foldRecM
 
   , unsafeIndex
-
-  , module Exports
   ) where
 
 import Prelude
@@ -138,8 +141,8 @@ import Control.Monad.ST as ST
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
-import Data.Foldable (class Foldable, foldl, foldr, traverse_)
-import Data.Foldable (foldl, foldr, foldMap, fold, intercalate) as Exports
+import Data.Foldable (class Foldable, traverse_)
+import Data.Foldable as F
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
@@ -164,7 +167,7 @@ toUnfoldable xs = unfoldr f 0
 -- | ```
 -- |
 fromFoldable :: forall f. Foldable f => f ~> Array
-fromFoldable = fromFoldableImpl foldr
+fromFoldable = fromFoldableImpl F.foldr
 
 foreign import fromFoldableImpl
   :: forall f a
@@ -764,6 +767,21 @@ updateAtIndices us xs =
 modifyAtIndices :: forall t a. Foldable t => t Int -> (a -> a) -> Array a -> Array a
 modifyAtIndices is f xs =
   ST.run (STA.withArray (\res -> traverse_ (\i -> STA.modify i f res) is) xs)
+
+foldl :: forall a b. (b -> a -> b) -> b -> Array a -> b
+foldl = F.foldl
+
+foldr :: forall a b. (a -> b -> b) -> b -> Array a -> b
+foldr = F.foldr
+
+foldMap :: forall a m. Monoid m => (a -> m) -> Array a -> m
+foldMap = F.foldMap
+
+fold :: forall m. Monoid m => Array m -> m
+fold = F.fold
+
+intercalate :: forall a. Monoid a => a -> Array a -> a
+intercalate = F.intercalate
 
 -- | Fold a data structure from the left, keeping all intermediate results
 -- | instead of only the final result. Note that the initial value does not
