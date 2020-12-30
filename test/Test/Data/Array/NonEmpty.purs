@@ -119,7 +119,7 @@ testNonEmptyArray = do
   assert $ NEA.elemLastIndex 4 (fromArray [1, 2, 1]) == Nothing
 
   log "find should return the first element for which a predicate returns true in an array"
-  assert $ NEA.find (_ /= 1) (fromArray [1, 2, 1]) == Just 2
+  assert $ NEA.find (_ == 1) (fromArray [1, 2, 1]) == Just 1
   assert $ NEA.find (_ == 3) (fromArray [1, 2, 1]) == Nothing
 
   log "findMap should return the mapping of the first element that satisfies the given predicate"
