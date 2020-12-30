@@ -6,7 +6,7 @@ import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, sum, traverse_)
-import Data.FunctorWithIndex (mapWithIndex)
+import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Monoid.Additive (Additive(..))
 import Data.NonEmpty ((:|))
@@ -102,6 +102,14 @@ testNonEmptyArray = do
   assert $ NEA.index (fromArray [1, 2, 3]) 6 == Nothing
   assert $ NEA.index (fromArray [1, 2, 3]) (-1) == Nothing
 
+  log "elem should return true if the array contains the given element at least once"
+  assert $ NEA.elem 1 (fromArray [1, 2, 1]) == true
+  assert $ NEA.elem 4 (fromArray [1, 2, 1]) == false
+
+  log "notElem should return true if the array does not contain the given element"
+  assert $ NEA.notElem 1 (fromArray [1, 2, 1]) == false
+  assert $ NEA.notElem 4 (fromArray [1, 2, 1]) == true
+
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
   assert $ NEA.elemIndex 1 (fromArray [1, 2, 1]) == Just 0
   assert $ NEA.elemIndex 4 (fromArray [1, 2, 1]) == Nothing
@@ -109,6 +117,15 @@ testNonEmptyArray = do
   log "elemLastIndex should return the last index of an item in an array"
   assert $ NEA.elemLastIndex 1 (fromArray [1, 2, 1]) == Just 2
   assert $ NEA.elemLastIndex 4 (fromArray [1, 2, 1]) == Nothing
+
+  log "find should return the first element for which a predicate returns true in an array"
+  assert $ NEA.find (_ == 1) (fromArray [1, 2, 1]) == Just 1
+  assert $ NEA.find (_ == 3) (fromArray [1, 2, 1]) == Nothing
+
+  log "findMap should return the mapping of the first element that satisfies the given predicate"
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [1, 2, 4]) == Just 4
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [1, 2, 1]) == Nothing
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [4, 1, 5]) == Just 4
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (NEA.findIndex (_ /= 1) (fromArray [1, 2, 1])) == Just 1
@@ -158,6 +175,13 @@ testNonEmptyArray = do
   log "alterAt should return Nothing if the index is out of NEA.range"
   assert $ NEA.alterAt 1 (Just <<< (_ + 1)) (NEA.singleton 1) == Nothing
 
+  log "intersperse should return the original array when given an array with one element"
+  assert $ NEA.intersperse " " (NEA.singleton "a") == NEA.singleton "a"
+
+  log "intersperse should insert the given element in-between each element in an array with two or more elements"
+  assert $ NEA.intersperse " " (fromArray ["a", "b"]) == fromArray ["a", " ", "b"]
+  assert $ NEA.intersperse 0 (fromArray [ 1, 2, 3, 4, 5 ]) == fromArray [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
+
   log "reverse should reverse the order of items in an array"
   assert $ NEA.reverse (fromArray [1, 2, 3]) == fromArray [3, 2, 1]
   assert $ NEA.reverse (NEA.singleton 0) == NEA.singleton 0
@@ -193,7 +217,23 @@ testNonEmptyArray = do
   assert $ NEA.catMaybes (fromArray [Nothing, Just 2, Nothing, Just 4]) == [2, 4]
 
   log "mapWithIndex applies a function with an index for every element"
-  assert $ mapWithIndex (\i x -> x - i) (fromArray [9,8,7,6,5]) == fromArray [9,7,5,3,1]
+  assert $ NEA.mapWithIndex (\i x -> x - i) (fromArray [9,8,7,6,5]) == fromArray [9,7,5,3,1]
+
+  log "scanl should return an array that stores the accumulated value at each step"
+  assert $ NEA.scanl (+)  0 (fromArray [1,2,3]) == fromArray [1, 3, 6]
+  assert $ NEA.scanl (-) 10 (fromArray [1,2,3]) == fromArray [9, 7, 4]
+
+  log "scanl should return the same results as its Foldable counterpart"
+  assert $ NEA.scanl (+)  0 (fromArray [1,2,3]) == scanl (+)  0 (fromArray [1,2,3])
+  assert $ NEA.scanl (-) 10 (fromArray [1,2,3]) == scanl (-) 10 (fromArray [1,2,3])
+
+  log "scanr should return an array that stores the accumulated value at each step"
+  assert $ NEA.scanr (+) 0 (fromArray [1,2,3]) == fromArray [6,5,3]
+  assert $ NEA.scanr (flip (-)) 10 (fromArray [1,2,3]) == fromArray [4,5,7]
+
+  log "scanr should return the same results as its Foldable counterpart"
+  assert $ NEA.scanr (+) 0 (fromArray [1,2,3]) == scanr (+) 0 (fromArray [1,2,3])
+  assert $ NEA.scanr (flip (-)) 10 (fromArray [1,2,3]) == scanr (flip (-)) 10 (fromArray [1,2,3])
 
   log "updateAtIndices changes the elements at specified indices"
   assert $ NEA.updateAtIndices
