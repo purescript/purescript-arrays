@@ -21,6 +21,19 @@ exports.foldl1Impl = function (f) {
   };
 };
 
+exports.foldMap1Impl = function (append) {
+  return function (f) {
+    return function (xs) {
+      var acc = f(xs[0]);
+      var len = xs.length;
+      for (var i = 1; i < len; i++) {
+        acc = append(acc)(f(xs[i]));
+      }
+      return acc;
+    };
+  };
+};
+
 exports.traverse1Impl = function () {
   function Cont(fn) {
     this.fn = fn;

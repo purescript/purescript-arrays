@@ -15,7 +15,7 @@ import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Ord (class Ord1)
-import Data.Semigroup.Foldable (class Foldable1, foldMap1DefaultL)
+import Data.Semigroup.Foldable (class Foldable1)
 import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
@@ -48,7 +48,7 @@ derive newtype instance foldableNonEmptyArray :: Foldable NonEmptyArray
 derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int NonEmptyArray
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
-  foldMap1 = foldMap1DefaultL
+  foldMap1 = foldMap1Impl (<>)
   foldr1 = foldr1Impl
   foldl1 = foldl1Impl
 
@@ -73,6 +73,8 @@ derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 -- we use FFI here to avoid the unncessary copy created by `tail`
 foreign import foldr1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
 foreign import foldl1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+
+foreign import foldMap1Impl :: forall a m. (m -> m -> m) -> (a -> m) -> NonEmptyArray a -> m
 
 foreign import traverse1Impl
   :: forall m a b
