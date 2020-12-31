@@ -1130,31 +1130,29 @@ infix 5 difference as \\
 differenceBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
 differenceBy   _ left       [] = left
 differenceBy   _ left@[]     _ = left
-differenceBy cmp left    right = case head indexedAndSorted of
-  Nothing -> []
-  Just x -> map snd $ sortWith fst $ ST.run do
-    result <- STA.new
-    latestRightArrayValue <- STRef.new Nothing
-    ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
-      maybeValueToRemove <- STRef.read latestRightArrayValue
-      case fromLeftArray, maybeValueToRemove of
-        true, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ ->
-          -- do not add left array's element to final array; check count
-          if count == 1 then do
-            void $ STRef.write Nothing latestRightArrayValue
-          else do
-            let decrementCount = Just (Tuple valueToRemove (count - 1))
-            void $ STRef.write decrementCount latestRightArrayValue
+differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
+  result <- STA.new
+  latestRightArrayValue <- STRef.new Nothing
+  ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
+    maybeValueToRemove <- STRef.read latestRightArrayValue
+    case fromLeftArray, maybeValueToRemove of
+      true, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ ->
+        -- do not add left array's element to final array; check count
+        if count == 1 then do
+          void $ STRef.write Nothing latestRightArrayValue
+        else do
+          let decrementCount = Just (Tuple valueToRemove (count - 1))
+          void $ STRef.write decrementCount latestRightArrayValue
 
-        true, _ -> void $ STA.push pair result
+      true, _ -> void $ STA.push pair result
 
-        false, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ -> do
-          let next = if count == 0 then Nothing
-                     else Just (Tuple valueToRemove (count - 1))
-          void $ STRef.write next latestRightArrayValue
-        false, _ -> do
-          void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
-    STA.unsafeFreeze result
+      false, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ -> do
+        let next = if count == 0 then Nothing
+                   else Just (Tuple valueToRemove (count - 1))
+        void $ STRef.write next latestRightArrayValue
+      false, _ -> do
+        void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
+  STA.unsafeFreeze result
   where
     indexedAndSorted = combineIndexSort cmp left right
 
@@ -1222,21 +1220,19 @@ intersect = intersectBy compare
 intersectBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
 intersectBy _   left       [] = left
 intersectBy _   left@[]     _ = left
-intersectBy cmp left    right = case head indexedAndSorted of
-  Nothing -> []
-  Just x -> map snd $ sortWith fst $ ST.run do
-    result <- STA.new
-    latestRightArrayValue <- STRef.new Nothing
-    ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple i x')) ->
-      if fromLeftArray then do
-        maybeValueToRemove <- STRef.read latestRightArrayValue
-        case maybeValueToRemove of
-          Just valueToRemove | cmp valueToRemove x' == EQ -> do
-            void $ STA.push pair result
-          _ -> pure unit
-      else do
-        void $ STRef.write (Just x') latestRightArrayValue
-    STA.unsafeFreeze result
+intersectBy cmp left    right = map snd $ sortWith fst $ ST.run do
+  result <- STA.new
+  latestRightArrayValue <- STRef.new Nothing
+  ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple i x')) ->
+    if fromLeftArray then do
+      maybeValueToRemove <- STRef.read latestRightArrayValue
+      case maybeValueToRemove of
+        Just valueToRemove | cmp valueToRemove x' == EQ -> do
+          void $ STA.push pair result
+        _ -> pure unit
+    else do
+      void $ STRef.write (Just x') latestRightArrayValue
+  STA.unsafeFreeze result
   where
     indexedAndSorted = combineIndexSort cmp left right
 
