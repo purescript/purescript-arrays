@@ -295,7 +295,7 @@ testNonEmptyArray = do
   assert $ NEA.intersect (fromArray [1, 2, 3, 4, 3, 2, 1]) (fromArray [1, 1, 2, 3]) == [1, 2, 3, 3, 2, 1]
 
   log "intersectBy should return the intersection of two arrays using the specified equivalence relation"
-  assert $ NEA.intersectBy (\x y -> (x * 2) == y) (fromArray [1, 2, 3]) (fromArray [2, 6]) == [1, 3]
+  assert $ NEA.intersectBy (\x y -> compare (x `mod` 3) (y `mod` 3)) (fromArray [1, 2, 3]) (fromArray [2, 6]) == [2, 3]
 
   log "zipWith should use the specified function to zip two arrays together"
   assert $ NEA.zipWith (\x y -> [show x, y]) (fromArray [1, 2, 3]) (fromArray ["a", "b", "c"]) == fromArray [["1", "a"], ["2", "b"], ["3", "c"]]

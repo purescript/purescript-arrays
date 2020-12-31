@@ -413,12 +413,14 @@ testArray = do
 
   log "(\\\\) should return the difference between two lists"
   assert $ [1, 2, 3, 4, 3, 2, 1] \\ [1, 1, 2, 3] == [4, 3, 2]
+  assert $ [1, 2, 3, 4, 3, 2, 1] \\ [1, 1, 1, 1, 1, 2, 3] == [4, 3, 2]
+  assert $ [1, 4, 6, 8, 6, 4, 1] \\ [1, 4, 4, 1, 6] == [8, 6]
 
   log "intersect should return the intersection of two arrays"
   assert $ A.intersect [1, 2, 3, 4, 3, 2, 1] [1, 1, 2, 3] == [1, 2, 3, 3, 2, 1]
 
   log "intersectBy should return the intersection of two arrays using the specified equivalence relation"
-  assert $ A.intersectBy (\x y -> (x * 2) == y) [1, 2, 3] [2, 6] == [1, 3]
+  assert $ A.intersectBy (\x y -> compare (x `mod` 3) (y `mod` 3)) [1, 2, 3] [2, 6] == [2, 3]
 
   log "zipWith should use the specified function to zip two lists together"
   assert $ A.zipWith (\x y -> [show x, y]) [1, 2, 3] ["a", "b", "c"] == [["1", "a"], ["2", "b"], ["3", "c"]]

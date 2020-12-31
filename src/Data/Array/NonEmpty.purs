@@ -84,6 +84,8 @@ module Data.Array.NonEmpty
 
   , (\\), difference
   , difference'
+  , differenceBy
+  , differenceBy'
   , intersect
   , intersect'
   , intersectBy
@@ -436,21 +438,27 @@ delete x = adaptAny $ A.delete x
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> NonEmptyArray a -> Array a
 deleteBy f x = adaptAny $ A.deleteBy f x
 
-difference :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
+difference :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a -> Array a
 difference xs = adaptAny $ difference' xs
 
-difference' :: forall a. Eq a => NonEmptyArray a -> Array a -> Array a
+difference' :: forall a. Ord a => NonEmptyArray a -> Array a -> Array a
 difference' xs = A.difference $ toArray xs
 
-intersect :: forall a . Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
-intersect = intersectBy eq
+differenceBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray a -> Array a
+differenceBy cmp xs = adaptAny $ differenceBy' cmp xs
 
-intersect' :: forall a . Eq a => NonEmptyArray a -> Array a -> Array a
-intersect' = intersectBy' eq
+differenceBy' :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> Array a -> Array a
+differenceBy' cmp xs = A.differenceBy cmp $ toArray xs
+
+intersect :: forall a . Ord a => NonEmptyArray a -> NonEmptyArray a -> Array a
+intersect = intersectBy compare
+
+intersect' :: forall a . Ord a => NonEmptyArray a -> Array a -> Array a
+intersect' = intersectBy' compare
 
 intersectBy
   :: forall a
-   . (a -> a -> Boolean)
+   . (a -> a -> Ordering)
   -> NonEmptyArray a
   -> NonEmptyArray a
   -> Array a
@@ -458,7 +466,7 @@ intersectBy eq xs = intersectBy' eq xs <<< toArray
 
 intersectBy'
   :: forall a
-   . (a -> a -> Boolean)
+   . (a -> a -> Ordering)
   -> NonEmptyArray a
   -> Array a
   -> Array a

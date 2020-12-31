@@ -109,6 +109,7 @@ module Data.Array
   , deleteBy
 
   , (\\), difference
+  , differenceBy
   , intersect
   , intersectBy
 
@@ -135,6 +136,7 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
+import Control.Monad.ST.Ref as STRef
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
@@ -1118,12 +1120,83 @@ deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (fi
 -- | difference [2, 1] [2, 3] = [1]
 -- | ```
 -- |
--- | Running time: `O(n*m)`, where n is the length of the first array, and m is
+-- | Running time: `O(n+m)`, where n is the length of the first array, and m is
 -- | the length of the second.
-difference :: forall a. Eq a => Array a -> Array a -> Array a
-difference = foldr delete
+difference :: forall a. Ord a => Array a -> Array a -> Array a
+difference = differenceBy compare
 
 infix 5 difference as \\
+
+differenceBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
+differenceBy   _ left       [] = left
+differenceBy   _ left@[]     _ = left
+differenceBy cmp left    right = case head indexedAndSorted of
+  Nothing -> []
+  Just x -> map snd $ sortWith fst $ ST.run do
+    result <- STA.new
+    latestRightArrayValue <- STRef.new Nothing
+    ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
+      maybeValueToRemove <- STRef.read latestRightArrayValue
+      case fromLeftArray, maybeValueToRemove of
+        true, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ ->
+          -- do not add left array's element to final array; check count
+          if count == 1 then do
+            void $ STRef.write Nothing latestRightArrayValue
+          else do
+            let decrementCount = Just (Tuple valueToRemove (count - 1))
+            void $ STRef.write decrementCount latestRightArrayValue
+
+        true, _ -> void $ STA.push pair result
+
+        false, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ -> do
+          let next = if count == 0 then Nothing
+                     else Just (Tuple valueToRemove (count - 1))
+          void $ STRef.write next latestRightArrayValue
+        false, _ -> do
+          void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
+    STA.unsafeFreeze result
+  where
+    indexedAndSorted = combineIndexSort cmp left right
+
+-- Internal use only
+-- Essentially...
+-- ```
+-- combineWithIndex cmp left right =
+-- let
+--   leftIndexed = mapWithIndex (\idx v -> Tuple idx v) left
+--
+--   tupleAdjusted idx v = Tuple (idx + (length left)) v
+--   rightIndexedPlus = mapWithIndex tupleAdjusted right
+--
+--   combined = leftIndexed <> rightIndexedPlus
+-- in sortBy (valueThenOrigin cmp) combined
+-- ```
+-- ... but without creating two intermediate arrays due to the `mapWithIndex`
+-- on both arrays.
+-- ```
+-- let t3 a b c = Tuple a (Tuple b c)
+-- combineIndexSort compare [0] [0, 1]
+--   == [t3 false 0 0, t3 true 1 0, t3 false 2 1]
+-- ```
+combineIndexSort :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array (Tuple Boolean (Tuple Int a))
+combineIndexSort cmp left right = sortBy valueThenOrigin $ ST.run do
+  out <- STA.new
+  let leftLen = length left
+  ST.for 0 leftLen \idx -> do
+    let val = unsafePartial $ unsafeIndex left idx
+    void $ STA.push (Tuple true (Tuple idx val)) out
+  let rightLen = length right
+  ST.for 0 rightLen \idx -> do
+    let val = unsafePartial $ unsafeIndex right idx
+    void $ STA.push (Tuple false (Tuple (leftLen + idx) val)) out
+  STA.unsafeFreeze out
+  where
+    -- Note: when elements are equal, right array elements
+    -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
+    -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
+    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+      cmp lv rv <> compare lb rb
 
 -- | Calculate the intersection of two arrays, creating a new array. Note that
 -- | duplicates in the first array are preserved while duplicates in the second
@@ -1133,8 +1206,8 @@ infix 5 difference as \\
 -- | intersect [1, 1, 2] [2, 2, 1] = [1, 1, 2]
 -- | ```
 -- |
-intersect :: forall a. Eq a => Array a -> Array a -> Array a
-intersect = intersectBy eq
+intersect :: forall a. Ord a => Array a -> Array a -> Array a
+intersect = intersectBy compare
 
 -- | Calculate the intersection of two arrays, using the specified equivalence
 -- | relation to compare elements, creating a new array. Note that duplicates
@@ -1146,8 +1219,26 @@ intersect = intersectBy eq
 -- | intersectBy mod3eq [1, 2, 3] [4, 6, 7] = [1, 3]
 -- | ```
 -- |
-intersectBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
-intersectBy eq xs ys = filter (\x -> isJust (findIndex (eq x) ys)) xs
+intersectBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
+intersectBy _   left       [] = left
+intersectBy _   left@[]     _ = left
+intersectBy cmp left    right = case head indexedAndSorted of
+  Nothing -> []
+  Just x -> map snd $ sortWith fst $ ST.run do
+    result <- STA.new
+    latestRightArrayValue <- STRef.new Nothing
+    ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple i x')) ->
+      if fromLeftArray then do
+        maybeValueToRemove <- STRef.read latestRightArrayValue
+        case maybeValueToRemove of
+          Just valueToRemove | cmp valueToRemove x' == EQ -> do
+            void $ STA.push pair result
+          _ -> pure unit
+      else do
+        void $ STRef.write (Just x') latestRightArrayValue
+    STA.unsafeFreeze result
+  where
+    indexedAndSorted = combineIndexSort cmp left right
 
 -- | Apply a function to pairs of elements at the same index in two arrays,
 -- | collecting the results in a new array.
