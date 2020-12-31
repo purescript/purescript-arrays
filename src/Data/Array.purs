@@ -143,6 +143,7 @@ import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate) as Exports
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
+import Data.Ordering (invert)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -1073,8 +1074,8 @@ nubByEq eq xs = ST.run do
 -- | union [1, 2, 1, 1] [3, 3, 3, 4] = [1, 2, 1, 1, 3, 4]
 -- | ```
 -- |
-union :: forall a. Eq a => Array a -> Array a -> Array a
-union = unionBy (==)
+union :: forall a. Ord a => Array a -> Array a -> Array a
+union = unionBy compare
 
 -- | Calculate the union of two arrays, using the specified function to
 -- | determine equality of elements. Note that duplicates in the first array
@@ -1085,8 +1086,32 @@ union = unionBy (==)
 -- | unionBy mod3eq [1, 5, 1, 2] [3, 4, 3, 3] = [1, 5, 1, 2, 3]
 -- | ```
 -- |
-unionBy :: forall a. (a -> a -> Boolean) -> Array a -> Array a -> Array a
-unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubByEq eq ys) xs
+unionBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
+unionBy cmp left right = map snd $ sortWith fst $ ST.run do
+  result <- STA.new
+  ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
+    if fromLeftArray then do
+      void $ STA.push pair result
+    else do
+      maybePreviousValue <- last <$> STA.unsafeFreeze result
+      case maybePreviousValue of
+        Just (Tuple _ y)
+          | cmp y x' /= EQ -> void $ STA.push pair result
+          | otherwise -> pure unit
+        Nothing -> do
+          void $ STA.push pair result
+  STA.unsafeFreeze result
+  where
+    -- Note: when elements are equal, left array elements
+    -- (i.e. `Tuple true (Tuple _ _)`) appear "before" right array elements
+    -- (i.e. `Tuple false (Tuple _ _)`) in the resulting array.
+    -- This is different from `differenceBy` and `intersectBy`
+    valueThenLeftFirst :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenLeftFirst (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+      cmp lv rv <> invert (compare lb rb)
+
+    indexedAndSorted = sortBy valueThenLeftFirst $ combineIndex left right
+
 
 -- | Delete the first element of an array which is equal to the specified value,
 -- | creating a new array.
@@ -1157,11 +1182,11 @@ differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
     -- Note: when elements are equal, right array elements
     -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
     -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
-    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
-    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+    valueThenRightFirst :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenRightFirst (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
       cmp lv rv <> compare lb rb
 
-    indexedAndSorted = sortBy valueThenOrigin $ combineIndex left right
+    indexedAndSorted = sortBy valueThenRightFirst $ combineIndex left right
 
 -- Internal use only
 -- Essentially...
@@ -1236,11 +1261,11 @@ intersectBy cmp left    right = map snd $ sortWith fst $ ST.run do
     -- Note: when elements are equal, right array elements
     -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
     -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
-    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
-    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+    valueThenRightFirst :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenRightFirst (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
       cmp lv rv <> compare lb rb
 
-    indexedAndSorted = sortBy valueThenOrigin $ combineIndex left right
+    indexedAndSorted = sortBy valueThenRightFirst $ combineIndex left right
 
 -- | Apply a function to pairs of elements at the same index in two arrays,
 -- | collecting the results in a new array.

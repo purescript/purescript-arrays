@@ -410,27 +410,27 @@ nubBy f = unsafeAdapt $ A.nubBy f
 nubByEq :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray a
 nubByEq f = unsafeAdapt $ A.nubByEq f
 
-union :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> NonEmptyArray a
-union = unionBy (==)
+union :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a -> NonEmptyArray a
+union = unionBy compare
 
-union' :: forall a. Eq a => NonEmptyArray a -> Array a -> NonEmptyArray a
-union' = unionBy' (==)
+union' :: forall a. Ord a => NonEmptyArray a -> Array a -> NonEmptyArray a
+union' = unionBy' compare
 
 unionBy
   :: forall a
-   . (a -> a -> Boolean)
+   . (a -> a -> Ordering)
   -> NonEmptyArray a
   -> NonEmptyArray a
   -> NonEmptyArray a
-unionBy eq xs = unionBy' eq xs <<< toArray
+unionBy cmp xs = unionBy' cmp xs <<< toArray
 
 unionBy'
   :: forall a
-   . (a -> a -> Boolean)
+   . (a -> a -> Ordering)
   -> NonEmptyArray a
   -> Array a
   -> NonEmptyArray a
-unionBy' eq xs = unsafeFromArray <<< A.unionBy eq (toArray xs)
+unionBy' cmp xs = unsafeFromArray <<< A.unionBy cmp (toArray xs)
 
 delete :: forall a. Eq a => a -> NonEmptyArray a -> Array a
 delete x = adaptAny $ A.delete x

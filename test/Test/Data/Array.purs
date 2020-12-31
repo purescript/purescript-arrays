@@ -401,7 +401,8 @@ testArray = do
   assert $ A.union [1, 1, 2, 3] [2, 3, 4] == [1, 1, 2, 3, 4]
 
   log "unionBy should produce the union of two arrays using the specified equality relation"
-  assert $ A.unionBy (\_ y -> y < 5) [1, 2, 3] [2, 3, 4, 5, 6] == [1, 2, 3, 5, 6]
+  assert $ A.unionBy (\x y -> compare (x `mod` 4) (y `mod` 4))
+    [1, 2, 3] [2, 3, 4, 5, 6] == [1, 2, 3, 4]
 
   log "delete should remove the first matching item from an array"
   assert $ A.delete 1 [1, 2, 1] == [2, 1]

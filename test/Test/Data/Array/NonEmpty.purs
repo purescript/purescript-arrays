@@ -281,7 +281,8 @@ testNonEmptyArray = do
   assert $ NEA.union (fromArray [1, 1, 2, 3]) (fromArray [2, 3, 4]) == fromArray [1, 1, 2, 3, 4]
 
   log "unionBy should produce the union of two arrays using the specified equality relation"
-  assert $ NEA.unionBy (\_ y -> y < 5) (fromArray [1, 2, 3]) (fromArray [2, 3, 4, 5, 6]) == fromArray [1, 2, 3, 5, 6]
+  assert $ NEA.unionBy (\x y -> compare (x `mod` 4) (y `mod` 4))
+    (fromArray [1, 2, 3]) (fromArray [2, 3, 4, 5, 6]) == fromArray [1, 2, 3, 4]
 
   log "delete should remove the first matching item from an array"
   assert $ NEA.delete 1 (fromArray [1, 2, 1]) == [2, 1]
