@@ -1154,7 +1154,14 @@ differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
         void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
   STA.unsafeFreeze result
   where
-    indexedAndSorted = combineIndexSort cmp left right
+    -- Note: when elements are equal, right array elements
+    -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
+    -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
+    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+      cmp lv rv <> compare lb rb
+
+    indexedAndSorted = sortBy valueThenOrigin $ combineIndex left right
 
 -- Internal use only
 -- Essentially...
@@ -1166,18 +1173,17 @@ differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
 --   tupleAdjusted idx v = Tuple (idx + (length left)) v
 --   rightIndexedPlus = mapWithIndex tupleAdjusted right
 --
---   combined = leftIndexed <> rightIndexedPlus
--- in sortBy (valueThenOrigin cmp) combined
+-- in leftIndexed <> rightIndexedPlus
 -- ```
 -- ... but without creating two intermediate arrays due to the `mapWithIndex`
 -- on both arrays.
 -- ```
 -- let t3 a b c = Tuple a (Tuple b c)
--- combineIndexSort compare [0] [0, 1]
---   == [t3 false 0 0, t3 true 1 0, t3 false 2 1]
+-- combineIndex compare [0] [0, 1]
+--   == [t3 true 0 0, t3 false 1 0, t3 false 2 1]
 -- ```
-combineIndexSort :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array (Tuple Boolean (Tuple Int a))
-combineIndexSort cmp left right = sortBy valueThenOrigin $ ST.run do
+combineIndex :: forall a. Array a -> Array a -> Array (Tuple Boolean (Tuple Int a))
+combineIndex left right = ST.run do
   out <- STA.new
   let leftLen = length left
   ST.for 0 leftLen \idx -> do
@@ -1188,13 +1194,6 @@ combineIndexSort cmp left right = sortBy valueThenOrigin $ ST.run do
     let val = unsafePartial $ unsafeIndex right idx
     void $ STA.push (Tuple false (Tuple (leftLen + idx) val)) out
   STA.unsafeFreeze out
-  where
-    -- Note: when elements are equal, right array elements
-    -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
-    -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
-    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
-    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
-      cmp lv rv <> compare lb rb
 
 -- | Calculate the intersection of two arrays, creating a new array. Note that
 -- | duplicates in the first array are preserved while duplicates in the second
@@ -1234,7 +1233,14 @@ intersectBy cmp left    right = map snd $ sortWith fst $ ST.run do
       void $ STRef.write (Just x') latestRightArrayValue
   STA.unsafeFreeze result
   where
-    indexedAndSorted = combineIndexSort cmp left right
+    -- Note: when elements are equal, right array elements
+    -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
+    -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
+    valueThenOrigin :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
+    valueThenOrigin (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
+      cmp lv rv <> compare lb rb
+
+    indexedAndSorted = sortBy valueThenOrigin $ combineIndex left right
 
 -- | Apply a function to pairs of elements at the same index in two arrays,
 -- | collecting the results in a new array.
