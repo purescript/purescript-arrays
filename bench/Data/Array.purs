@@ -14,6 +14,9 @@ benchArray = do
   sequence_ $ Array.intersperse (log "")
     [ benchMapMaybe
     , benchNubBy
+    , benchUnionBy
+    , benchIntersectBy
+    , benchDifference
     ]
 
 
@@ -44,3 +47,42 @@ benchArray = do
 
     log $ "nubBy (" <> show (Array.length longNats) <> ")"
     benchWith 100 \_ -> Array.nubBy mod3Cmp longNats
+
+  benchUnionBy = do
+    log "unionBy"
+    log "---------------"
+    let shortNats = Array.range 0 100
+        longNats = Array.range 0 10000
+        mod3Eq x y = (x `mod` 3) == (y `mod` 3)
+
+    log $ "unionBy (" <> show (Array.length shortNats) <> ")"
+    benchWith 1000 \_ -> Array.unionBy mod3Eq shortNats shortNats
+
+    log $ "unionBy (" <> show (Array.length longNats) <> ")"
+    benchWith 100 \_ -> Array.unionBy mod3Eq longNats longNats
+
+  benchIntersectBy = do
+    log "intersectBy"
+    log "---------------"
+    let shortNats = Array.range 0 100
+        longNats = Array.range 0 10000
+        mod3Eq x y = (x `mod` 3) == (y `mod` 3)
+
+    log $ "intersectBy (" <> show (Array.length shortNats) <> ")"
+    benchWith 1000 \_ -> Array.intersectBy mod3Eq shortNats shortNats
+
+    log $ "intersectBy (" <> show (Array.length longNats) <> ")"
+    benchWith 100 \_ -> Array.intersectBy mod3Eq longNats longNats
+
+  benchDifference = do
+    log "difference"
+    log "---------------"
+    let shortNats = Array.range 0 100
+        longNats = Array.range 0 10000
+        mod3Eq x y = (x `mod` 3) == (y `mod` 3)
+
+    log $ "difference (" <> show (Array.length shortNats) <> ")"
+    benchWith 1000 \_ -> Array.difference shortNats shortNats
+
+    log $ "difference (" <> show (Array.length longNats) <> ")"
+    benchWith 100 \_ -> Array.difference longNats longNats
