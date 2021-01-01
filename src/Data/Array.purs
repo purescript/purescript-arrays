@@ -1031,12 +1031,13 @@ nubEq = nubByEq eq
 nubBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 nubBy comp xs = case head indexedAndSorted of
   Nothing -> []
-  Just x -> map snd $ sortWith fst $ ST.run do
+  Just x -> map snd $ ST.run do
      -- TODO: use NonEmptyArrays here to avoid partial functions
      result <- STA.unsafeThaw $ singleton x
      ST.foreach indexedAndSorted \pair@(Tuple i x') -> do
        lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
        when (comp lst x' /= EQ) $ void $ STA.push pair result
+     _ <- STA.sortWith fst result
      STA.unsafeFreeze result
   where
   indexedAndSorted :: Array (Tuple Int a)
