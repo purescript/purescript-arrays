@@ -1041,8 +1041,10 @@ nubBy comp xs = case head indexedAndSorted of
      STA.unsafeFreeze result
   where
   indexedAndSorted :: Array (Tuple Int a)
-  indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y))
-                            (mapWithIndex Tuple xs)
+  indexedAndSorted = ST.run do
+    arr <- STA.unsafeThaw (mapWithIndex Tuple xs)
+    _ <- STA.sortBy (\x y -> comp (snd x) (snd y)) arr
+    STA.unsafeFreeze arr
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
