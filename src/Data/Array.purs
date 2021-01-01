@@ -1087,7 +1087,7 @@ union = unionBy compare
 -- | ```
 -- |
 unionBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
-unionBy cmp left right = map snd $ sortWith fst $ ST.run do
+unionBy cmp left right = map snd $ ST.run do
   result <- STA.new
   ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
     if fromLeftArray then do
@@ -1100,6 +1100,7 @@ unionBy cmp left right = map snd $ sortWith fst $ ST.run do
           | otherwise -> pure unit
         Nothing -> do
           void $ STA.push pair result
+  _ <- STA.sortWith fst result
   STA.unsafeFreeze result
   where
     -- Note: when elements are equal, left array elements
@@ -1155,7 +1156,7 @@ infix 5 difference as \\
 differenceBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
 differenceBy   _ left       [] = left
 differenceBy   _ left@[]     _ = left
-differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
+differenceBy cmp left    right = map snd $ ST.run do
   result <- STA.new
   latestRightArrayValue <- STRef.new Nothing
   ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
@@ -1177,6 +1178,7 @@ differenceBy cmp left    right = map snd $ sortWith fst $ ST.run do
         void $ STRef.write next latestRightArrayValue
       false, _ -> do
         void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
+  _ <- STA.sortWith fst result
   STA.unsafeFreeze result
   where
     -- Note: when elements are equal, right array elements
@@ -1244,7 +1246,7 @@ intersect = intersectBy compare
 intersectBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
 intersectBy _   left       [] = left
 intersectBy _   left@[]     _ = left
-intersectBy cmp left    right = map snd $ sortWith fst $ ST.run do
+intersectBy cmp left    right = map snd $ ST.run do
   result <- STA.new
   latestRightArrayValue <- STRef.new Nothing
   ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple i x')) ->
@@ -1256,6 +1258,7 @@ intersectBy cmp left    right = map snd $ sortWith fst $ ST.run do
         _ -> pure unit
     else do
       void $ STRef.write (Just x') latestRightArrayValue
+  _ <- STA.sortWith fst result
   STA.unsafeFreeze result
   where
     -- Note: when elements are equal, right array elements
