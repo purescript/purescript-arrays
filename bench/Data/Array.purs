@@ -21,14 +21,15 @@ benchArray = do
 
 
   where
+  shortNats = Array.range 0 100
+  longNats = Array.range 0 10000
+  onlyEven x = if x `mod` 2 == 0 then Just x else Nothing
+  mod3Eq x y = (x `mod` 3) == (y `mod` 3)
 
   benchMapMaybe = do
     log "mapMaybe"
     log "---------------"
-    let shortNats = Array.range 0 100
-        longNats = Array.range 0 10000
-        onlyEven x = if x `mod` 2 == 0 then Just x else Nothing
-
+    
     log $ "mapMaybe (" <> show (Array.length shortNats) <> ")"
     benchWith 1000 \_ -> Array.mapMaybe onlyEven shortNats
 
@@ -38,8 +39,6 @@ benchArray = do
   benchNubEq = do
     log "nubEq"
     log "---------------"
-    let shortNats = Array.range 0 100
-        longNats = Array.range 0 10000
 
     log $ "nubEq (" <> show (Array.length shortNats) <> ")"
     benchWith 1000 \_ -> Array.nubEq shortNats
@@ -50,8 +49,6 @@ benchArray = do
   benchUnion = do
     log "union"
     log "---------------"
-    let shortNats = Array.range 0 100
-        longNats = Array.range 0 10000
 
     log $ "union (" <> show (Array.length shortNats) <> ")"
     benchWith 1000 \_ -> Array.union shortNats shortNats
@@ -62,8 +59,6 @@ benchArray = do
   benchIntersect = do
     log "intersect"
     log "---------------"
-    let shortNats = Array.range 0 100
-        longNats = Array.range 0 10000
 
     log $ "intersectBy (" <> show (Array.length shortNats) <> ")"
     benchWith 1000 \_ -> Array.intersect shortNats shortNats
@@ -74,9 +69,6 @@ benchArray = do
   benchDifference = do
     log "difference"
     log "---------------"
-    let shortNats = Array.range 0 100
-        longNats = Array.range 0 10000
-        mod3Eq x y = (x `mod` 3) == (y `mod` 3)
 
     log $ "difference (" <> show (Array.length shortNats) <> ")"
     benchWith 1000 \_ -> Array.difference shortNats shortNats
