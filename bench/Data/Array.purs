@@ -37,12 +37,12 @@ benchArray = do
   -- A.filter (between 45 55 <<< fst) $
   -- scanl (\t nxt -> bimap (_ + nxt) (_ `A.snoc` nxt) t) (Tuple 0 []) (A.range 4 200)
   -- > [(Tuple 49 [4,5,6,7,8,9,10])]
-  shortNatsDup = Array.range 0 51 <> mkArrayWithDuplicates 4 10
+  shortNatsDup = Array.range 100 151 <> mkArrayWithDuplicates 4 10
 
   -- flip index 1 $ A.filter (between 450 550 <<< fst) $
   -- scanl (\t nxt -> bimap (_ + nxt) (_ `A.snoc` nxt) t) (Tuple 0 []) (A.range 11 300)
   -- > Tuple 506 [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]
-  longNatsDup = Array.range 0 494 <> mkArrayWithDuplicates 11 33
+  longNatsDup = Array.range 100 594 <> mkArrayWithDuplicates 11 33
 
   onlyEven x = if x `mod` 2 == 0 then Just x else Nothing
   mod3Eq x y = (x `mod` 3) == (y `mod` 3)
