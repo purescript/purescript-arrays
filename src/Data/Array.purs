@@ -628,7 +628,7 @@ intersperse a arr = case length arr of
 -- | reverse [1, 2, 3] = [3, 2, 1]
 -- | ```
 -- |
-foreign import reverse :: forall a. Array a -> Array a
+foreign import reverse :: Array ~> Array
 
 -- | Flatten an array of arrays, creating a new array.
 -- |

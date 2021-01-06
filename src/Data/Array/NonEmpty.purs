@@ -162,31 +162,31 @@ fromArray xs
   | otherwise = Nothing
 
 -- | INTERNAL
-unsafeFromArray :: forall a. Array a -> NonEmptyArray a
+unsafeFromArray :: Array ~> NonEmptyArray
 unsafeFromArray = NonEmptyArray
 
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
 
-fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
+fromNonEmpty :: NonEmpty Array ~> NonEmptyArray
 fromNonEmpty (x :| xs) = cons' x xs
 
-toArray :: forall a. NonEmptyArray a -> Array a
+toArray :: NonEmptyArray ~> Array
 toArray (NonEmptyArray xs) = xs
 
-toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
+toNonEmpty :: NonEmptyArray ~> NonEmpty Array
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
 
 fromFoldable :: forall f a. Foldable f => f a -> Maybe (NonEmptyArray a)
 fromFoldable = fromArray <<< A.fromFoldable
 
-fromFoldable1 :: forall f a. Foldable1 f => f a -> NonEmptyArray a
+fromFoldable1 :: forall f. Foldable1 f => f ~> NonEmptyArray
 fromFoldable1 = unsafeFromArray <<< A.fromFoldable
 
-toUnfoldable :: forall f a. Unfoldable f => NonEmptyArray a -> f a
+toUnfoldable :: forall f. Unfoldable f => NonEmptyArray ~> f
 toUnfoldable = adaptAny A.toUnfoldable
 
-toUnfoldable1 :: forall f a. Unfoldable1 f => NonEmptyArray a -> f a
+toUnfoldable1 :: forall f. Unfoldable1 f => NonEmptyArray ~> f
 toUnfoldable1 xs = unfoldr1 f 0
   where
   len = length xs
@@ -244,10 +244,10 @@ head = adaptMaybe A.head
 last :: forall a. NonEmptyArray a -> a
 last = adaptMaybe A.last
 
-tail :: forall a. NonEmptyArray a -> Array a
+tail :: NonEmptyArray ~> Array
 tail = adaptMaybe A.tail
 
-init :: forall a. NonEmptyArray a -> Array a
+init :: NonEmptyArray ~> Array
 init = adaptMaybe A.init
 
 uncons :: forall a. NonEmptyArray a -> { head :: a, tail :: Array a }
@@ -309,7 +309,7 @@ alterAt i f = A.alterAt i f <<< toArray
 intersperse :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
 intersperse x = unsafeAdapt $ A.intersperse x
 
-reverse :: forall a. NonEmptyArray a -> NonEmptyArray a
+reverse :: NonEmptyArray ~> NonEmptyArray
 reverse = unsafeAdapt A.reverse
 
 concat :: forall a. NonEmptyArray (NonEmptyArray a) -> NonEmptyArray a
