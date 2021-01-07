@@ -1195,9 +1195,10 @@ differenceBy cmp left    right = map snd $ ST.run do
 -- ```
 -- combineWithIndex cmp left right =
 -- let
---   leftIndexed = mapWithIndex (\idx v -> Tuple idx v) left
+--   t3 bool idx val = Tuple bool (Tuple idx val)
+--   leftIndexed = mapWithIndex (\idx v -> t3 true idx v) left
 --
---   tupleAdjusted idx v = Tuple (idx + (length left)) v
+--   tupleAdjusted idx v = t3 false (idx + (length left)) v
 --   rightIndexedPlus = mapWithIndex tupleAdjusted right
 --
 -- in leftIndexed <> rightIndexedPlus
@@ -1205,7 +1206,6 @@ differenceBy cmp left    right = map snd $ ST.run do
 -- ... but without creating two intermediate arrays due to the `mapWithIndex`
 -- on both arrays.
 -- ```
--- let t3 a b c = Tuple a (Tuple b c)
 -- combineIndex compare [0] [0, 1]
 --   == [t3 true 0 0, t3 false 1 0, t3 false 2 1]
 -- ```
