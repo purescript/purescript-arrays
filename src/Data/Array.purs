@@ -142,8 +142,10 @@ import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, foldl, foldr, traverse_)
 import Data.Foldable (foldl, foldr, foldMap, fold, intercalate) as Exports
+import Data.Function (on)
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Ordering (invert)
+import Data.Ord (abs)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
@@ -1156,11 +1158,14 @@ infix 5 difference as \\
 differenceBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a -> Array a
 differenceBy   _ left       [] = left
 differenceBy   _ left@[]     _ = left
-differenceBy cmp left    right = map snd $ ST.run do
-  result <- STA.new
+differenceBy cmp left    right = ST.run do
+  indices <- STA.new
   latestRightArrayValue <- STRef.new Nothing
-  ST.foreach indexedAndSorted \(Tuple fromLeftArray pair@(Tuple _ x')) -> do
+  ST.foreach indexedAndSorted \idx -> do
     maybeValueToRemove <- STRef.read latestRightArrayValue
+    let
+      fromLeftArray = idx >= 0
+      x' = safeishIndex idx
     case fromLeftArray, maybeValueToRemove of
       true, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ ->
         -- do not add left array's element to final array; check count
@@ -1170,7 +1175,7 @@ differenceBy cmp left    right = map snd $ ST.run do
           let decrementCount = Just (Tuple valueToRemove (count - 1))
           void $ STRef.write decrementCount latestRightArrayValue
 
-      true, _ -> void $ STA.push pair result
+      true, _ -> void $ STA.push idx indices
 
       false, Just (Tuple valueToRemove count) | cmp valueToRemove x' == EQ -> do
         let next = if count == 0 then Nothing
@@ -1178,17 +1183,61 @@ differenceBy cmp left    right = map snd $ ST.run do
         void $ STRef.write next latestRightArrayValue
       false, _ -> do
         void $ STRef.write (Just (Tuple x' 1)) latestRightArrayValue
-  _ <- STA.sortWith fst result
-  STA.unsafeFreeze result
-  where
-    -- Note: when elements are equal, right array elements
-    -- (i.e. `Tuple false (Tuple _ _)`) appear "before" left array elements
-    -- (i.e. `Tuple true (Tuple _ _)`) in the resulting array.
-    valueThenRightFirst :: Tuple Boolean (Tuple Int a) -> Tuple Boolean (Tuple Int a) -> Ordering
-    valueThenRightFirst (Tuple lb (Tuple _ lv)) (Tuple rb (Tuple _ rv)) =
-      cmp lv rv <> compare lb rb
+  _ <- STA.sortBy (compare `on` abs) indices
+  sortedIndexArray <- STA.unsafeFreeze indices
+  final <- STA.new
+  ST.foreach sortedIndexArray \sortedIdx ->
+    void $ STA.push (safeishIndex sortedIdx) final
+  STA.unsafeFreeze final
 
-    indexedAndSorted = sortBy valueThenRightFirst $ combineIndex left right
+  where
+    leftLen :: Int
+    leftLen = length left
+
+    rightLen :: Int
+    rightLen = length right
+
+    safeishIndex :: Int -> a
+    safeishIndex i
+      | i < 0 = unsafePartial (unsafeIndex right ((abs i) - leftLen))
+      | otherwise = unsafePartial (unsafeIndex left i)
+
+
+    valueThenRightFirst :: Int -> Int -> Ordering
+    valueThenRightFirst li ri =
+      ((cmp `on` safeishIndex) li ri) <> compare li ri
+
+    indexedAndSorted =
+      sortBy valueThenRightFirst $ combineIndex' leftLen left rightLen right
+
+-- Internal use only
+-- Essentially...
+-- ```
+-- combineWithIndex' cmp left right =
+-- let
+--   leftIndexed = mapWithIndex (\idx _ -> idx) left
+--
+--   adjustedIdx idx _ = negate (idx + (length left))
+--   rightIndexedPlus = mapWithIndex adjustedIdx right
+--
+-- in leftIndices <> rightIndices
+-- ```
+-- ... but without creating two intermediate arrays due to the `mapWithIndex`
+-- on both arrays. Left array elements' indices are positive;
+-- right array elements' indices are negative. By using `abs`, one
+-- can still get the index of the right-array elements.
+-- ```
+-- combineIndex' compare [7] [9, 5]
+--   == [0, (-1), (-2)]
+-- ```
+combineIndex' :: forall a. Int -> Array a -> Int -> Array a -> Array Int
+combineIndex' leftLen left rightLen right = ST.run do
+  out <- STA.new
+  ST.for 0 leftLen \idx -> do
+    void $ STA.push idx out
+  ST.for 0 rightLen \idx -> do
+    void $ STA.push (negate (leftLen + idx)) out
+  STA.unsafeFreeze out
 
 -- Internal use only
 -- Essentially...
