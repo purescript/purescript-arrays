@@ -1206,8 +1206,8 @@ differenceBy cmp left    right = map snd $ ST.run do
 -- ... but without creating two intermediate arrays due to the `mapWithIndex`
 -- on both arrays.
 -- ```
--- combineIndex compare [0] [0, 1]
---   == [t3 true 0 0, t3 false 1 0, t3 false 2 1]
+-- combineIndex compare [7] [9, 5]
+--   == [t3 true 0 7, t3 false 1 9, t3 false 2 5]
 -- ```
 combineIndex :: forall a. Array a -> Array a -> Array (Tuple Boolean (Tuple Int a))
 combineIndex left right = ST.run do
