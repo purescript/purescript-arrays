@@ -5,12 +5,35 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+- Renamed `Data.Array.ST.empty` to `Data.Array.ST.new` (#191 #198)
+- Renamed `group'` to `groupAll` (#194 #200)
 
 New features:
+- Added monomorphic `foldl` `foldr` `foldMap` `fold` `intercalate` to `Array` (#201)
+  - These are just wrapped versions from `Data.Foldable`
+- Added monomorphic `foldl1` `foldr1` `foldMap1` `foldl1` `intercalate` to `Array.NonEmpty` (#201)
+  - These are just wrapped versions from `Data.Foldable`
+- Added monomorphic `elem` `notElem` `find` `findMap` `scanl` `scanr` (#189 #201)
+- Added monomorphic `any` `all` (#193)
+- Added `mapWithIndex` `groupBy` to `Array.NonEmpty` (#201 #164)
+- Added `intersperse` (#188 #201)
+- Added `groupAllBy` (#194 #200)
+- Added `splitAt` (#179)
 
 Bugfixes:
+- Fixed `sort` so `undefined` is sorted by comparison function, and not simply moved to the end of the array (#195 #197)
 
 Other improvements:
+- Generated changelog and added PR template (#208)
+- Added benchmarking (#178)
+- Migrated to GitHub Actions for CI (#187 #169)
+- Removed some internal usages of `unsafeCoerce` (#184)
+- Changed `foldM` type signature to more closely match `foldl` (#160)
+- Updated installation instructions to use Spago (#171) 
+- Replaced foreign `cons` `snoc` `drop` `take` with purescript implementations (#180)
+- Removed `return {}` from FFI function (#175) 
+- Bumped pulp version (#174)
+- Removed primes from foreign modules exports (#168)
 
 ## [v5.3.1](https://github.com/purescript/purescript-arrays/releases/tag/v5.3.1) - 2019-10-13
 
