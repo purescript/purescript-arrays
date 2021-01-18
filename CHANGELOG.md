@@ -5,6 +5,7 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+- Updated code for PureScript 0.14 (#181)
 - Renamed `Data.Array.ST.empty` to `Data.Array.ST.new` (#191 #198)
 - Renamed `group'` to `groupAll` (#194 #200)
 
