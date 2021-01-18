@@ -13,18 +13,15 @@ New features:
   - These are just wrapped versions from `Data.Foldable`
 - Added monomorphic `foldl1` `foldr1` `foldMap1` `foldl1` `intercalate` to `Array.NonEmpty` (#201)
   - These are just wrapped versions from `Data.Foldable`
-- Added monomorphic `elem` `notElem` `find` `findMap` `scanl` `scanr` (#189 #201)
-- Added monomorphic `any` `all` (#193)
+- Added monomorphic `elem` `notElem` `find` `findMap` `scanl` `scanr` `any` `all` (#189 #193 #201)
+- Added `intersperse` `groupAllBy` `splitAt`  (#179 #188 #194 #200 #201)
 - Added `mapWithIndex` `groupBy` to `Array.NonEmpty` (#201 #164)
-- Added `intersperse` (#188 #201)
-- Added `groupAllBy` (#194 #200)
-- Added `splitAt` (#179)
 
 Bugfixes:
 - Fixed `sort` so `undefined` is sorted by comparison function, and not simply moved to the end of the array (#195 #197)
 
 Other improvements:
-- Generated changelog and added PR template (#208)
+- Generated changelog and added PR template (#208, #209)
 - Added benchmarking (#178)
 - Migrated to GitHub Actions for CI (#187 #169)
 - Removed some internal usages of `unsafeCoerce` (#184)
