@@ -10,10 +10,10 @@ Breaking changes:
 - Renamed `group'` to `groupAll` (#194, #200)
 
 New features:
-- Added specialized monomorphic functions from `Data.Foldable` (#201):
+- Added specialized versions of the functions from `Data.Foldable` (#201):
   - Added `foldl`, `foldr`, `foldMap`, `fold`, `intercalate` to `Array` 
   - Added `foldl1`, `foldr1`, `foldMap1`, `foldl1`, `intercalate` to `Array.NonEmpty`
-- Added monomorphic `elem`, `notElem`, `find`, `findMap`, `scanl`, `scanr`, `any`, `all` (#189, #193, #201)
+- Added specialized `elem`, `notElem`, `find`, `findMap`, `scanl`, `scanr`, `any`, `all` (#189, #193, #201)
 - Added `intersperse`, `groupAllBy`, `splitAt` (#179, #188, #194, #200, #201)
 - Added `mapWithIndex`, `groupBy` to `Array.NonEmpty` (#201, #164)
 
