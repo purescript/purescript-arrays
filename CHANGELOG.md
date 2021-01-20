@@ -27,7 +27,7 @@ Other improvements:
 - Removed some internal usages of `unsafeCoerce` (#184)
 - Changed `foldM` type signature to more closely match `foldl` (#160)
 - Updated installation instructions to use Spago (#171) 
-- Replaced foreign `cons`, `snoc`, `drop`, `take` with purescript implementations (#180)
+- Replaced foreign `cons`, `snoc`, `drop`, `take` with PureScript implementations (#180)
 - Removed `return {}` from FFI function for a small performance boost (#175) 
 - Bumped pulp version (#174)
 - Removed primes from foreign modules exports (#168)
