@@ -5,12 +5,32 @@ Notable changes to this project are documented in this file. The format is based
 ## [Unreleased]
 
 Breaking changes:
+- Added support for PureScript 0.14 and dropped support for all previous versions (#181)
+- Renamed `Data.Array.ST.empty` to `Data.Array.ST.new` (#191, #198)
+- Renamed `group'` to `groupAll` (#194, #200)
 
 New features:
+- Added specialized versions of the functions from `Data.Foldable` (#201):
+  - Added `foldl`, `foldr`, `foldMap`, `fold`, `intercalate` to `Array` 
+  - Added `foldl1`, `foldr1`, `foldMap1`, `foldl1`, `intercalate` to `Array.NonEmpty`
+- Added specialized `elem`, `notElem`, `find`, `findMap`, `scanl`, `scanr`, `any`, `all` (#189, #193, #201)
+- Added `intersperse`, `groupAllBy`, `splitAt` (#179, #188, #194, #200, #201)
+- Added `mapWithIndex`, `groupBy` to `Array.NonEmpty` (#201, #164)
 
 Bugfixes:
+- Fixed `sort`, so `undefined` is sorted by comparison function and not simply moved to the end of the array (#195, #197)
 
 Other improvements:
+- Generated changelog and added PR template (#208, #209)
+- Added benchmarking (#178)
+- Migrated to GitHub Actions for CI (#187, #169)
+- Removed some internal usages of `unsafeCoerce` (#184)
+- Changed `foldM` type signature to more closely match `foldl` (#160)
+- Updated installation instructions to use Spago (#171) 
+- Replaced foreign `cons`, `snoc`, `drop`, `take` with PureScript implementations (#180)
+- Removed `return {}` from FFI function for a small performance boost (#175) 
+- Bumped pulp version (#174)
+- Removed primes from foreign modules exports (#168)
 
 ## [v5.3.1](https://github.com/purescript/purescript-arrays/releases/tag/v5.3.1) - 2019-10-13
 
