@@ -13,9 +13,6 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: purescript-contrib/setup-purescript@main
-        with:
-          purescript: "0.14.0-rc5"
-          psa: "0.8.0"
 
       - uses: actions/setup-node@v1
         with:
