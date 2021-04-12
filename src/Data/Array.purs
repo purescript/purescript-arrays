@@ -32,6 +32,7 @@ module Data.Array
   , toUnfoldable
   , singleton
   , (..), range
+  , rangeWithStep
   , replicate
   , some
   , many
@@ -87,6 +88,8 @@ module Data.Array
   , scanl
   , scanr
 
+  , sliding
+  , slidingWithSizeAndStep
   , sort
   , sortBy
   , sortWith
@@ -1289,3 +1292,72 @@ unsafeIndex :: forall a. Partial => Array a -> Int -> a
 unsafeIndex = unsafeIndexImpl
 
 foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a
+
+-- | Takes an arrays of length n and returns an array of Tuples with length n-1.
+-- | It's a "sliding window" view of this array with a window size of 2 and a step size of 1.
+-- |
+-- | ```purescript
+-- | sliding [1,2,3,4,5] = [(Tuple 1 2),(Tuple 2 3),(Tuple 3 4),(Tuple 4 5)]
+-- | ```
+-- |
+sliding :: forall a. Array a -> Array (Tuple a a)
+sliding l = zip l (drop 1 l)
+
+-- | Takes an arrays and returns an array of arrays as a "sliding window" view of this array.
+-- | Illegal arguments result in an empty Array.
+-- |
+-- | ```purescript
+-- | > import Data.Array (range)
+-- | > slidingWithSizeAndStep 3 2 (range 0 10) = [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
+-- | > slidingWithSizeAndStep 3 3 (range 0 10) = [[0,1,2],[3,4,5],[6,7,8],[9,10]]
+-- | ```
+-- |
+slidingWithSizeAndStep :: forall a. Int -> Int -> Array a -> Array (Array a)
+slidingWithSizeAndStep size step array =
+  let
+    maxIndex = (length array) - 1
+
+    indices = rangeWithStep 0 maxIndex step
+
+    isValid = size > 0 && step > 0
+  in
+    if isValid then
+      indices <#> \i -> slice i (i + size) array
+    else
+      []
+
+-- | Create an array containing a range of integers with a given step size, including both endpoints.
+-- | Illegal arguments result in an empty Array.
+-- |
+-- | ```purescript
+-- | > rangeWithStep 0 6 2 = [0,2,4,6]
+-- | > rangeWithStep 0 (-6) (-2) = [0,-2,-4,-6]
+-- | ```
+-- |
+rangeWithStep :: Int -> Int -> Int -> Array Int
+rangeWithStep start endIndex step =
+  let
+    isValid =
+      step /= 0
+        && if endIndex >= start then
+            step > 0
+          else
+            step < 0
+
+    hasReachedEnd curr =
+      if step > 0 then
+        curr > endIndex
+      else
+        curr < endIndex
+
+    helper :: Int -> Array Int -> Array Int
+    helper currentIndex acc =
+      if hasReachedEnd currentIndex then
+        acc
+      else
+        helper (currentIndex + step) (snoc acc currentIndex)
+  in
+    if isValid then
+      helper start []
+    else
+      []
