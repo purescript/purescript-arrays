@@ -1052,7 +1052,7 @@ nubBy comp xs = case head indexedAndSorted of
   Just x -> map snd $ sortWith fst $ ST.run do
      -- TODO: use NonEmptyArrays here to avoid partial functions
      result <- STA.unsafeThaw $ singleton x
-     ST.foreach indexedAndSorted \pair@(Tuple i x') -> do
+     ST.foreach indexedAndSorted \pair@(Tuple _ x') -> do
        lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
        when (comp lst x' /= EQ) $ void $ STA.push pair result
      STA.unsafeFreeze result
