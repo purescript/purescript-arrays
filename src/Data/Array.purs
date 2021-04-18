@@ -187,6 +187,7 @@ singleton :: forall a. a -> Array a
 singleton a = [a]
 
 -- | Create an array containing a range of integers, including both endpoints.
+-- | If you want to control the step-size, see `rangeWithStep`
 -- | ```purescript
 -- | range 2 5 = [2, 3, 4, 5]
 -- | ```
@@ -1294,8 +1295,9 @@ unsafeIndex = unsafeIndexImpl
 
 foreign import unsafeIndexImpl :: forall a. Array a -> Int -> a
 
--- | Takes an arrays of length n and returns an array of Tuples with length n-1.
--- | It's a "sliding window" view of this array with a window size of 2 and a step size of 1.
+-- | Returns an array where each value represents a "sliding window" of the given array with a window of size 2 and a step size of 1. 
+-- |
+-- | If you need more control over the size of the window and how far to step before making a new window, see `slidingSizeStep`
 -- |
 -- | ```purescript
 -- | sliding [1,2,3,4,5] = [(Tuple 1 2),(Tuple 2 3),(Tuple 3 4),(Tuple 4 5)]
@@ -1307,10 +1309,13 @@ sliding l = zip l (drop 1 l)
 -- | Takes an arrays and returns an array of arrays as a "sliding window" view of this array.
 -- | Illegal arguments result in an empty Array.
 -- |
+-- | As you can see in the example below, the last window might not get filled completely. 
+-- | Its size `s` will be `1 <= s <= size`.
+-- |
 -- | ```purescript
 -- | > import Data.Array (range)
--- | > slidingSizeStep 3 2 (range 0 10) = [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
--- | > slidingSizeStep 3 3 (range 0 10) = [[0,1,2],[3,4,5],[6,7,8],[9,10]]
+-- | > slidingSizeStep 3 2 [0,1,2,3,4,5,6,7,8,9,10] = [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
+-- | > slidingSizeStep 3 3 [0,1,2,3,4,5,6,7,8,9,10] = [[0,1,2],[3,4,5],[6,7,8],[9,10]]
 -- | ```
 -- |
 slidingSizeStep :: forall a. Int -> Int -> Array a -> Array (NonEmptyArray a)
@@ -1334,37 +1339,37 @@ slidingSizeStep size step array
 rangeWithStep :: Int -> Int -> Int -> Array Int
 rangeWithStep start end step = rangeWithStep' start end step identity
 
--- | Helper function to produce an array of elements like `rangeWithStep` with start, end and step, but immediatelly mapping over the result to work on one single mutable array.
+-- | Works just like rangeWithStep, but also uses a function to map each integer.
+-- | `rangeWithStep' start end step f` is the same as `map f $ rangeWithStep start end step`,
+-- | but without the extra intermediate array allocation.
 -- |
 -- | ```purescript
 -- | > rangeWithStep' 0 6 2 identity = [0,2,4,6]
 -- | > rangeWithStep' 0 6 2 (add 3) = [3,5,7,9]
+-- | > rangeWithStep' 0 (-6) (-2) (add 3) = [3,1,-1,-3]
 -- | ```
 rangeWithStep' :: forall t. Int -> Int -> Int -> (Int -> t) -> Array t
 rangeWithStep' start end step fn =
-  STA.run
-    ( do
-        let
-          isValid =
-            step /= 0
-              && if end >= start then
-                  step > 0
-                else
-                  step < 0
-
-          hasReachedEnd current =
-            if step > 0 then
-              current > end
-            else
-              current < end
-
-          helper current acc =
-            if hasReachedEnd current then
-              pure acc
-            else do
-              void $ STA.push (fn current) acc
-              helper (current + step) acc
-        arr <- STA.new
-        void $ helper start arr
-        pure arr
-    )
+  if not isValid 
+  then []
+  else STA.run do
+    let
+      helper current acc =
+        if hasReachedEnd current then
+          pure acc
+        else do
+          void $ STA.push (fn current) acc
+          helper (current + step) acc
+    arr <- STA.new
+    _ <- helper start arr
+    pure arr  
+  where 
+  isValid = 
+    step /= 0 && 
+      if end >= start 
+      then step > 0
+      else step < 0
+  hasReachedEnd current =
+    if step > 0 
+    then current > end
+    else current < end
