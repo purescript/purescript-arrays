@@ -470,17 +470,21 @@ testArray = do
   log "sliding"
   assert $ A.sliding [ 1, 2, 3, 4, 5 ] == [ (Tuple 1 2), (Tuple 2 3), (Tuple 3 4), (Tuple 4 5) ]
 
-  log "slidingWithStepAndSize"
-  assert $ A.slidingWithSizeAndStep 3 2 (A.range 0 10) == [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
-  assert $ A.slidingWithSizeAndStep 3 3 (A.range 0 10) == [[0,1,2],[3,4,5],[6,7,8],[9,10]]
-  assert $ A.slidingWithSizeAndStep 3 (-2) (A.range 0 10) == []
-  assert $ A.slidingWithSizeAndStep (-3) (2) (A.range 0 10) == []
+  log "slidingSizeStep"
+  assert $ A.slidingSizeStep 3 2 (A.range 0 10) == ([[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]] <#> nea)
+  assert $ A.slidingSizeStep 3 3 (A.range 0 10) == ([[0,1,2],[3,4,5],[6,7,8],[9,10]] <#> nea)
+  assert $ A.slidingSizeStep 3 (-2) (A.range 0 10) == []
+  assert $ A.slidingSizeStep (-3) (2) (A.range 0 10) == []
 
   log "rangeWithStep"
   assert $ A.rangeWithStep 0 6 2 == [ 0, 2, 4, 6 ]
   assert $ A.rangeWithStep 0 (-6) (-2) == [ 0, -2, -4, -6 ]
   assert $ A.rangeWithStep 0 6 (-2) == []
   assert $ A.rangeWithStep 0 (-6) (2) == []
+
+  log "rangeWithStep'"
+  assert $ A.rangeWithStep 0 6 2 == A.rangeWithStep' 0 6 2 identity
+  assert $ A.rangeWithStep' 0 6 2 (add 3) == [3, 5, 7, 9]
 
 nea :: Array ~> NEA.NonEmptyArray
 nea = unsafePartial fromJust <<< NEA.fromArray

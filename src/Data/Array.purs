@@ -33,6 +33,7 @@ module Data.Array
   , singleton
   , (..), range
   , rangeWithStep
+  , rangeWithStep'
   , replicate
   , some
   , many
@@ -89,7 +90,7 @@ module Data.Array
   , scanr
 
   , sliding
-  , slidingWithSizeAndStep
+  , slidingSizeStep
   , sort
   , sortBy
   , sortWith
@@ -1308,23 +1309,19 @@ sliding l = zip l (drop 1 l)
 -- |
 -- | ```purescript
 -- | > import Data.Array (range)
--- | > slidingWithSizeAndStep 3 2 (range 0 10) = [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
--- | > slidingWithSizeAndStep 3 3 (range 0 10) = [[0,1,2],[3,4,5],[6,7,8],[9,10]]
+-- | > slidingSizeStep 3 2 (range 0 10) = [[0,1,2],[2,3,4],[4,5,6],[6,7,8],[8,9,10],[10]]
+-- | > slidingSizeStep 3 3 (range 0 10) = [[0,1,2],[3,4,5],[6,7,8],[9,10]]
 -- | ```
 -- |
-slidingWithSizeAndStep :: forall a. Int -> Int -> Array a -> Array (Array a)
-slidingWithSizeAndStep size step array =
-  let
-    maxIndex = (length array) - 1
+slidingSizeStep :: forall a. Int -> Int -> Array a -> Array (NonEmptyArray a)
+slidingSizeStep size step array 
+  | size <= 0 || step <= 0 = [] {- args not valid -}
+  | otherwise = 
+    let
+      maxIndex = (length array) - 1
+    in
+      rangeWithStep' 0 maxIndex step (\i -> NonEmptyArray (slice i (i + size) array))
 
-    indices = rangeWithStep 0 maxIndex step
-
-    isValid = size > 0 && step > 0
-  in
-    if isValid then
-      indices <#> \i -> slice i (i + size) array
-    else
-      []
 
 -- | Create an array containing a range of integers with a given step size, including both endpoints.
 -- | Illegal arguments result in an empty Array.
@@ -1335,29 +1332,39 @@ slidingWithSizeAndStep size step array =
 -- | ```
 -- |
 rangeWithStep :: Int -> Int -> Int -> Array Int
-rangeWithStep start endIndex step =
-  let
-    isValid =
-      step /= 0
-        && if endIndex >= start then
-            step > 0
-          else
-            step < 0
+rangeWithStep start end step = rangeWithStep' start end step identity
 
-    hasReachedEnd curr =
-      if step > 0 then
-        curr > endIndex
-      else
-        curr < endIndex
+-- | Helper function to produce an array of elements like `rangeWithStep` with start, end and step, but immediatelly mapping over the result to work on one single mutable array.
+-- |
+-- | ```purescript
+-- | > rangeWithStep' 0 6 2 identity = [0,2,4,6]
+-- | > rangeWithStep' 0 6 2 (add 3) = [3,5,7,9]
+-- | ```
+rangeWithStep' :: forall t. Int -> Int -> Int -> (Int -> t) -> Array t
+rangeWithStep' start end step fn =
+  STA.run
+    ( do
+        let
+          isValid =
+            step /= 0
+              && if end >= start then
+                  step > 0
+                else
+                  step < 0
 
-    helper :: Int -> Array Int -> Array Int
-    helper currentIndex acc =
-      if hasReachedEnd currentIndex then
-        acc
-      else
-        helper (currentIndex + step) (snoc acc currentIndex)
-  in
-    if isValid then
-      helper start []
-    else
-      []
+          hasReachedEnd current =
+            if step > 0 then
+              current > end
+            else
+              current < end
+
+          helper current acc =
+            if hasReachedEnd current then
+              pure acc
+            else do
+              void $ STA.push (fn current) acc
+              helper (current + step) acc
+        arr <- STA.new
+        void $ helper start arr
+        pure arr
+    )
