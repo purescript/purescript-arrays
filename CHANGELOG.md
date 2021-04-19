@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+- Fix warnings revealed by `v0.14.1` PS release (#213)
 
 ## [v6.0.0](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.0) - 2021-02-26
 
