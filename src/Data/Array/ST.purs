@@ -78,7 +78,10 @@ foreign import unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
 foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
 -- | Create a new, empty mutable array.
-foreign import new :: forall h a. ST h (STArray h a)
+foreign import _new :: forall h a. ST h (STArray h a)
+
+new :: forall h a. ST h (STArray h a)
+new = new
 
 empty :: forall h a. Warn (Text "'Data.Array.ST.empty' is deprecated, use 'Data.Array.ST.new' instead") => ST h (STArray h a)
 empty = new

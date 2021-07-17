@@ -1,10 +1,10 @@
 "use strict";
 
-exports["new"] = function () {
+exports var _new = function () {
   return [];
 };
 
-exports.peekImpl = function (just) {
+export var peekImpl = function (just) {
   return function (nothing) {
     return function (i) {
       return function (xs) {
@@ -16,7 +16,7 @@ exports.peekImpl = function (just) {
   };
 };
 
-exports.poke = function (i) {
+export var poke = function (i) {
   return function (a) {
     return function (xs) {
       return function () {
@@ -28,7 +28,7 @@ exports.poke = function (i) {
   };
 };
 
-exports.popImpl = function (just) {
+export var popImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -38,7 +38,7 @@ exports.popImpl = function (just) {
   };
 };
 
-exports.pushAll = function (as) {
+export var pushAll = function (as) {
   return function (xs) {
     return function () {
       return xs.push.apply(xs, as);
@@ -46,7 +46,7 @@ exports.pushAll = function (as) {
   };
 };
 
-exports.shiftImpl = function (just) {
+export var shiftImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -56,7 +56,7 @@ exports.shiftImpl = function (just) {
   };
 };
 
-exports.unshiftAll = function (as) {
+export var unshiftAll = function (as) {
   return function (xs) {
     return function () {
       return xs.unshift.apply(xs, as);
@@ -64,7 +64,7 @@ exports.unshiftAll = function (as) {
   };
 };
 
-exports.splice = function (i) {
+export var splice = function (i) {
   return function (howMany) {
     return function (bs) {
       return function (xs) {
@@ -76,13 +76,13 @@ exports.splice = function (i) {
   };
 };
 
-exports.unsafeFreeze = function (xs) {
+export var unsafeFreeze = function (xs) {
   return function () {
     return xs;
   };
 };
 
-exports.unsafeThaw = function (xs) {
+export var unsafeThaw = function (xs) {
   return function () {
     return xs;
   };
@@ -94,11 +94,11 @@ function copyImpl(xs) {
   };
 }
 
-exports.freeze = copyImpl;
+export var freeze = copyImpl;
 
-exports.thaw = copyImpl;
+export var thaw = copyImpl;
 
-exports.sortByImpl = (function () {
+export var sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
     var mid;
     var i;
@@ -151,7 +151,7 @@ exports.sortByImpl = (function () {
   };
 })();
 
-exports.toAssocArray = function (xs) {
+export var toAssocArray = function (xs) {
   return function () {
     var n = xs.length;
     var as = new Array(n);
