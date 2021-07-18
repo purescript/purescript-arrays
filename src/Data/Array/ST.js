@@ -1,8 +1,9 @@
 "use strict";
 
-exports var _new = function () {
+function newSTArray () {
   return [];
-};
+}
+export { newSTArray as new };
 
 export var peekImpl = function (just) {
   return function (nothing) {
