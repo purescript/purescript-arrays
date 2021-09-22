@@ -11,7 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
-- Fixed minor documention issue with `find`
+- Fixed minor documention issue with `find` (#216 by @JamieBallingall)
 
 ## [v6.0.1](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.1) - 2021-04-19
 
@@ -311,7 +311,5 @@ Include `(..)` operator.
 Added `mapMaybe`
 
 ## [v0.1.1](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.1) - 2014-04-27
-
-
 
 ## [v0.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.0) - 2014-04-25
