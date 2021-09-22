@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+- Fixed minor documention issue with `find` (#216 by @JamieBallingall)
 
 ## [v6.0.1](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.1) - 2021-04-19
 
@@ -26,7 +27,7 @@ Breaking changes:
 
 New features:
 - Added specialized versions of the functions from `Data.Foldable` (#201):
-  - Added `foldl`, `foldr`, `foldMap`, `fold`, `intercalate` to `Array` 
+  - Added `foldl`, `foldr`, `foldMap`, `fold`, `intercalate` to `Array`
   - Added `foldl1`, `foldr1`, `foldMap1`, `foldl1`, `intercalate` to `Array.NonEmpty`
 - Added specialized `elem`, `notElem`, `find`, `findMap`, `scanl`, `scanr`, `any`, `all` (#189, #193, #201)
 - Added `intersperse`, `groupAllBy`, `splitAt` (#179, #188, #194, #200, #201)
@@ -41,9 +42,9 @@ Other improvements:
 - Migrated to GitHub Actions for CI (#187, #169)
 - Removed some internal usages of `unsafeCoerce` (#184)
 - Changed `foldM` type signature to more closely match `foldl` (#160)
-- Updated installation instructions to use Spago (#171) 
+- Updated installation instructions to use Spago (#171)
 - Replaced foreign `cons`, `snoc`, `drop`, `take` with PureScript implementations (#180)
-- Removed `return {}` from FFI function for a small performance boost (#175) 
+- Removed `return {}` from FFI function for a small performance boost (#175)
 - Bumped pulp version (#174)
 - Removed primes from foreign modules exports (#168)
 
@@ -311,9 +312,4 @@ Added `mapMaybe`
 
 ## [v0.1.1](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.1) - 2014-04-27
 
-
-
 ## [v0.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.0) - 2014-04-25
-
-
-
