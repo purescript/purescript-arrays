@@ -444,8 +444,8 @@ elemLastIndex x = findLastIndex (_ == x)
 -- | Find the first element for which a predicate holds.
 -- |
 -- | ```purescript
--- | findIndex (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just "bb"
--- | findIndex (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
+-- | find (contains $ Pattern "b") ["a", "bb", "b", "d"] = Just "bb"
+-- | find (contains $ Pattern "x") ["a", "bb", "b", "d"] = Nothing
 -- | ```
 find :: forall a. (a -> Boolean) -> Array a -> Maybe a
 find f xs = unsafePartial (unsafeIndex xs) <$> findIndex f xs
