@@ -467,6 +467,10 @@ testArray = do
     , [4,0,0,1,25,36,458,5842,23757]
     ]
 
+  log "findMapWithIndex should return the value returned for the first item for which the given function returned a Just"
+  assert $ (A.findMapWithIndex (\i x -> if x /= 1 then Just { index: i, value: x } else Nothing) [1, 2, 1]) == Just { index: 1, value: 2 }
+  assert $ (A.findMapWithIndex (\i x -> if x == 3 then Just { index: i, value: x } else Nothing) [1, 2, 1]) == Nothing
+
 nea :: Array ~> NEA.NonEmptyArray
 nea = unsafePartial fromJust <<< NEA.fromArray
 
