@@ -3,12 +3,15 @@
   "scripts": {
     "clean": "rimraf output && rimraf .pulp-cache",
     "build": "eslint src && pulp build -- --censor-lib --strict",
-    "test": "pulp test"
+    "test": "pulp test",
+    "bench:build": "pulp build --include bench -- --censor-lib --strict",
+    "bench:run": "node --expose-gc -e \"require('./output/Bench.Main/index.js').main()\"",
+    "bench": "npm run bench:build && npm run bench:run"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "pulp": "^12.2.0",
-    "purescript-psa": "^0.6.0",
-    "rimraf": "^2.6.2"
+    "eslint": "^7.15.0",
+    "pulp": "^15.0.0",
+    "purescript-psa": "^0.8.0",
+    "rimraf": "^3.0.2"
   }
 }

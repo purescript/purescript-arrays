@@ -82,28 +82,10 @@ exports.length = function (xs) {
 };
 
 //------------------------------------------------------------------------------
-// Extending arrays ------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-exports.cons = function (e) {
-  return function (l) {
-    return [e].concat(l);
-  };
-};
-
-exports.snoc = function (l) {
-  return function (e) {
-    var l1 = l.slice();
-    l1.push(e);
-    return l1;
-  };
-};
-
-//------------------------------------------------------------------------------
 // Non-indexed reads -----------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports["uncons'"] = function (empty) {
+exports.unconsImpl = function (empty) {
   return function (next) {
     return function (xs) {
       return xs.length === 0 ? empty({}) : next(xs[0])(xs.slice(1));
@@ -120,6 +102,20 @@ exports.indexImpl = function (just) {
     return function (xs) {
       return function (i) {
         return i < 0 || i >= xs.length ? nothing :  just(xs[i]);
+      };
+    };
+  };
+};
+
+exports.findMapImpl = function (nothing) {
+  return function (isJust) {
+    return function (f) {
+      return function (xs) {
+        for (var i = 0; i < xs.length; i++) {
+          var result = f(xs[i]);
+          if (isJust(result)) return result;
+        }
+        return nothing;
       };
     };
   };
@@ -254,17 +250,93 @@ exports.partition = function (f) {
   };
 };
 
+exports.scanl = function (f) {
+  return function (b) {
+    return function (xs) {
+      var len = xs.length;
+      var acc = b;
+      var out = new Array(len);
+      for (var i = 0; i < len; i++) {
+        acc = f(acc)(xs[i]);
+        out[i] = acc;
+      }
+      return out;
+    };
+  };
+};
+
+exports.scanr = function (f) {
+  return function (b) {
+    return function (xs) {
+      var len = xs.length;
+      var acc = b;
+      var out = new Array(len);
+      for (var i = len - 1; i >= 0; i--) {
+        acc = f(xs[i])(acc);
+        out[i] = acc;
+      }
+      return out;
+    };
+  };
+};
+
 //------------------------------------------------------------------------------
 // Sorting ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.sortImpl = function (f) {
-  return function (l) {
-    return l.slice().sort(function (x, y) {
-      return f(x)(y);
-    });
+exports.sortByImpl = (function () {
+  function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
+    var mid;
+    var i;
+    var j;
+    var k;
+    var x;
+    var y;
+    var c;
+
+    mid = from + ((to - from) >> 1);
+    if (mid - from > 1) mergeFromTo(compare, fromOrdering, xs2, xs1, from, mid);
+    if (to - mid > 1) mergeFromTo(compare, fromOrdering, xs2, xs1, mid, to);
+
+    i = from;
+    j = mid;
+    k = from;
+    while (i < mid && j < to) {
+      x = xs2[i];
+      y = xs2[j];
+      c = fromOrdering(compare(x)(y));
+      if (c > 0) {
+        xs1[k++] = y;
+        ++j;
+      }
+      else {
+        xs1[k++] = x;
+        ++i;
+      }
+    }
+    while (i < mid) {
+      xs1[k++] = xs2[i++];
+    }
+    while (j < to) {
+      xs1[k++] = xs2[j++];
+    }
+  }
+
+  return function (compare) {
+    return function (fromOrdering) {
+      return function (xs) {
+        var out;
+
+        if (xs.length < 2) return xs;
+
+        out = xs.slice(0);
+        mergeFromTo(compare, fromOrdering, out, xs.slice(0), 0, xs.length);
+
+        return out;
+      };
+    };
   };
-};
+})();
 
 //------------------------------------------------------------------------------
 // Subarrays -------------------------------------------------------------------
@@ -275,18 +347,6 @@ exports.slice = function (s) {
     return function (l) {
       return l.slice(s, e);
     };
-  };
-};
-
-exports.take = function (n) {
-  return function (l) {
-    return n < 1 ? [] : l.slice(0, n);
-  };
-};
-
-exports.drop = function (n) {
-  return function (l) {
-    return n < 1 ? l : l.slice(n);
   };
 };
 
@@ -304,6 +364,30 @@ exports.zipWith = function (f) {
       }
       return result;
     };
+  };
+};
+
+//------------------------------------------------------------------------------
+// Folding ---------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+exports.any = function (p) {
+  return function (xs) {
+    var len = xs.length;
+    for (var i = 0; i < len; i++) {
+      if (p(xs[i])) return true;
+    }
+    return false;
+  };
+};
+
+exports.all = function (p) {
+  return function (xs) {
+    var len = xs.length;
+    for (var i = 0; i < len; i++) {
+      if (!p(xs[i])) return false;
+    }
+    return true;
   };
 };
 

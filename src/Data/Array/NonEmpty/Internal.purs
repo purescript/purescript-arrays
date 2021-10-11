@@ -1,4 +1,11 @@
-module Data.Array.NonEmpty.Internal (NonEmptyArray) where
+-- | This module exports the `NonEmptyArray` constructor.
+-- |
+-- | It is **NOT** intended for public use and is **NOT** versioned.
+-- |
+-- | Its content may change **in any way**, **at any time** and
+-- | **without notice**.
+
+module Data.Array.NonEmpty.Internal (NonEmptyArray(..)) where
 
 import Prelude
 
@@ -8,12 +15,19 @@ import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Ord (class Ord1)
-import Data.Semigroup.Foldable (class Foldable1, foldMap1Default)
+import Data.Semigroup.Foldable (class Foldable1, foldMap1DefaultL)
 import Data.Semigroup.Traversable (class Traversable1, sequence1Default)
 import Data.Traversable (class Traversable)
 import Data.TraversableWithIndex (class TraversableWithIndex)
 import Data.Unfoldable1 (class Unfoldable1)
 
+-- | An array that is known not to be empty.
+-- |
+-- | You can use the constructor to create a `NonEmptyArray` that isn't
+-- | non-empty, breaking the guarantee behind this newtype. It is
+-- | provided as an escape hatch mainly for the `Data.Array.NonEmpty`
+-- | and `Data.Array` modules. Use this at your own risk when you know
+-- | what you are doing.
 newtype NonEmptyArray a = NonEmptyArray (Array a)
 
 instance showNonEmptyArray :: Show a => Show (NonEmptyArray a) where
@@ -34,8 +48,9 @@ derive newtype instance foldableNonEmptyArray :: Foldable NonEmptyArray
 derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int NonEmptyArray
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
-  foldMap1 = foldMap1Default
-  fold1 = fold1Impl (<>)
+  foldMap1 = foldMap1DefaultL
+  foldr1 = foldr1Impl
+  foldl1 = foldl1Impl
 
 derive newtype instance unfoldable1NonEmptyArray :: Unfoldable1 NonEmptyArray
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
@@ -56,7 +71,8 @@ derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 
 -- we use FFI here to avoid the unncessary copy created by `tail`
-foreign import fold1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foreign import foldr1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foreign import foldl1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
 
 foreign import traverse1Impl
   :: forall m a b

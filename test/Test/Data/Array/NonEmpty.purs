@@ -6,11 +6,12 @@ import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, sum, traverse_)
-import Data.FunctorWithIndex (mapWithIndex)
+import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Monoid.Additive (Additive(..))
 import Data.NonEmpty ((:|))
-import Data.Semigroup.Foldable (foldMap1)
+import Data.Ord.Down (Down(..))
+import Data.Semigroup.Foldable (foldMap1, foldr1, foldl1)
 import Data.Semigroup.Traversable (traverse1)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable1 as U1
@@ -18,11 +19,15 @@ import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
+import Test.Data.UndefinedOr (defined, undefined)
 
 testNonEmptyArray :: Effect Unit
 testNonEmptyArray = do
   let fromArray :: forall a. Array a -> NEA.NonEmptyArray a
       fromArray = unsafePartial fromJust <<< NEA.fromArray
+
+      nea :: forall a. Array a -> NEA.NonEmptyArray a
+      nea = fromArray
 
   log "singleton should construct an array with a single value"
   assert $ NEA.toArray (NEA.singleton 1) == [1]
@@ -97,6 +102,14 @@ testNonEmptyArray = do
   assert $ NEA.index (fromArray [1, 2, 3]) 6 == Nothing
   assert $ NEA.index (fromArray [1, 2, 3]) (-1) == Nothing
 
+  log "elem should return true if the array contains the given element at least once"
+  assert $ NEA.elem 1 (fromArray [1, 2, 1]) == true
+  assert $ NEA.elem 4 (fromArray [1, 2, 1]) == false
+
+  log "notElem should return true if the array does not contain the given element"
+  assert $ NEA.notElem 1 (fromArray [1, 2, 1]) == false
+  assert $ NEA.notElem 4 (fromArray [1, 2, 1]) == true
+
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
   assert $ NEA.elemIndex 1 (fromArray [1, 2, 1]) == Just 0
   assert $ NEA.elemIndex 4 (fromArray [1, 2, 1]) == Nothing
@@ -104,6 +117,15 @@ testNonEmptyArray = do
   log "elemLastIndex should return the last index of an item in an array"
   assert $ NEA.elemLastIndex 1 (fromArray [1, 2, 1]) == Just 2
   assert $ NEA.elemLastIndex 4 (fromArray [1, 2, 1]) == Nothing
+
+  log "find should return the first element for which a predicate returns true in an array"
+  assert $ NEA.find (_ == 1) (fromArray [1, 2, 1]) == Just 1
+  assert $ NEA.find (_ == 3) (fromArray [1, 2, 1]) == Nothing
+
+  log "findMap should return the mapping of the first element that satisfies the given predicate"
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [1, 2, 4]) == Just 4
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [1, 2, 1]) == Nothing
+  assert $ NEA.findMap (\x -> if x > 3 then Just x else Nothing) (fromArray [4, 1, 5]) == Just 4
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (NEA.findIndex (_ /= 1) (fromArray [1, 2, 1])) == Just 1
@@ -153,6 +175,13 @@ testNonEmptyArray = do
   log "alterAt should return Nothing if the index is out of NEA.range"
   assert $ NEA.alterAt 1 (Just <<< (_ + 1)) (NEA.singleton 1) == Nothing
 
+  log "intersperse should return the original array when given an array with one element"
+  assert $ NEA.intersperse " " (NEA.singleton "a") == NEA.singleton "a"
+
+  log "intersperse should insert the given element in-between each element in an array with two or more elements"
+  assert $ NEA.intersperse " " (fromArray ["a", "b"]) == fromArray ["a", " ", "b"]
+  assert $ NEA.intersperse 0 (fromArray [ 1, 2, 3, 4, 5 ]) == fromArray [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
+
   log "reverse should reverse the order of items in an array"
   assert $ NEA.reverse (fromArray [1, 2, 3]) == fromArray [3, 2, 1]
   assert $ NEA.reverse (NEA.singleton 0) == NEA.singleton 0
@@ -165,6 +194,14 @@ testNonEmptyArray = do
 
   log "filter should remove items that don't match a predicate"
   assert $ NEA.filter odd (NEA.range 0 10) == [1, 3, 5, 7, 9]
+
+  log "splitAt should split the array at the given number of elements"
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3, 4, 5]) == { before: [1, 2, 3], after: [4, 5] }
+  assert $ NEA.splitAt 1 (fromArray [1, 2, 3]) == { before: [1], after: [2, 3] }
+  assert $ NEA.splitAt 3 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 4 (fromArray [1, 2, 3]) == { before: [1, 2, 3], after: [] }
+  assert $ NEA.splitAt 0 (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
+  assert $ NEA.splitAt (-1) (fromArray [1, 2, 3]) == { before: [], after: [1, 2, 3] }
 
   log "filterA should remove items that don't match a predicate while using an applicative behaviour"
   assert $ NEA.filterA (Just <<< odd) (NEA.range 0 10) == Just [1, 3, 5, 7, 9]
@@ -180,7 +217,23 @@ testNonEmptyArray = do
   assert $ NEA.catMaybes (fromArray [Nothing, Just 2, Nothing, Just 4]) == [2, 4]
 
   log "mapWithIndex applies a function with an index for every element"
-  assert $ mapWithIndex (\i x -> x - i) (fromArray [9,8,7,6,5]) == fromArray [9,7,5,3,1]
+  assert $ NEA.mapWithIndex (\i x -> x - i) (fromArray [9,8,7,6,5]) == fromArray [9,7,5,3,1]
+
+  log "scanl should return an array that stores the accumulated value at each step"
+  assert $ NEA.scanl (+)  0 (fromArray [1,2,3]) == fromArray [1, 3, 6]
+  assert $ NEA.scanl (-) 10 (fromArray [1,2,3]) == fromArray [9, 7, 4]
+
+  log "scanl should return the same results as its Foldable counterpart"
+  assert $ NEA.scanl (+)  0 (fromArray [1,2,3]) == scanl (+)  0 (fromArray [1,2,3])
+  assert $ NEA.scanl (-) 10 (fromArray [1,2,3]) == scanl (-) 10 (fromArray [1,2,3])
+
+  log "scanr should return an array that stores the accumulated value at each step"
+  assert $ NEA.scanr (+) 0 (fromArray [1,2,3]) == fromArray [6,5,3]
+  assert $ NEA.scanr (flip (-)) 10 (fromArray [1,2,3]) == fromArray [4,5,7]
+
+  log "scanr should return the same results as its Foldable counterpart"
+  assert $ NEA.scanr (+) 0 (fromArray [1,2,3]) == scanr (+) 0 (fromArray [1,2,3])
+  assert $ NEA.scanr (flip (-)) 10 (fromArray [1,2,3]) == scanr (flip (-)) 10 (fromArray [1,2,3])
 
   log "updateAtIndices changes the elements at specified indices"
   assert $ NEA.updateAtIndices
@@ -194,6 +247,7 @@ testNonEmptyArray = do
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ NEA.sort (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [1, 2, 3, 4, 5, 6]
+  assert $ NEA.sort (fromArray [defined 1, undefined, defined 2]) == fromArray [undefined, defined 1, defined 2]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ NEA.sortBy (flip compare) (fromArray [1, 3, 2, 5, 6, 4]) == fromArray [6, 5, 4, 3, 2, 1]
@@ -233,6 +287,24 @@ testNonEmptyArray = do
 
   let oneToSeven = fromArray [1, 2, 3, 4, 5, 6, 7]
   testSpan { p: (_ < 4), input: oneToSeven, init_: [1, 2, 3], rest_: [4, 5, 6, 7] }
+
+  log "group should group consecutive equal elements into arrays"
+  assert $ NEA.group (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [NEA.singleton 1, fromArray [2, 2], fromArray [3, 3, 3], NEA.singleton 1]
+
+  log "groupAll should group equal elements into arrays"
+  assert $ NEA.groupAll (fromArray [1, 2, 2, 3, 3, 3, 1]) == fromArray [fromArray [1, 1], fromArray [2, 2], fromArray [3, 3, 3]]
+
+  log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
+  assert $ NEA.groupBy (\x y -> odd x && odd y) (fromArray [1, 1, 2, 2, 3, 3]) == fromArray [fromArray [1, 1], NEA.singleton 2, NEA.singleton 2, fromArray [3, 3]]
+
+  log "groupBy should be stable"
+  assert $ NEA.groupBy (\_ _ -> true) (fromArray [1, 2, 3]) == fromArray [fromArray [1, 2, 3]]
+
+  log "groupAllBy should group equal elements into arrays based on the result of a comparison function"
+  assert $ NEA.groupAllBy (comparing Down) (fromArray [1, 3, 2, 4, 3, 3]) == fromArray [nea [4], nea [3, 3, 3], nea [2], nea [1]]
+
+  log "groupAllBy should be stable"
+  assert $ NEA.groupAllBy (\_ _ -> EQ) (fromArray [1, 2, 3]) == fromArray [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ NEA.nub (fromArray [1, 2, 2, 3, 4, 1]) == fromArray [1, 2, 3, 4]
@@ -277,6 +349,14 @@ testNonEmptyArray = do
   log "unzip should deconstruct a list of tuples into a tuple of lists"
   assert $ NEA.unzip (fromArray [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]) == Tuple (fromArray [1, 2, 3]) (fromArray ["a", "b", "c"])
 
+  log "any should return true if at least one array element satisfy the given predicate"
+  assert $ NEA.any (_ > 0) $ fromArray [-1, 0, 1]
+  assert $ not $ NEA.any (_ > 0) $ fromArray [-1, -2, -3]
+
+  log "all should return true if all the array elements satisfy the given predicate"
+  assert $ NEA.all (_ > 0) $ fromArray [1, 2, 3]
+  assert $ not $ NEA.all (_ > 0) $ fromArray [-1, -2, -3]
+
   log "fromFoldable"
   for_ (fromArray [[], [1], [1,2], [1,2,3,4,5]]) \xs -> do
     assert $ NEA.fromFoldable xs == NEA.fromArray xs
@@ -297,12 +377,22 @@ testNonEmptyArray = do
   log "Unfoldable instance"
   assert $ U1.range 0 9 == NEA.range 0 9
 
-  log "foldl should work"
+  log "foldMap1 should work"
+  assert $ foldMap1 Additive (fromArray [1, 2, 3, 4]) == Additive 10
+
+  log "fold1 should work"
   -- test through sum
   assert $ sum (fromArray [1, 2, 3, 4]) == 10
 
-  log "foldMap1 should work"
-  assert $ foldMap1 Additive (fromArray [1, 2, 3, 4]) == Additive 10
+  log "foldr1 should work"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(a(b(cd)))"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
+  assert $ foldr1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
+
+  log "foldl1 should work"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b", "c", "d"]) == "(((ab)c)d)"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a", "b"])           == "(ab)"
+  assert $ foldl1 (\l r -> "(" <> l <> r <> ")") (fromArray ["a"])                == "a"
 
   log "traverse1 should work"
   assert $ traverse1 Just (fromArray [1, 2, 3, 4]) == NEA.fromArray [1, 2, 3, 4]

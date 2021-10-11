@@ -7,6 +7,7 @@ module Data.Array.ST
   , Assoc
   , run
   , withArray
+  , new
   , empty
   , peek
   , poke
@@ -31,8 +32,9 @@ module Data.Array.ST
 import Prelude
 
 import Control.Monad.ST as ST
-import Control.Monad.ST (ST, kind Region)
+import Control.Monad.ST (ST, Region)
 import Data.Maybe (Maybe(..))
+import Prim.TypeError (class Warn, Text)
 
 -- | A reference to a mutable array.
 -- |
@@ -42,6 +44,8 @@ import Data.Maybe (Maybe(..))
 -- | The runtime representation of a value of type `STArray h a` is the same as that of `Array a`,
 -- | except that mutation is allowed.
 foreign import data STArray :: Region -> Type -> Type
+
+type role STArray nominal representational
 
 -- | An element and its index.
 type Assoc a = { value :: a, index :: Int }
@@ -73,13 +77,17 @@ foreign import unsafeFreeze :: forall h a. STArray h a -> ST h (Array a)
 -- | array must not be used afterward.
 foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
--- | Create an empty mutable array.
-foreign import empty :: forall h a. ST h (STArray h a)
+-- | Create a new, empty mutable array.
+foreign import new :: forall h a. ST h (STArray h a)
+
+empty :: forall h a. Warn (Text "'Data.Array.ST.empty' is deprecated, use 'Data.Array.ST.new' instead") => ST h (STArray h a)
+empty = new
 
 -- | Create a mutable copy of an immutable array.
 foreign import thaw :: forall h a. Array a -> ST h (STArray h a)
 
--- | Sort a mutable array in place.
+-- | Sort a mutable array in place. Sorting is stable: the order of equal
+-- | elements is preserved.
 sort :: forall a h. Ord a => STArray h a -> ST h (STArray h a)
 sort = sortBy compare
 
@@ -94,26 +102,28 @@ foreign import shiftImpl
   -> STArray h a
   -> ST h (Maybe a)
 
--- | Sort a mutable array in place using a comparison function.
+-- | Sort a mutable array in place using a comparison function. Sorting is
+-- | stable: the order of elements is preserved if they are equal according to
+-- | the comparison function.
 sortBy
   :: forall a h
    . (a -> a -> Ordering)
   -> STArray h a
   -> ST h (STArray h a)
-sortBy comp = sortByImpl comp'
-  where
-  comp' x y = case comp x y of
-    GT -> 1
-    EQ -> 0
-    LT -> -1
+sortBy comp = sortByImpl comp case _ of
+  GT -> 1
+  EQ -> 0
+  LT -> -1
 
 foreign import sortByImpl
   :: forall a h
-   . (a -> a -> Int)
+   . (a -> a -> Ordering)
+  -> (Ordering -> Int)
   -> STArray h a
   -> ST h (STArray h a)
 
--- | Sort a mutable array in place based on a projection.
+-- | Sort a mutable array in place based on a projection. Sorting is stable: the
+-- | order of elements is preserved if they are equal according to the projection.
 sortWith
   :: forall a b h
    . Ord b

@@ -1,5 +1,5 @@
 module Data.Array.NonEmpty
-  ( module Data.Array.NonEmpty.Internal
+  ( module Internal
   , fromArray
   , fromNonEmpty
   , toArray
@@ -32,8 +32,12 @@ module Data.Array.NonEmpty
   , unsnoc
 
   , (!!), index
+  , elem
+  , notElem
   , elemIndex
   , elemLastIndex
+  , find
+  , findMap
   , findIndex
   , findLastIndex
   , insertAt
@@ -44,14 +48,24 @@ module Data.Array.NonEmpty
   , modifyAtIndices
   , alterAt
 
+  , intersperse
   , reverse
   , concat
   , concatMap
   , filter
   , partition
+  , splitAt
   , filterA
   , mapMaybe
   , catMaybes
+  , mapWithIndex
+  , foldl1
+  , foldr1
+  , foldMap1
+  , fold1
+  , intercalate
+  , scanl
+  , scanr
 
   , sort
   , sortBy
@@ -64,6 +78,11 @@ module Data.Array.NonEmpty
   , dropEnd
   , dropWhile
   , span
+  , group
+  , groupAll
+  , group'
+  , groupBy
+  , groupAllBy
 
   , nub
   , nubBy
@@ -88,6 +107,9 @@ module Data.Array.NonEmpty
   , zip
   , unzip
 
+  , any
+  , all
+
   , foldM
   , foldRecM
 
@@ -100,16 +122,19 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy)
 import Control.Monad.Rec.Class (class MonadRec)
 import Data.Array as A
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
+import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
+import Data.Array.NonEmpty.Internal (NonEmptyArray) as Internal
 import Data.Bifunctor (bimap)
 import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Semigroup.Foldable (class Foldable1)
+import Data.Semigroup.Foldable as F
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
+import Prim.TypeError (class Warn, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Internal - adapt an Array transform to NonEmptyArray
@@ -138,7 +163,7 @@ fromArray xs
 
 -- | INTERNAL
 unsafeFromArray :: forall a. Array a -> NonEmptyArray a
-unsafeFromArray = unsafeCoerce
+unsafeFromArray = NonEmptyArray
 
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
@@ -147,7 +172,7 @@ fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
 
 toArray :: forall a. NonEmptyArray a -> Array a
-toArray = unsafeCoerce
+toArray (NonEmptyArray xs) = xs
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
@@ -236,14 +261,26 @@ index = adaptAny A.index
 
 infixl 8 index as !!
 
+elem :: forall a. Eq a => a -> NonEmptyArray a -> Boolean
+elem x = adaptAny $ A.elem x
+
+notElem :: forall a. Eq a => a -> NonEmptyArray a -> Boolean
+notElem x = adaptAny $ A.notElem x
+
 elemIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
 elemIndex x = adaptAny $ A.elemIndex x
 
 elemLastIndex :: forall a. Eq a => a -> NonEmptyArray a -> Maybe Int
 elemLastIndex x = adaptAny $ A.elemLastIndex x
 
+find :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe a
+find p = adaptAny $ A.find p
+
+findMap :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Maybe b
+findMap p = adaptAny $ A.findMap p
+
 findIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
-findIndex x = adaptAny $ A.findIndex x
+findIndex p = adaptAny $ A.findIndex p
 
 findLastIndex :: forall a. (a -> Boolean) -> NonEmptyArray a -> Maybe Int
 findLastIndex x = adaptAny $ A.findLastIndex x
@@ -268,6 +305,9 @@ modifyAtIndices is f = unsafeAdapt $ A.modifyAtIndices is f
 
 alterAt :: forall a. Int -> (a -> Maybe a) -> NonEmptyArray a -> Maybe (Array a)
 alterAt i f = A.alterAt i f <<< toArray
+
+intersperse :: forall a. a -> NonEmptyArray a -> NonEmptyArray a
+intersperse x = unsafeAdapt $ A.intersperse x
 
 reverse :: forall a. NonEmptyArray a -> NonEmptyArray a
 reverse = unsafeAdapt A.reverse
@@ -296,11 +336,38 @@ filterA
   -> f (Array a)
 filterA f = adaptAny $ A.filterA f
 
+splitAt :: forall a. Int -> NonEmptyArray a -> { before :: Array a, after :: Array a }
+splitAt i xs = A.splitAt i $ toArray xs
+
 mapMaybe :: forall a b. (a -> Maybe b) -> NonEmptyArray a -> Array b
 mapMaybe f = adaptAny $ A.mapMaybe f
 
 catMaybes :: forall a. NonEmptyArray (Maybe a) -> Array a
 catMaybes = adaptAny A.catMaybes
+
+mapWithIndex :: forall a b. (Int -> a -> b) -> NonEmptyArray a -> NonEmptyArray b
+mapWithIndex f = unsafeAdapt $ A.mapWithIndex f
+
+foldl1 :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foldl1 = F.foldl1
+
+foldr1 :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foldr1 = F.foldr1
+
+foldMap1 :: forall a m. Semigroup m => (a -> m) -> NonEmptyArray a -> m
+foldMap1 = F.foldMap1
+
+fold1 :: forall m. Semigroup m => NonEmptyArray m -> m
+fold1 = F.fold1
+
+intercalate :: forall a. Semigroup a => a -> NonEmptyArray a -> a
+intercalate = F.intercalate
+
+scanl :: forall a b. (b -> a -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
+scanl f x = unsafeAdapt $ A.scanl f x
+
+scanr :: forall a b. (a -> b -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
+scanr f x = unsafeAdapt $ A.scanr f x
 
 sort :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 sort = unsafeAdapt A.sort
@@ -338,6 +405,49 @@ span
   -> NonEmptyArray a
   -> { init :: Array a, rest :: Array a }
 span f = adaptAny $ A.span f
+
+-- | Group equal, consecutive elements of an array into arrays.
+-- |
+-- | ```purescript
+-- | group (NonEmptyArray [1, 1, 2, 2, 1]) ==
+-- |   NonEmptyArray [NonEmptyArray [1, 1], NonEmptyArray [2, 2], NonEmptyArray [1]]
+-- | ```
+group :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+group = unsafeAdapt $ A.group
+
+-- | Group equal elements of an array into arrays.
+-- |
+-- | ```purescript
+-- | groupAll (NonEmptyArray [1, 1, 2, 2, 1]) ==
+-- |   NonEmptyArray [NonEmptyArray [1, 1, 1], NonEmptyArray [2, 2]]
+-- | `
+groupAll :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupAll = groupAllBy compare
+
+-- | Deprecated previous name of `groupAll`.
+group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+group' = unsafeAdapt $ A.groupAll
+
+-- | Group equal, consecutive elements of an array into arrays, using the
+-- | specified equivalence relation to determine equality.
+-- |
+-- | ```purescript
+-- | groupBy (\a b -> odd a && odd b) (NonEmptyArray [1, 3, 2, 4, 3, 3])
+-- |    = NonEmptyArray [NonEmptyArray [1, 3], NonEmptyArray [2], NonEmptyArray [4], NonEmptyArray [3, 3]]
+-- | ```
+-- |
+groupBy :: forall a. (a -> a -> Boolean) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupBy op = unsafeAdapt $ A.groupBy op
+
+-- | Group equal elements of an array into arrays, using the specified
+-- | comparison function to determine equality.
+-- |
+-- | ```purescript
+-- | groupAllBy (comparing Down) (NonEmptyArray [1, 3, 2, 4, 3, 3])
+-- |    = NonEmptyArray [NonEmptyArray [4], NonEmptyArray [3, 3, 3], NonEmptyArray [2], NonEmptyArray [1]]
+-- | ```
+groupAllBy :: forall a. (a -> a -> Ordering) -> NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
+groupAllBy op = unsafeAdapt $ A.groupAllBy op
 
 nub :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray a
 nub = unsafeAdapt A.nub
@@ -433,10 +543,16 @@ zip xs ys = unsafeFromArray $ toArray xs `A.zip` toArray ys
 unzip :: forall a b. NonEmptyArray (Tuple a b) -> Tuple (NonEmptyArray a) (NonEmptyArray b)
 unzip = bimap unsafeFromArray unsafeFromArray <<< A.unzip <<< toArray
 
-foldM :: forall m a b. Monad m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+any :: forall a. (a -> Boolean) -> NonEmptyArray a -> Boolean
+any p = adaptAny $ A.any p
+
+all :: forall a. (a -> Boolean) -> NonEmptyArray a -> Boolean
+all p = adaptAny $ A.all p
+
+foldM :: forall m a b. Monad m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldM f acc = adaptAny $ A.foldM f acc
 
-foldRecM :: forall m a b. MonadRec m => (a -> b -> m a) -> a -> NonEmptyArray b -> m a
+foldRecM :: forall m a b. MonadRec m => (b -> a -> m b) -> b -> NonEmptyArray a -> m b
 foldRecM f acc = adaptAny $ A.foldRecM f acc
 
 unsafeIndex :: forall a. Partial => NonEmptyArray a -> Int -> a

@@ -7,13 +7,16 @@ import Data.Array as A
 import Data.Array.NonEmpty as NEA
 import Data.Const (Const(..))
 import Data.Foldable (for_, foldMapDefaultR, class Foldable, all, traverse_)
+import Data.Traversable (scanl, scanr)
 import Data.Maybe (Maybe(..), isNothing, fromJust)
-import Data.Tuple (Tuple(..))
+import Data.Ord.Down (Down(..))
+import Data.Tuple (Tuple(..), fst)
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Assert (assert)
+import Test.Data.UndefinedOr (defined, undefined)
 
 testArray :: Effect Unit
 testArray = do
@@ -131,6 +134,14 @@ testArray = do
   assert $ [1, 2, 3] !! 6 == Nothing
   assert $ [1, 2, 3] !! (-1) == Nothing
 
+  log "elem should return true if the array contains the given element at least once"
+  assert $ (A.elem 1 [1, 2, 1]) == true
+  assert $ (A.elem 4 [1, 2, 1]) == false
+
+  log "notElem should return true if the array does not contain the given element"
+  assert $ (A.notElem 1 [1, 2, 1]) == false
+  assert $ (A.notElem 4 [1, 2, 1]) == true
+
   log "elemIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.elemIndex 1 [1, 2, 1]) == Just 0
   assert $ (A.elemIndex 4 [1, 2, 1]) == Nothing
@@ -138,6 +149,15 @@ testArray = do
   log "elemLastIndex should return the last index of an item in an array"
   assert $ (A.elemLastIndex 1 [1, 2, 1]) == Just 2
   assert $ (A.elemLastIndex 4 [1, 2, 1]) == Nothing
+
+  log "find should return the first element for which a predicate returns true in an array"
+  assert $ (A.find (_ /= 1) [1, 2, 1]) == Just 2
+  assert $ (A.find (_ == 3) [1, 2, 1]) == Nothing
+
+  log "findMap should return the mapping of the first element that satisfies the given predicate"
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [1, 2, 4]) == Just 4
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [1, 2, 1]) == Nothing
+  assert $ (A.findMap (\x -> if x > 3 then Just x else Nothing) [4, 1, 5]) == Just 4
 
   log "findIndex should return the index of an item that a predicate returns true for in an array"
   assert $ (A.findIndex (_ /= 1) [1, 2, 1]) == Just 1
@@ -187,6 +207,14 @@ testArray = do
   log "alterAt should return Nothing if the index is out of A.range"
   assert $ (A.alterAt 1 (Just <<< (_ + 1)) nil) == Nothing
 
+  log "intersperse should return the original array when given an array with zero or one elements"
+  assert $ (A.intersperse " " []) == []
+  assert $ (A.intersperse " " ["a"]) == ["a"]
+
+  log "intersperse should insert the given element in-between each element in an array with two or more elements"
+  assert $ (A.intersperse " " ["a", "b"]) == ["a", " ", "b"]
+  assert $ (A.intersperse 0 [ 1, 2, 3, 4, 5 ]) == [ 1, 0, 2, 0, 3, 0, 4, 0, 5 ]
+
   log "reverse should reverse the order of items in an array"
   assert $ (A.reverse [1, 2, 3]) == [3, 2, 1]
   assert $ (A.reverse nil) == nil
@@ -201,6 +229,15 @@ testArray = do
 
   log "filter should remove items that don't match a predicate"
   assert $ A.filter odd (A.range 0 10) == [1, 3, 5, 7, 9]
+
+  log "splitAt should split the array at the given number of elements"
+  assert $ A.splitAt 2 ([] :: Array Int) == { before: [], after: [] }
+  assert $ A.splitAt 3 [1, 2, 3, 4, 5] == { before: [1, 2, 3], after: [4, 5] }
+  assert $ A.splitAt 1 [1, 2, 3] == { before: [1], after: [2, 3] }
+  assert $ A.splitAt 3 [1, 2, 3] == { before: [1, 2, 3], after: [] }
+  assert $ A.splitAt 4 [1, 2, 3] == { before: [1, 2, 3], after: [] }
+  assert $ A.splitAt 0 [1, 2, 3] == { before: [], after: [1, 2, 3] }
+  assert $ A.splitAt (-1) [1, 2, 3] == { before: [], after: [1, 2, 3] }
 
   log "filterA should remove items that don't match a predicate while using an applicative behaviour"
   assert $ A.filterA (Just <<< odd) (A.range 0 10) == Just [1, 3, 5, 7, 9]
@@ -228,14 +265,39 @@ testArray = do
   assert $ A.modifyAtIndices [0, 2, 8] not [true,  true, true,  true] ==
                                            [false, true, false, true]
 
+  log "scanl should return an array that stores the accumulated value at each step"
+  assert $ A.scanl (+)  0 [1,2,3] == [1, 3, 6]
+  assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
+
+  log "scanl should return the same results as its Foldable counterpart"
+  assert $ A.scanl (+)  0 [1,2,3] == scanl (+)  0 [1,2,3]
+  assert $ A.scanl (-) 10 [1,2,3] == scanl (-) 10 [1,2,3]
+
+  log "scanr should return an array that stores the accumulated value at each step"
+  assert $ A.scanr (+) 0 [1,2,3] == [6,5,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == [4,5,7]
+
+  log "scanr should return the same results as its Foldable counterpart"
+  assert $ A.scanr (+) 0 [1,2,3] == scanr (+) 0 [1,2,3]
+  assert $ A.scanr (flip (-)) 10 [1,2,3] == scanr (flip (-)) 10 [1,2,3]
+
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ A.sort [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+  assert $ A.sort [defined 1, undefined, defined 2] == [undefined, defined 1, defined 2]
 
   log "sortBy should reorder a list into ascending order based on the result of a comparison function"
   assert $ A.sortBy (flip compare) [1, 3, 2, 5, 6, 4] == [6, 5, 4, 3, 2, 1]
 
+  log "sortBy should not reorder elements that are equal according to a comparison function"
+  let s1 = map (Tuple "a") (A.range 1 100)
+  assert $ A.sortBy (comparing fst) s1 == s1
+
   log "sortWith should reorder a list into ascending order based on the result of compare over a projection"
   assert $ A.sortWith identity [1, 3, 2, 5, 6, 4] == [1, 2, 3, 4, 5, 6]
+
+  log "sortWith should not reorder elements that are equal according to a projection"
+  let s2 = map (Tuple "a") (A.range 1 100)
+  assert $ A.sortWith fst s2 == s2
 
   log "take should keep the specified number of items from the front of an array, discarding the rest"
   assert $ (A.take 1 [1, 2, 3]) == [1]
@@ -298,16 +360,22 @@ testArray = do
   testBigSpan 100000
 
   log "group should group consecutive equal elements into arrays"
-  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [NEA.singleton 1, nea [2, 2], nea [3, 3, 3], NEA.singleton 1]
+  assert $ A.group [1, 2, 2, 3, 3, 3, 1] == [nea [1], nea [2, 2], nea [3, 3, 3], nea [1]]
 
-  log "group' should sort then group consecutive equal elements into arrays"
-  assert $ A.group' [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
+  log "groupAll should group equal elements into arrays"
+  assert $ A.groupAll [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], nea [2], nea [2], nea [3, 3]]
 
   log "groupBy should be stable"
   assert $ A.groupBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]
+
+  log "groupAllBy should group equal elements into arrays based on the result of a comparison function"
+  assert $ A.groupAllBy (comparing Down) [1, 3, 2, 4, 3, 3] == [nea [4], nea [3, 3, 3], nea [2], nea [1]]
+
+  log "groupAllBy should be stable"
+  assert $ A.groupAllBy (\_ _ -> EQ) [1, 2, 3] == [nea [1, 2, 3]]
 
   log "nub should remove duplicate elements from the list, keeping the first occurence"
   assert $ A.nub [1, 2, 2, 3, 4, 1] == [1, 2, 3, 4]
@@ -363,6 +431,16 @@ testArray = do
 
   log "unzip should deconstruct a list of tuples into a tuple of lists"
   assert $ A.unzip [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"] == Tuple [1, 2, 3] ["a", "b", "c"]
+
+  log "any should return true if at least one array element satisfy the given predicate"
+  assert $ not $ A.any (_ > 0) []
+  assert $ A.any (_ > 0) [-1, 0, 1]
+  assert $ not $ A.any (_ > 0) [-1, -2, -3]
+
+  log "all should return true if all the array elements satisfy the given predicate"
+  assert $ A.all (_ > 0) []
+  assert $ A.all (_ > 0) [1, 2, 3]
+  assert $ not $ A.all (_ > 0) [-1, -2, -3]
 
   log "foldM should perform a fold using a monadic step function"
   assert $ A.foldM (\x y -> Just (x + y)) 0 (A.range 1 10) == Just 55
