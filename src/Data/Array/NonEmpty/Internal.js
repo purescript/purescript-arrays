@@ -1,6 +1,6 @@
 "use strict";
 
-export var foldr1Impl = function (f) {
+export const foldr1Impl = function (f) {
   return function (xs) {
     var acc = xs[xs.length - 1];
     for (var i = xs.length - 2; i >= 0; i--) {
@@ -10,7 +10,7 @@ export var foldr1Impl = function (f) {
   };
 };
 
-export var foldl1Impl = function (f) {
+export const foldl1Impl = function (f) {
   return function (xs) {
     var acc = xs[0];
     var len = xs.length;
@@ -21,7 +21,7 @@ export var foldl1Impl = function (f) {
   };
 };
 
-export var traverse1Impl = function () {
+export const traverse1Impl = function () {
   function Cont(fn) {
     this.fn = fn;
   }

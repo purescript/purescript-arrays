@@ -5,7 +5,7 @@ function newSTArray () {
 }
 export { newSTArray as new };
 
-export var peekImpl = function (just) {
+export const peekImpl = function (just) {
   return function (nothing) {
     return function (i) {
       return function (xs) {
@@ -17,7 +17,7 @@ export var peekImpl = function (just) {
   };
 };
 
-export var poke = function (i) {
+export const poke = function (i) {
   return function (a) {
     return function (xs) {
       return function () {
@@ -29,7 +29,7 @@ export var poke = function (i) {
   };
 };
 
-export var popImpl = function (just) {
+export const popImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -39,7 +39,7 @@ export var popImpl = function (just) {
   };
 };
 
-export var pushAll = function (as) {
+export const pushAll = function (as) {
   return function (xs) {
     return function () {
       return xs.push.apply(xs, as);
@@ -47,7 +47,7 @@ export var pushAll = function (as) {
   };
 };
 
-export var shiftImpl = function (just) {
+export const shiftImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -57,7 +57,7 @@ export var shiftImpl = function (just) {
   };
 };
 
-export var unshiftAll = function (as) {
+export const unshiftAll = function (as) {
   return function (xs) {
     return function () {
       return xs.unshift.apply(xs, as);
@@ -65,7 +65,7 @@ export var unshiftAll = function (as) {
   };
 };
 
-export var splice = function (i) {
+export const splice = function (i) {
   return function (howMany) {
     return function (bs) {
       return function (xs) {
@@ -77,13 +77,13 @@ export var splice = function (i) {
   };
 };
 
-export var unsafeFreeze = function (xs) {
+export const unsafeFreeze = function (xs) {
   return function () {
     return xs;
   };
 };
 
-export var unsafeThaw = function (xs) {
+export const unsafeThaw = function (xs) {
   return function () {
     return xs;
   };
@@ -95,11 +95,11 @@ function copyImpl(xs) {
   };
 }
 
-export var freeze = copyImpl;
+export const freeze = copyImpl;
 
-export var thaw = copyImpl;
+export const thaw = copyImpl;
 
-export var sortByImpl = (function () {
+export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
     var mid;
     var i;
@@ -152,7 +152,7 @@ export var sortByImpl = (function () {
   };
 })();
 
-export var toAssocArray = function (xs) {
+export const toAssocArray = function (xs) {
   return function () {
     var n = xs.length;
     var as = new Array(n);

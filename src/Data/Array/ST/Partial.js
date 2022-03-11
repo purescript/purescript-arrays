@@ -1,6 +1,6 @@
 "use strict";
 
-export var peekImpl = function (i) {
+export const peekImpl = function (i) {
   return function (xs) {
     return function () {
       return xs[i];
@@ -8,7 +8,7 @@ export var peekImpl = function (i) {
   };
 };
 
-export var pokeImpl = function (i) {
+export const pokeImpl = function (i) {
   return function (a) {
     return function (xs) {
       return function () {
