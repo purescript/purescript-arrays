@@ -1,5 +1,3 @@
-"use strict";
-
 export const foldr1Impl = function (f) {
   return function (xs) {
     var acc = xs[xs.length - 1];

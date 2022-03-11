@@ -1,5 +1,3 @@
-"use strict";
-
 function newSTArray () {
   return [];
 }

@@ -1,5 +1,3 @@
-"use strict";
-
 export const peekImpl = function (i) {
   return function (xs) {
     return function () {
