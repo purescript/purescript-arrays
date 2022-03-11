@@ -1,18 +1,18 @@
-exports.undefined = undefined;
+export {undefined};
 
-exports.defined = function (x) {
+export function defined(x) {
   return x;
-};
+}
 
-exports.eqUndefinedOrImpl = function (eq) {
+export function eqUndefinedOrImpl(eq) {
   return function (a) {
     return function (b) {
       return (a === undefined && b === undefined) || eq(a)(b);
     };
   };
-};
+}
 
-exports.compareUndefinedOrImpl = function (lt) {
+export function compareUndefinedOrImpl(lt) {
   return function (eq) {
     return function (gt) {
       return function (compare) {
@@ -27,4 +27,4 @@ exports.compareUndefinedOrImpl = function (lt) {
       };
     };
   };
-};
+}
