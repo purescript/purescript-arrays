@@ -1,4 +1,5 @@
-export {undefined};
+const undefinedImpl = undefined;
+export {undefinedImpl as undefined};
 
 export function defined(x) {
   return x;
