@@ -1,10 +1,9 @@
-"use strict";
-
-exports["new"] = function () {
+function newSTArray () {
   return [];
-};
+}
+export { newSTArray as new };
 
-exports.peekImpl = function (just) {
+export const peekImpl = function (just) {
   return function (nothing) {
     return function (i) {
       return function (xs) {
@@ -16,7 +15,7 @@ exports.peekImpl = function (just) {
   };
 };
 
-exports.poke = function (i) {
+export const poke = function (i) {
   return function (a) {
     return function (xs) {
       return function () {
@@ -28,7 +27,7 @@ exports.poke = function (i) {
   };
 };
 
-exports.popImpl = function (just) {
+export const popImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -38,7 +37,7 @@ exports.popImpl = function (just) {
   };
 };
 
-exports.pushAll = function (as) {
+export const pushAll = function (as) {
   return function (xs) {
     return function () {
       return xs.push.apply(xs, as);
@@ -46,7 +45,7 @@ exports.pushAll = function (as) {
   };
 };
 
-exports.shiftImpl = function (just) {
+export const shiftImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function () {
@@ -56,7 +55,7 @@ exports.shiftImpl = function (just) {
   };
 };
 
-exports.unshiftAll = function (as) {
+export const unshiftAll = function (as) {
   return function (xs) {
     return function () {
       return xs.unshift.apply(xs, as);
@@ -64,7 +63,7 @@ exports.unshiftAll = function (as) {
   };
 };
 
-exports.splice = function (i) {
+export const splice = function (i) {
   return function (howMany) {
     return function (bs) {
       return function (xs) {
@@ -76,13 +75,13 @@ exports.splice = function (i) {
   };
 };
 
-exports.unsafeFreeze = function (xs) {
+export const unsafeFreeze = function (xs) {
   return function () {
     return xs;
   };
 };
 
-exports.unsafeThaw = function (xs) {
+export const unsafeThaw = function (xs) {
   return function () {
     return xs;
   };
@@ -94,11 +93,11 @@ function copyImpl(xs) {
   };
 }
 
-exports.freeze = copyImpl;
+export const freeze = copyImpl;
 
-exports.thaw = copyImpl;
+export const thaw = copyImpl;
 
-exports.sortByImpl = (function () {
+export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
     var mid;
     var i;
@@ -151,7 +150,7 @@ exports.sortByImpl = (function () {
   };
 })();
 
-exports.toAssocArray = function (xs) {
+export const toAssocArray = function (xs) {
   return function () {
     var n = xs.length;
     var as = new Array(n);

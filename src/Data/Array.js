@@ -1,10 +1,8 @@
-"use strict";
-
 //------------------------------------------------------------------------------
 // Array creation --------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.range = function (start) {
+export const range = function (start) {
   return function (end) {
     var step = start > end ? -1 : 1;
     var result = new Array(step * (end - start) + 1);
@@ -40,9 +38,9 @@ var replicatePolyfill = function (count) {
 };
 
 // In browsers that have Array.prototype.fill we use it, as it's faster.
-exports.replicate = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
+export const replicate = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
 
-exports.fromFoldableImpl = (function () {
+export const fromFoldableImpl = (function () {
   function Cons(head, tail) {
     this.head = head;
     this.tail = tail;
@@ -77,7 +75,7 @@ exports.fromFoldableImpl = (function () {
 // Array size ------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.length = function (xs) {
+export const length = function (xs) {
   return xs.length;
 };
 
@@ -85,7 +83,7 @@ exports.length = function (xs) {
 // Non-indexed reads -----------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.unconsImpl = function (empty) {
+export const unconsImpl = function (empty) {
   return function (next) {
     return function (xs) {
       return xs.length === 0 ? empty({}) : next(xs[0])(xs.slice(1));
@@ -97,7 +95,7 @@ exports.unconsImpl = function (empty) {
 // Indexed operations ----------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.indexImpl = function (just) {
+export const indexImpl = function (just) {
   return function (nothing) {
     return function (xs) {
       return function (i) {
@@ -107,7 +105,7 @@ exports.indexImpl = function (just) {
   };
 };
 
-exports.findMapImpl = function (nothing) {
+export const findMapImpl = function (nothing) {
   return function (isJust) {
     return function (f) {
       return function (xs) {
@@ -121,7 +119,7 @@ exports.findMapImpl = function (nothing) {
   };
 };
 
-exports.findIndexImpl = function (just) {
+export const findIndexImpl = function (just) {
   return function (nothing) {
     return function (f) {
       return function (xs) {
@@ -134,7 +132,7 @@ exports.findIndexImpl = function (just) {
   };
 };
 
-exports.findLastIndexImpl = function (just) {
+export const findLastIndexImpl = function (just) {
   return function (nothing) {
     return function (f) {
       return function (xs) {
@@ -147,7 +145,7 @@ exports.findLastIndexImpl = function (just) {
   };
 };
 
-exports._insertAt = function (just) {
+export const _insertAt = function (just) {
   return function (nothing) {
     return function (i) {
       return function (a) {
@@ -162,7 +160,7 @@ exports._insertAt = function (just) {
   };
 };
 
-exports._deleteAt = function (just) {
+export const _deleteAt = function (just) {
   return function (nothing) {
     return function (i) {
       return function (l) {
@@ -175,7 +173,7 @@ exports._deleteAt = function (just) {
   };
 };
 
-exports._updateAt = function (just) {
+export const _updateAt = function (just) {
   return function (nothing) {
     return function (i) {
       return function (a) {
@@ -194,11 +192,11 @@ exports._updateAt = function (just) {
 // Transformations -------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.reverse = function (l) {
+export const reverse = function (l) {
   return l.slice().reverse();
 };
 
-exports.concat = function (xss) {
+export const concat = function (xss) {
   if (xss.length <= 10000) {
     // This method is faster, but it crashes on big arrays.
     // So we use it when can and fallback to simple variant otherwise.
@@ -215,13 +213,13 @@ exports.concat = function (xss) {
   return result;
 };
 
-exports.filter = function (f) {
+export const filter = function (f) {
   return function (xs) {
     return xs.filter(f);
   };
 };
 
-exports.partition = function (f) {
+export const partition = function (f) {
   return function (xs) {
     var yes = [];
     var no  = [];
@@ -236,7 +234,7 @@ exports.partition = function (f) {
   };
 };
 
-exports.scanl = function (f) {
+export const scanl = function (f) {
   return function (b) {
     return function (xs) {
       var len = xs.length;
@@ -251,7 +249,7 @@ exports.scanl = function (f) {
   };
 };
 
-exports.scanr = function (f) {
+export const scanr = function (f) {
   return function (b) {
     return function (xs) {
       var len = xs.length;
@@ -270,7 +268,7 @@ exports.scanr = function (f) {
 // Sorting ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.sortByImpl = (function () {
+export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
     var mid;
     var i;
@@ -328,7 +326,7 @@ exports.sortByImpl = (function () {
 // Subarrays -------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.slice = function (s) {
+export const slice = function (s) {
   return function (e) {
     return function (l) {
       return l.slice(s, e);
@@ -340,7 +338,7 @@ exports.slice = function (s) {
 // Zipping ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.zipWith = function (f) {
+export const zipWith = function (f) {
   return function (xs) {
     return function (ys) {
       var l = xs.length < ys.length ? xs.length : ys.length;
@@ -357,7 +355,7 @@ exports.zipWith = function (f) {
 // Folding ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.any = function (p) {
+export const any = function (p) {
   return function (xs) {
     var len = xs.length;
     for (var i = 0; i < len; i++) {
@@ -367,7 +365,7 @@ exports.any = function (p) {
   };
 };
 
-exports.all = function (p) {
+export const all = function (p) {
   return function (xs) {
     var len = xs.length;
     for (var i = 0; i < len; i++) {
@@ -381,7 +379,7 @@ exports.all = function (p) {
 // Partial ---------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-exports.unsafeIndexImpl = function (xs) {
+export const unsafeIndexImpl = function (xs) {
   return function (n) {
     return xs[n];
   };
