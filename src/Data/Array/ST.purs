@@ -33,7 +33,6 @@ import Prelude
 import Control.Monad.ST as ST
 import Control.Monad.ST (ST, Region)
 import Data.Maybe (Maybe(..))
-import Prim.TypeError (class Warn, Text)
 
 -- | A reference to a mutable array.
 -- |

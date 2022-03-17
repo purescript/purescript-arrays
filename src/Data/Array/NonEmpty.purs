@@ -133,7 +133,6 @@ import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
-import Prim.TypeError (class Warn, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Internal - adapt an Array transform to NonEmptyArray

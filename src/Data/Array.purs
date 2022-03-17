@@ -147,7 +147,6 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
-import Prim.TypeError (class Warn, Text)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
