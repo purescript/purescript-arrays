@@ -100,7 +100,6 @@ module Data.Array
   , span
   , group
   , groupAll
-  , group'
   , groupBy
   , groupAllBy
 
@@ -148,7 +147,6 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
-import Prim.TypeError (class Warn, Text)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -982,10 +980,6 @@ group xs = groupBy eq xs
 -- | ```
 groupAll :: forall a. Ord a => Array a -> Array (NonEmptyArray a)
 groupAll = groupAllBy compare
-
--- | Deprecated previous name of `groupAll`.
-group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => Array a -> Array (NonEmptyArray a)
-group' = groupAll
 
 -- | Group equal, consecutive elements of an array into arrays, using the
 -- | specified equivalence relation to determine equality.

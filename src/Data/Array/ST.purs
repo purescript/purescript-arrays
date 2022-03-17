@@ -8,7 +8,6 @@ module Data.Array.ST
   , run
   , withArray
   , new
-  , empty
   , peek
   , poke
   , modify
@@ -34,7 +33,6 @@ import Prelude
 import Control.Monad.ST as ST
 import Control.Monad.ST (ST, Region)
 import Data.Maybe (Maybe(..))
-import Prim.TypeError (class Warn, Text)
 
 -- | A reference to a mutable array.
 -- |
@@ -79,9 +77,6 @@ foreign import unsafeThaw :: forall h a. Array a -> ST h (STArray h a)
 
 -- | Create a new, empty mutable array.
 foreign import new :: forall h a. ST h (STArray h a)
-
-empty :: forall h a. Warn (Text "'Data.Array.ST.empty' is deprecated, use 'Data.Array.ST.new' instead") => ST h (STArray h a)
-empty = new
 
 -- | Create a mutable copy of an immutable array.
 foreign import thaw :: forall h a. Array a -> ST h (STArray h a)

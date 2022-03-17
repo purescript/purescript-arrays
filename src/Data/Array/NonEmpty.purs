@@ -80,7 +80,6 @@ module Data.Array.NonEmpty
   , span
   , group
   , groupAll
-  , group'
   , groupBy
   , groupAllBy
 
@@ -134,7 +133,6 @@ import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
-import Prim.TypeError (class Warn, Text)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Internal - adapt an Array transform to NonEmptyArray
@@ -423,10 +421,6 @@ group = unsafeAdapt $ A.group
 -- | `
 groupAll :: forall a. Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
 groupAll = groupAllBy compare
-
--- | Deprecated previous name of `groupAll`.
-group' :: forall a. Warn (Text "'group\'' is deprecated, use 'groupAll' instead") => Ord a => NonEmptyArray a -> NonEmptyArray (NonEmptyArray a)
-group' = unsafeAdapt $ A.groupAll
 
 -- | Group equal, consecutive elements of an array into arrays, using the
 -- | specified equivalence relation to determine equality.

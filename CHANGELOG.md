@@ -6,6 +6,7 @@ Notable changes to this project are documented in this file. The format is based
 
 Breaking changes:
 - Migrate FFI to ES modules (#218 by @kl0tl and @JordanMartinez)
+- Drop deprecated `group'` and `empty` (#219 by @JordanMartinez)
 
 New features:
 
