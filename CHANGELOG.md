@@ -13,7 +13,7 @@ New features:
 Bugfixes:
 
 Other improvements:
-- Fixed minor documention issue with `find` (#216 by @JamieBallingall)
+- Fixed minor documentation issue with `find` (#216 by @JamieBallingall)
 
 ## [v6.0.1](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.1) - 2021-04-19
 
