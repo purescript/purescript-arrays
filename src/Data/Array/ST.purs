@@ -60,8 +60,8 @@ run st = ST.run (st >>= unsafeFreeze)
 withArray
   :: forall h a b
    . (STArray h a -> ST h b)
-  -> Array a
-  -> ST h (Array a)
+   -> Array a
+   -> ST h (Array a)
 withArray f xs = do
   result <- thaw xs
   _ <- f result
@@ -163,7 +163,7 @@ foreign import popImpl
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
 push :: forall h a. a -> STArray h a -> ST h Int
-push a = pushAll [ a ]
+push a = pushAll [a]
 
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
@@ -176,7 +176,7 @@ foreign import pushAll
 -- | Append an element to the front of a mutable array. Returns the new length of
 -- | the array.
 unshift :: forall h a. a -> STArray h a -> ST h Int
-unshift a = unshiftAll [ a ]
+unshift a = unshiftAll [a]
 
 -- | Append the values in an immutable array to the front of a mutable array.
 -- | Returns the new length of the mutable array.
@@ -191,7 +191,7 @@ modify :: forall h a. Int -> (a -> a) -> STArray h a -> ST h Boolean
 modify i f xs = do
   entry <- peek i xs
   case entry of
-    Just x -> poke i (f x) xs
+    Just x  -> poke i (f x) xs
     Nothing -> pure false
 
 -- | Remove and/or insert elements from/into a mutable array at the specified index.

@@ -10,15 +10,13 @@ module Data.Array.NonEmpty
   , toUnfoldable
   , toUnfoldable1
   , singleton
-  , (..)
-  , range
+  , (..), range
   , replicate
   , some
 
   , length
 
-  , (:)
-  , cons
+  , (:), cons
   , cons'
   , snoc
   , snoc'
@@ -33,8 +31,7 @@ module Data.Array.NonEmpty
   , uncons
   , unsnoc
 
-  , (!!)
-  , index
+  , (!!), index
   , elem
   , notElem
   , elemIndex
@@ -97,8 +94,7 @@ module Data.Array.NonEmpty
   , delete
   , deleteBy
 
-  , (\\)
-  , difference
+  , (\\), difference
   , difference'
   , intersect
   , intersect'
@@ -177,7 +173,7 @@ toArray :: forall a. NonEmptyArray a -> Array a
 toArray (NonEmptyArray xs) = xs
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
-toNonEmpty = uncons >>> \{ head: x, tail: xs } -> x :| xs
+toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
 
 fromFoldable :: forall f a. Foldable f => f a -> Maybe (NonEmptyArray a)
 fromFoldable = fromArray <<< A.fromFoldable
@@ -193,7 +189,7 @@ toUnfoldable1 xs = unfoldr1 f 0
   where
   len = length xs
   f i = Tuple (unsafePartial unsafeIndex xs i) $
-    if i < (len - 1) then Just (i + 1) else Nothing
+          if i < (len - 1) then Just (i + 1) else Nothing
 
 singleton :: forall a. a -> NonEmptyArray a
 singleton = unsafeFromArray <<< A.singleton
@@ -211,8 +207,7 @@ some
   :: forall f a
    . Alternative f
   => Lazy (f (Array a))
-  => f a
-  -> f (NonEmptyArray a)
+  => f a -> f (NonEmptyArray a)
 some = unsafeFromArrayF <<< A.some
 
 length :: forall a. NonEmptyArray a -> Int
@@ -328,7 +323,7 @@ partition
   :: forall a
    . (a -> Boolean)
   -> NonEmptyArray a
-  -> { yes :: Array a, no :: Array a }
+  -> { yes :: Array a, no :: Array a}
 partition f = adaptAny $ A.partition f
 
 filterA
@@ -494,10 +489,10 @@ difference xs = adaptAny $ difference' xs
 difference' :: forall a. Eq a => NonEmptyArray a -> Array a -> Array a
 difference' xs = A.difference $ toArray xs
 
-intersect :: forall a. Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
+intersect :: forall a . Eq a => NonEmptyArray a -> NonEmptyArray a -> Array a
 intersect = intersectBy eq
 
-intersect' :: forall a. Eq a => NonEmptyArray a -> Array a -> Array a
+intersect' :: forall a . Eq a => NonEmptyArray a -> Array a -> Array a
 intersect' = intersectBy' eq
 
 intersectBy
@@ -525,6 +520,7 @@ zipWith
   -> NonEmptyArray b
   -> NonEmptyArray c
 zipWith f xs ys = unsafeFromArray $ A.zipWith f (toArray xs) (toArray ys)
+
 
 zipWithA
   :: forall m a b c

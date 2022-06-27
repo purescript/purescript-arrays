@@ -28,99 +28,107 @@
 -- |   allowing you to STAI.iterate over an array and accumulate effects.
 -- |
 module Data.Array
-  ( (!!)
-  , (..)
-  , (:)
-  , (\\)
-  , all
-  , alterAt
-  , any
-  , catMaybes
-  , concat
-  , concatMap
-  , cons
-  , delete
-  , deleteAt
-  , deleteBy
-  , difference
-  , drop
-  , dropEnd
-  , dropWhile
+  ( fromFoldable
+  , toUnfoldable
+  , singleton
+  , (..), range
+  , replicate
+  , some
+  , many
+
+  , null
+  , isEmpty
+  , length
+
+  , (:), cons
+  , snoc
+  , insert
+  , insertBy
+
+  , head
+  , last
+  , tail
+  , init
+  , uncons
+  , unsnoc
+
+  , (!!), index
   , elem
+  , notElem
   , elemIndex
   , elemLastIndex
-  , filter
-  , filterA
   , find
+  , findMap
   , findIndex
   , findLastIndex
-  , findMap
-  , fold
-  , foldM
-  , foldMap
-  , foldRecM
-  , foldl
-  , foldr
-  , fromFoldable
-  , group
-  , groupAll
-  , groupAllBy
-  , groupBy
-  , head
-  , index
-  , init
-  , insert
   , insertAt
-  , insertBy
-  , intercalate
-  , intersect
-  , intersectBy
-  , intersperse
-  , isEmpty
-  , last
-  , length
-  , many
-  , mapMaybe
-  , mapWithIndex
+  , deleteAt
+  , updateAt
+  , updateAtIndices
   , modifyAt
   , modifyAtIndices
-  , notElem
-  , nub
-  , nubBy
-  , nubByEq
-  , nubEq
-  , null
-  , partition
-  , range
-  , replicate
+  , alterAt
+
+  , intersperse
   , reverse
+  , concat
+  , concatMap
+  , filter
+  , partition
+  , splitAt
+  , filterA
+  , mapMaybe
+  , catMaybes
+  , mapWithIndex
+  , foldl
+  , foldr
+  , foldMap
+  , fold
+  , intercalate
   , scanl
   , scanr
-  , singleton
-  , slice
-  , snoc
-  , some
+
   , sort
   , sortBy
   , sortWith
-  , span
-  , splitAt
-  , tail
+  , slice
   , take
   , takeEnd
   , takeWhile
-  , toUnfoldable
-  , uncons
+  , drop
+  , dropEnd
+  , dropWhile
+  , span
+  , group
+  , groupAll
+  , groupBy
+  , groupAllBy
+
+  , nub
+  , nubEq
+  , nubBy
+  , nubByEq
   , union
   , unionBy
-  , unsafeIndex
-  , unsnoc
-  , unzip
-  , updateAt
-  , updateAtIndices
-  , zip
+  , delete
+  , deleteBy
+
+  , (\\), difference
+  , intersect
+  , intersectBy
+
   , zipWith
   , zipWithA
+  , zip
+  , unzip
+
+  , any
+  , all
+
+  , foldM
+  , foldRecM
+
+  , unsafeIndex
   ) where
 
 import Prelude
@@ -147,7 +155,7 @@ toUnfoldable xs = unfoldr f 0
   where
   len = length xs
   f i
-    | i < len = Just (Tuple (unsafePartial (unsafeIndex xs i)) (i + 1))
+    | i < len   = Just (Tuple (unsafePartial (unsafeIndex xs i)) (i+1))
     | otherwise = Nothing
 
 -- | Convert a `Foldable` structure into an `Array`.
@@ -171,7 +179,7 @@ foreign import fromFoldableImpl
 -- | singleton 2 = [2]
 -- | ```
 singleton :: forall a. a -> Array a
-singleton a = [ a ]
+singleton a = [a]
 
 -- | Create an array containing a range of integers, including both endpoints.
 -- | ```purescript
@@ -244,7 +252,7 @@ foreign import length :: forall a. Array a -> Int
 -- |
 -- | Note, the running time of this function is `O(n)`.
 cons :: forall a. a -> Array a -> Array a
-cons x xs = [ x ] <> xs
+cons x xs = [x] <> xs
 
 -- | An infix alias for `cons`.
 -- |
@@ -284,10 +292,8 @@ insert = insertBy compare
 -- |
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
 insertBy cmp x ys =
-  let
-    i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
-  in
-    unsafePartial (fromJust (insertAt i x ys))
+  let i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
+  in unsafePartial (fromJust (insertAt i x ys))
 
 --------------------------------------------------------------------------------
 -- Non-indexed reads -----------------------------------------------------------
@@ -612,16 +618,15 @@ alterAt i f xs = maybe Nothing go (xs !! i)
 -- | ```
 intersperse :: forall a. a -> Array a -> Array a
 intersperse a arr = case length arr of
-  len
-    | len < 2 -> arr
-    | otherwise -> STA.run do
-        let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
-        out <- STA.new
-        _ <- STA.push (unsafeGetElem 0) out
-        ST.for 1 len \idx -> do
-          _ <- STA.push a out
-          void (STA.push (unsafeGetElem idx) out)
-        pure out
+  len | len < 2 -> arr
+      | otherwise -> STA.run do
+          let unsafeGetElem idx = unsafePartial (unsafeIndex arr idx)
+          out <- STA.new
+          _ <- STA.push (unsafeGetElem 0) out
+          ST.for 1 len \idx -> do
+            _ <- STA.push a out
+            void (STA.push (unsafeGetElem idx) out)
+          pure out
 
 -- | Reverse an array, creating a new array.
 -- |
@@ -704,7 +709,7 @@ splitAt i xs = { before: slice 0 i xs, after: slice i (length xs) xs }
 filterA :: forall a f. Applicative f => (a -> f Boolean) -> Array a -> f (Array a)
 filterA p =
   traverse (\x -> Tuple x <$> p x)
-    >>> map (mapMaybe (\(Tuple x b) -> if b then Just x else Nothing))
+  >>> map (mapMaybe (\(Tuple x b) -> if b then Just x else Nothing))
 
 -- | Apply a function to each element in an array, keeping only the results
 -- | which contain a value, creating a new array.
@@ -1048,16 +1053,16 @@ nubBy :: forall a. (a -> a -> Ordering) -> Array a -> Array a
 nubBy comp xs = case head indexedAndSorted of
   Nothing -> []
   Just x -> map snd $ sortWith fst $ ST.run do
-    -- TODO: use NonEmptyArrays here to avoid partial functions
-    result <- STA.unsafeThaw $ singleton x
-    ST.foreach indexedAndSorted \pair@(Tuple _ x') -> do
-      lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
-      when (comp lst x' /= EQ) $ void $ STA.push pair result
-    STA.unsafeFreeze result
+     -- TODO: use NonEmptyArrays here to avoid partial functions
+     result <- STA.unsafeThaw $ singleton x
+     ST.foreach indexedAndSorted \pair@(Tuple _ x') -> do
+       lst <- snd <<< unsafePartial (fromJust <<< last) <$> STA.unsafeFreeze result
+       when (comp lst x' /= EQ) $ void $ STA.push pair result
+     STA.unsafeFreeze result
   where
   indexedAndSorted :: Array (Tuple Int a)
   indexedAndSorted = sortBy (\x y -> comp (snd x) (snd y))
-    (mapWithIndex Tuple xs)
+                            (mapWithIndex Tuple xs)
 
 -- | Remove the duplicates from an array, where element equality is determined
 -- | by the specified equivalence relation, creating a new array.
@@ -1124,7 +1129,7 @@ delete = deleteBy eq
 -- | ```
 -- |
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
-deleteBy _ _ [] = []
+deleteBy _  _ [] = []
 deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (findIndex (eq x) ys)
 
 -- | Delete the first occurrence of each element in the second array from the
