@@ -7,7 +7,7 @@ Notable changes to this project are documented in this file. The format is based
 Breaking changes:
 
 New features:
-
+- Add `isEmpty` (#222 by @sigma-andex)
 Bugfixes:
 
 Other improvements:
