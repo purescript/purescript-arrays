@@ -148,7 +148,6 @@ import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
 import Partial.Unsafe (unsafePartial)
-import Prim.TypeError (class Warn, Text)
 
 -- | Convert an `Array` into an `Unfoldable` structure.
 toUnfoldable :: forall f. Unfoldable f => Array ~> f
@@ -224,7 +223,7 @@ many v = some v <|> pure []
 -- | null [] = true
 -- | null [1, 2] = false
 -- | ```
-null :: forall a. Warn (Text "'null' is deprecated, use 'isEmpty'") => Array a -> Boolean
+null :: forall a. Array a -> Boolean
 null = isEmpty
 
 -- | Test whether an array is empty.
