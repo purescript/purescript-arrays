@@ -265,6 +265,20 @@ testArray = do
   assert $ A.modifyAtIndices [0, 2, 8] not [true,  true, true,  true] ==
                                            [false, true, false, true]
 
+  log "transpose swaps rows and columns for a regular two-dimension array"
+  assert $ A.transpose [[1,2,3], [4,5,6], [7,8,9]] ==
+                       [[1,4,7], [2,5,8], [3,6,9]] 
+  
+  log "transpose skips elements when rows don't match"
+  assert $ A.transpose [[10,11], [20], [30,31,32]] ==
+                       [[10,20,30], [11,31], [32]]
+
+  log "transpose [] == []"
+  assert $ A.transpose [] == ([] :: Array (Array Int))
+
+  log "transpose (singleton []) == []"
+  assert $ A.transpose (A.singleton []) == ([] :: Array (Array Int))                                          
+
   log "scanl should return an array that stores the accumulated value at each step"
   assert $ A.scanl (+)  0 [1,2,3] == [1, 3, 6]
   assert $ A.scanl (-) 10 [1,2,3] == [9, 7, 4]
