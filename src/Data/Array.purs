@@ -786,13 +786,28 @@ intercalate = F.intercalate
 -- | For example,
 -- |
 -- | ```purescript
--- | transpose [[1,2,3], [4,5,6]] == [[1,4], [2,5], [3,6]]
+-- | transpose 
+-- |   [ [1, 2, 3]
+-- |   , [4, 5, 6]
+-- |   ] == 
+-- |   [ [1, 4]
+-- |   , [2, 5]
+-- |   , [3, 6]
+-- |   ]
 -- | ```
 -- |
 -- | If some of the rows are shorter than the following rows, their elements are skipped:
 -- |
 -- | ```purescript
--- | transpose [[10,11], [20], [30,31,32]] == [[10,20,30], [11,31], [32]]
+-- | transpose 
+-- |   [ [10, 11]
+-- |   , [20]
+-- |   , [30, 31, 32]
+-- |   ] == 
+-- |   [ [10, 20, 30]
+-- |   , [11, 31]
+-- |   , [32]
+-- |   ]
 -- | ```
 transpose :: forall a. Array (Array a) -> Array (Array a)
 transpose xs = go 0 []
