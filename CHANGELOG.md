@@ -7,6 +7,7 @@ Notable changes to this project are documented in this file. The format is based
 Breaking changes:
 
 New features:
+- Added `transpose` to `Array` (#225 by @newlandsvalley and @JordanMartinez)
 
 Bugfixes:
 
