@@ -84,6 +84,7 @@ module Data.Array
   , foldMap
   , fold
   , intercalate
+  , transpose
   , scanl
   , scanr
 
@@ -780,6 +781,46 @@ fold = F.fold
 
 intercalate :: forall a. Monoid a => a -> Array a -> a
 intercalate = F.intercalate
+
+-- | The 'transpose' function transposes the rows and columns of its argument.
+-- | For example,
+-- |
+-- | ```purescript
+-- | transpose 
+-- |   [ [1, 2, 3]
+-- |   , [4, 5, 6]
+-- |   ] == 
+-- |   [ [1, 4]
+-- |   , [2, 5]
+-- |   , [3, 6]
+-- |   ]
+-- | ```
+-- |
+-- | If some of the rows are shorter than the following rows, their elements are skipped:
+-- |
+-- | ```purescript
+-- | transpose 
+-- |   [ [10, 11]
+-- |   , [20]
+-- |   , [30, 31, 32]
+-- |   ] == 
+-- |   [ [10, 20, 30]
+-- |   , [11, 31]
+-- |   , [32]
+-- |   ]
+-- | ```
+transpose :: forall a. Array (Array a) -> Array (Array a)
+transpose xs = go 0 []
+  where
+  go :: Int -> Array (Array a) -> Array (Array a)
+  go idx allArrays = case buildNext idx of
+    Nothing -> allArrays
+    Just next -> go (idx + 1) (snoc allArrays next)  
+   
+  buildNext :: Int -> Maybe (Array a)
+  buildNext idx = do
+    xs # flip foldl Nothing \acc nextArr -> do
+      maybe acc (\el -> Just $ maybe [el] (flip snoc el) acc) $ index nextArr idx
 
 -- | Fold a data structure from the left, keeping all intermediate results
 -- | instead of only the final result. Note that the initial value does not
