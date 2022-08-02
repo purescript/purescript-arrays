@@ -135,6 +135,7 @@ import Data.Tuple (Tuple(..))
 import Data.Unfoldable (class Unfoldable)
 import Data.Unfoldable1 (class Unfoldable1, unfoldr1)
 import Partial.Unsafe (unsafePartial)
+import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Internal - adapt an Array transform to NonEmptyArray
@@ -171,8 +172,7 @@ unsafeFromArrayF = unsafeCoerce
 -- Note that this is unsafe: if the array or any embedded array is empty, this can
 -- explode at runtime.
 unsafeFromArray2D :: forall a. Array (Array a) -> NonEmptyArray (NonEmptyArray a) 
-unsafeFromArray2D =  
-  (map unsafeFromArray) <<< unsafeFromArray
+unsafeFromArray2D = coerce
 
 fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
@@ -181,8 +181,7 @@ toArray :: forall a. NonEmptyArray a -> Array a
 toArray (NonEmptyArray xs) = xs
 
 toArray2D :: forall a. NonEmptyArray (NonEmptyArray a) -> Array (Array a)
-toArray2D =
-  (map toArray) <<< toArray
+toArray2D = coerce
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
