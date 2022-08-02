@@ -64,6 +64,8 @@ module Data.Array.NonEmpty
   , foldMap1
   , fold1
   , intercalate
+  , transpose
+  , transpose'
   , scanl
   , scanr
 
@@ -166,11 +168,21 @@ unsafeFromArray = NonEmptyArray
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
 
+-- Note that this is unsafe: if the array or any embedded array is empty, this can
+-- explode at runtime.
+unsafeFromArray2D :: forall a. Array (Array a) -> NonEmptyArray (NonEmptyArray a) 
+unsafeFromArray2D =  
+  (map unsafeFromArray) <<< unsafeFromArray
+
 fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
 
 toArray :: forall a. NonEmptyArray a -> Array a
 toArray (NonEmptyArray xs) = xs
+
+toArray2D :: forall a. NonEmptyArray (NonEmptyArray a) -> Array (Array a)
+toArray2D =
+  (map toArray) <<< toArray
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
@@ -360,6 +372,41 @@ fold1 = F.fold1
 
 intercalate :: forall a. Semigroup a => a -> NonEmptyArray a -> a
 intercalate = F.intercalate
+
+-- | The 'transpose' function transposes the rows and columns of its argument.
+-- | For example,
+-- |
+-- | ```purescript
+-- | transpose 
+-- |   (NonEmptyArray [ NonEmptyArray [1, 2, 3]
+-- |                  , NonEmptyArray [4, 5, 6]
+-- |                  ]) == 
+-- |   (NonEmptyArray [ NonEmptyArray [1, 4]
+-- |                  , NonEmptyArray [2, 5]
+-- |                  , NonEmptyArray [3, 6]
+-- |                  ])
+-- | ```
+-- |
+-- | If some of the rows are shorter than the following rows, their elements are skipped:
+-- |
+-- | ```purescript
+-- | transpose 
+-- |   (NonEmptyArray [ NonEmptyArray [10, 11]
+-- |                  , NonEmptyArray [20]
+-- |                  , NonEmptyArray [30, 31, 32]
+-- |                  ]) == 
+-- |   (NomEmptyArray [ NonEmptyArray [10, 20, 30]
+-- |                  , NonEmptyArray [11, 31]
+-- |                  , NonEmptyArray [32]
+-- |                  ])
+-- | ```
+transpose :: forall a. NonEmptyArray (NonEmptyArray a) -> NonEmptyArray (NonEmptyArray a)
+transpose = unsafeFromArray2D <<< A.transpose <<< toArray2D
+
+-- | `transpose`' is identical to `transpose` other than that the inner arrays are each
+-- | a standard `Array` and not a `NonEmptyArray`.
+transpose' :: forall a. NonEmptyArray (Array a) -> NonEmptyArray (Array a)
+transpose' = unsafeAdapt A.transpose
 
 scanl :: forall a b. (b -> a -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
 scanl f x = unsafeAdapt $ A.scanl f x

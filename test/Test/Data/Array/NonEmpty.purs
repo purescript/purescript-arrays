@@ -397,6 +397,22 @@ testNonEmptyArray = do
   log "traverse1 should work"
   assert $ traverse1 Just (fromArray [1, 2, 3, 4]) == NEA.fromArray [1, 2, 3, 4]
 
+  log "transpose swaps rows and columns for a regular two-dimension array"
+  assert $ NEA.transpose (fromArray [ (fromArray [1,2,3]), (fromArray [4,5,6]), (fromArray [7,8,9])]) ==
+                         (fromArray [ (fromArray [1,4,7]), (fromArray [2,5,8]), (fromArray [3,6,9])])
+  
+  log "transpose skips elements when rows don't match"
+  assert $ NEA.transpose (fromArray [ (fromArray [10,11]), (fromArray [20]), (fromArray [30,31,32])]) ==
+                         (fromArray [ (fromArray [10,20,30]), (fromArray [11,31]), (fromArray [32])])
+
+  log "transpose' swaps rows and columns for a regular two-dimension array"
+  assert $ NEA.transpose' (fromArray [[1,2,3], [4,5,6], [7,8,9]]) ==
+                          (fromArray [[1,4,7], [2,5,8], [3,6,9]])
+  
+  log "transpose' skips elements when rows don't match"
+  assert $ NEA.transpose' (fromArray [[10,11], [20], [30,31,32]]) ==
+                          (fromArray [[10,20,30], [11,31], [32]])
+
 odd :: Int -> Boolean
 odd n = n `mod` 2 /= zero
 
