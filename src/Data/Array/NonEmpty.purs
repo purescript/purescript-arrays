@@ -169,19 +169,11 @@ unsafeFromArray = NonEmptyArray
 unsafeFromArrayF :: forall f a. f (Array a) -> f (NonEmptyArray a)
 unsafeFromArrayF = unsafeCoerce
 
--- Note that this is unsafe: if the array or any embedded array is empty, this can
--- explode at runtime.
-unsafeFromArray2D :: forall a. Array (Array a) -> NonEmptyArray (NonEmptyArray a) 
-unsafeFromArray2D = coerce
-
 fromNonEmpty :: forall a. NonEmpty Array a -> NonEmptyArray a
 fromNonEmpty (x :| xs) = cons' x xs
 
 toArray :: forall a. NonEmptyArray a -> Array a
 toArray (NonEmptyArray xs) = xs
-
-toArray2D :: forall a. NonEmptyArray (NonEmptyArray a) -> Array (Array a)
-toArray2D = coerce
 
 toNonEmpty :: forall a. NonEmptyArray a -> NonEmpty Array a
 toNonEmpty = uncons >>> \{head: x, tail: xs} -> x :| xs
@@ -400,7 +392,9 @@ intercalate = F.intercalate
 -- |                  ])
 -- | ```
 transpose :: forall a. NonEmptyArray (NonEmptyArray a) -> NonEmptyArray (NonEmptyArray a)
-transpose = unsafeFromArray2D <<< A.transpose <<< toArray2D
+transpose = 
+  (coerce :: (Array (Array a)) -> (NonEmptyArray (NonEmptyArray a))) 
+    <<< A.transpose <<< coerce
 
 -- | `transpose`' is identical to `transpose` other than that the inner arrays are each
 -- | a standard `Array` and not a `NonEmptyArray`.
