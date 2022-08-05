@@ -397,9 +397,10 @@ transpose =
     <<< A.transpose <<< coerce
 
 -- | `transpose`' is identical to `transpose` other than that the inner arrays are each
--- | a standard `Array` and not a `NonEmptyArray`.
-transpose' :: forall a. NonEmptyArray (Array a) -> NonEmptyArray (Array a)
-transpose' = unsafeAdapt A.transpose
+-- | a standard `Array` and not a `NonEmptyArray`. However, the result is wrapped in a 
+-- | `Maybe` to cater for the case where the inner `Array` is empty and must return `Nothing`.
+transpose' :: forall a. NonEmptyArray (Array a) -> Maybe (NonEmptyArray (Array a))
+transpose' = fromArray <<< A.transpose <<< coerce
 
 scanl :: forall a b. (b -> a -> b) -> b -> NonEmptyArray a -> NonEmptyArray b
 scanl f x = unsafeAdapt $ A.scanl f x
