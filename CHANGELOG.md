@@ -8,6 +8,7 @@ Breaking changes:
 
 New features:
 - Added `transpose` to `Array` (#225 by @newlandsvalley and @JordanMartinez)
+- Added `transpose` and `transpose' `to `Array.NonEmpty` (#227 by @newlandsvalley and @JordanMartinez)
 
 Bugfixes:
 
