@@ -7,12 +7,16 @@ Notable changes to this project are documented in this file. The format is based
 Breaking changes:
 
 New features:
-- Added `transpose` to `Array` (#225 by @newlandsvalley and @JordanMartinez)
-- Added `transpose` and `transpose' `to `Array.NonEmpty` (#227 by @newlandsvalley and @JordanMartinez)
 
 Bugfixes:
 
 Other improvements:
+
+## [v7.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.1.0) - 2022-08-06
+
+New features:
+- Added `transpose` to `Array` (#225 by @newlandsvalley and @JordanMartinez)
+- Added `transpose` and `transpose' `to `Array.NonEmpty` (#227 by @newlandsvalley and @JordanMartinez)
 
 ## [v7.0.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.0.0) - 2022-04-27
 
