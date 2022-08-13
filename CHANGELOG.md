@@ -9,6 +9,7 @@ Breaking changes:
 New features:
 
 Bugfixes:
+- Make `groupBy` use pairwise function (#230 by @JordanMartinez)
 
 Other improvements:
 
