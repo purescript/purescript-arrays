@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+- Speed up `fromFoldable` by removing intermediate list construction (#231 by @JordanMartinez)
 
 ## [v7.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.1.0) - 2022-08-06
 
