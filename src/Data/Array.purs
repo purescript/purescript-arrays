@@ -166,11 +166,11 @@ toUnfoldable xs = unfoldr f 0
 -- | ```
 -- |
 fromFoldable :: forall f. Foldable f => f ~> Array
-fromFoldable = fromFoldableImpl F.foldr
+fromFoldable = fromFoldableImpl F.foldl
 
 foreign import fromFoldableImpl
   :: forall f a
-   . (forall b. (a -> b -> b) -> b -> f a -> b)
+   . (forall b. (b -> a -> b) -> b -> f a -> b)
   -> f a
   -> Array a
 

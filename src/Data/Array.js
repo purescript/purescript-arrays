@@ -41,35 +41,19 @@ var replicatePolyfill = function (count) {
 export const replicate = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
 
 export const fromFoldableImpl = (function () {
-  function Cons(head, tail) {
-    this.head = head;
-    this.tail = tail;
-  }
-  var emptyList = {};
-
-  function curryCons(head) {
-    return function (tail) {
-      return new Cons(head, tail);
-    };
-  }
-
-  function listToArray(list) {
-    var result = [];
-    var count = 0;
-    var xs = list;
-    while (xs !== emptyList) {
-      result[count++] = xs.head;
-      xs = xs.tail;
+  function accumulate(acc) {
+    return function (next) {
+      acc.push(next);
+      return acc;
     }
-    return result;
   }
-
-  return function (foldr) {
+  return function(foldl) {
     return function (xs) {
-      return listToArray(foldr(curryCons)(emptyList)(xs));
+      return foldl(accumulate)([])(xs);
     };
-  };
+  }
 })();
+
 
 //------------------------------------------------------------------------------
 // Array size ------------------------------------------------------------------
