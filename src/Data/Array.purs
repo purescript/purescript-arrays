@@ -143,6 +143,7 @@ import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
 import Data.Foldable (class Foldable, traverse_)
 import Data.Foldable as F
+import Data.FunctorWithIndex as FWI
 import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
@@ -738,8 +739,7 @@ catMaybes = mapMaybe identity
 -- | ```
 -- |
 mapWithIndex :: forall a b. (Int -> a -> b) -> Array a -> Array b
-mapWithIndex f xs =
-  zipWith f (range 0 (length xs - 1)) xs
+mapWithIndex = FWI.mapWithIndex
 
 -- | Change the elements at the specified indices in index/value pairs.
 -- | Out-of-bounds indices will have no effect.
