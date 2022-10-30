@@ -18,6 +18,7 @@
     "purescript-bifunctors": "^6.0.0",
     "purescript-control": "^6.0.0",
     "purescript-foldable-traversable": "^6.0.0",
+    "purescript-functions": "^6.0.0",
     "purescript-maybe": "^6.0.0",
     "purescript-nonempty": "^7.0.0",
     "purescript-partial": "^4.0.0",
