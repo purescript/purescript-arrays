@@ -8,6 +8,7 @@ module Data.Array.ST.Partial
   ) where
 
 import Control.Monad.ST (ST)
+import Control.Monad.ST.Uncurried (STFn2, STFn3, runSTFn2, runSTFn3)
 import Data.Array.ST (STArray)
 import Data.Unit (Unit)
 
@@ -18,9 +19,9 @@ peek
   => Int
   -> STArray h a
   -> ST h a
-peek = peekImpl
+peek = runSTFn2 peekImpl
 
-foreign import peekImpl :: forall h a. Int -> STArray h a -> ST h a
+foreign import peekImpl :: forall h a. STFn2 Int (STArray h a) h a
 
 -- | Change the value at the specified index in a mutable array.
 poke
@@ -30,11 +31,6 @@ poke
   -> a
   -> STArray h a
   -> ST h Unit
-poke = pokeImpl
+poke = runSTFn3 pokeImpl
 
-foreign import pokeImpl
-  :: forall h a
-   . Int
-  -> a
-  -> STArray h a
-  -> ST h Unit
+foreign import pokeImpl :: forall h a. STFn3 Int a (STArray h a) h Unit
