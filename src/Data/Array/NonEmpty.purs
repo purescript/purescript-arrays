@@ -21,6 +21,7 @@ module Data.Array.NonEmpty
   , snoc
   , snoc'
   , appendArray
+  , prependArray
   , insert
   , insertBy
 
@@ -232,6 +233,9 @@ snoc' xs x = unsafeFromArray $ A.snoc xs x
 
 appendArray :: forall a. NonEmptyArray a -> Array a -> NonEmptyArray a
 appendArray xs ys = unsafeFromArray $ toArray xs <> ys
+
+prependArray :: forall a. Array a -> NonEmptyArray a -> NonEmptyArray a
+prependArray xs ys = unsafeFromArray $ xs <> toArray ys
 
 insert :: forall a. Ord a => a -> NonEmptyArray a -> NonEmptyArray a
 insert x = unsafeAdapt $ A.insert x
