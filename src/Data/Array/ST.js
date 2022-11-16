@@ -45,6 +45,14 @@ export const pushAll = function (as) {
   };
 };
 
+export const push = function (a) {
+  return function (xs) {
+    return function () {
+      return xs.push(a);
+    };
+  };
+};
+
 export const shiftImpl = function (just) {
   return function (nothing) {
     return function (xs) {
