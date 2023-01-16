@@ -27,7 +27,7 @@ export const poke = function (i) {
   };
 };
 
-export const lengthImpl = function (xs) {
+export const length = function (xs) {
   return function () {
     return xs.length;
   };
