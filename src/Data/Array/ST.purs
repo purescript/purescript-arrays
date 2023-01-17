@@ -11,6 +11,7 @@ module Data.Array.ST
   , peek
   , poke
   , modify
+  , length
   , pop
   , push
   , pushAll
@@ -148,6 +149,9 @@ foreign import peekImpl
 
 -- | Change the value at the specified index in a mutable array.
 foreign import poke :: forall h a. Int -> a -> STArray h a -> ST h Boolean
+
+-- | Get the number of elements in a mutable array.
+foreign import length :: forall h a. STArray h a -> ST h Int
 
 -- | Remove the last element from an array and return that element.
 pop :: forall h a. STArray h a -> ST h (Maybe a)

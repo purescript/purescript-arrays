@@ -49,6 +49,23 @@ testArrayST = do
 
   assert $ STA.run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]
 
+  log "length should return the number of items in an STArray"
+
+  assert $ ST.run (do
+    arr <- STA.thaw nil
+    length <- STA.length arr
+    pure $ length == 0)
+
+  assert $ ST.run (do
+    arr <- STA.thaw [1]
+    length <- STA.length arr
+    pure $ length == 1)
+
+  assert $ ST.run (do
+    arr <- STA.thaw [1, 2, 3, 4, 5]
+    length <- STA.length arr
+    pure $ length == 5)
+
   log "pop should remove elements from an STArray"
 
   assert $ STA.run (do

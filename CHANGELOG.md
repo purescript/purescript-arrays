@@ -8,6 +8,7 @@ Breaking changes:
 
 New features:
 - Add `prependArray` (#224 by @JordanMartinez)
+- Add `Data.Array.ST.length` (#239 by @Blugatroff)
 
 Bugfixes:
 

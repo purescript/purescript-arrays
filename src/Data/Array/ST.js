@@ -27,6 +27,12 @@ export const poke = function (i) {
   };
 };
 
+export const length = function (xs) {
+  return function () {
+    return xs.length;
+  };
+};
+
 export const popImpl = function (just) {
   return function (nothing) {
     return function (xs) {
