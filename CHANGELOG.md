@@ -7,10 +7,16 @@ Notable changes to this project are documented in this file. The format is based
 Breaking changes:
 
 New features:
-- Add `prependArray` (#224 by @JordanMartinez)
-- Add `Data.Array.ST.length` (#239 by @Blugatroff)
 
 Bugfixes:
+
+Other improvements:
+
+## [v7.2.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.0) - 2023-01-17
+
+New features:
+- Add `prependArray` (#224 by @JordanMartinez)
+- Add `Data.Array.ST.length` (#239 by @Blugatroff)
 
 Other improvements:
 - Use more efficient implementation for `mapWithIndex` (#233 by @JordanMartinez)
