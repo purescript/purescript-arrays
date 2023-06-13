@@ -20,6 +20,7 @@ New features:
 
 Other improvements:
 - Use more efficient implementation for `mapWithIndex` (#233 by @JordanMartinez)
+- Updates `ST` FFI to use uncurried functions via `STFnX` types (#234 by @JordanMartinez)
 
 ## [v7.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.1.0) - 2022-08-06
 
