@@ -12,6 +12,13 @@ Bugfixes:
 
 Other improvements:
 
+## [v7.2.1](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.1) - 2023-06-13
+
+Other improvements:
+
+- Updates non-`ST` FFI to use uncurried functions via `Fn` types (#235 by @JordanMartinez)
+- Updates `ST` FFI to use uncurried functions via `STFnX` types (#234 by @JordanMartinez)
+
 ## [v7.2.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.0) - 2023-01-17
 
 New features:
@@ -22,8 +29,6 @@ New features:
 Other improvements:
 
 - Use more efficient implementation for `mapWithIndex` (#233 by @JordanMartinez)
-- Updates non-`ST` FFI to use uncurried functions via `Fn` types (#235 by @JordanMartinez)
-- Updates `ST` FFI to use uncurried functions via `STFnX` types (#234 by @JordanMartinez)
 
 ## [v7.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.1.0) - 2022-08-06
 
