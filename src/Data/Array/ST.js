@@ -1,101 +1,57 @@
-function newSTArray () {
+function newSTArray() {
   return [];
 }
 export { newSTArray as new };
 
-export const peekImpl = function (just) {
-  return function (nothing) {
-    return function (i) {
-      return function (xs) {
-        return function () {
-          return i >= 0 && i < xs.length ? just(xs[i]) : nothing;
-        };
-      };
-    };
-  };
+export const peekImpl = function (just, nothing, i, xs) {
+  return i >= 0 && i < xs.length ? just(xs[i]) : nothing;
 };
 
-export const poke = function (i) {
-  return function (a) {
-    return function (xs) {
-      return function () {
-        var ret = i >= 0 && i < xs.length;
-        if (ret) xs[i] = a;
-        return ret;
-      };
-    };
-  };
+export const pokeImpl = function (i, a, xs) {
+  var ret = i >= 0 && i < xs.length;
+  if (ret) xs[i] = a;
+  return ret;
 };
 
-export const popImpl = function (just) {
-  return function (nothing) {
-    return function (xs) {
-      return function () {
-        return xs.length > 0 ? just(xs.pop()) : nothing;
-      };
-    };
-  };
+export const lengthImpl = function (xs) {
+  return xs.length;
 };
 
-export const pushAll = function (as) {
-  return function (xs) {
-    return function () {
-      return xs.push.apply(xs, as);
-    };
-  };
+export const popImpl = function (just, nothing, xs) {
+  return xs.length > 0 ? just(xs.pop()) : nothing;
 };
 
-export const shiftImpl = function (just) {
-  return function (nothing) {
-    return function (xs) {
-      return function () {
-        return xs.length > 0 ? just(xs.shift()) : nothing;
-      };
-    };
-  };
+export const pushAllImpl = function (as, xs) {
+  return xs.push.apply(xs, as);
 };
 
-export const unshiftAll = function (as) {
-  return function (xs) {
-    return function () {
-      return xs.unshift.apply(xs, as);
-    };
-  };
+export const shiftImpl = function (just, nothing, xs) {
+  return xs.length > 0 ? just(xs.shift()) : nothing;
 };
 
-export const splice = function (i) {
-  return function (howMany) {
-    return function (bs) {
-      return function (xs) {
-        return function () {
-          return xs.splice.apply(xs, [i, howMany].concat(bs));
-        };
-      };
-    };
-  };
+export const unshiftAllImpl = function (as, xs) {
+  return xs.unshift.apply(xs, as);
 };
 
-export const unsafeFreeze = function (xs) {
-  return function () {
-    return xs;
-  };
+export const spliceImpl = function (i, howMany, bs, xs) {
+  return xs.splice.apply(xs, [i, howMany].concat(bs));
 };
 
-export const unsafeThaw = function (xs) {
-  return function () {
-    return xs;
-  };
-};
-
-function copyImpl(xs) {
-  return function () {
-    return xs.slice();
-  };
+function unsafeFreezeThawImpl(xs) {
+  return xs;
 }
 
-export const freeze = copyImpl;
+export const unsafeFreezeImpl = unsafeFreezeThawImpl;
 
-export const thaw = copyImpl;
+export const unsafeThawImpl = unsafeFreezeThawImpl;
+
+function copyImpl(xs) {
+  return xs.slice();
+}
+
+export const freezeImpl = copyImpl;
+
+export const thawImpl = copyImpl;
 
 export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
@@ -121,8 +77,7 @@ export const sortByImpl = (function () {
       if (c > 0) {
         xs1[k++] = y;
         ++j;
-      }
-      else {
+      } else {
         xs1[k++] = x;
         ++i;
       }
@@ -135,26 +90,18 @@ export const sortByImpl = (function () {
     }
   }
 
-  return function (compare) {
-    return function (fromOrdering) {
-      return function (xs) {
-        return function () {
-          if (xs.length < 2) return xs;
+  return function (compare, fromOrdering, xs) {
+    if (xs.length < 2) return xs;
 
-          mergeFromTo(compare, fromOrdering, xs, xs.slice(0), 0, xs.length);
+    mergeFromTo(compare, fromOrdering, xs, xs.slice(0), 0, xs.length);
 
-          return xs;
-        };
-      };
-    };
+    return xs;
   };
 })();
 
-export const toAssocArray = function (xs) {
-  return function () {
-    var n = xs.length;
-    var as = new Array(n);
-    for (var i = 0; i < n; i++) as[i] = { value: xs[i], index: i };
-    return as;
-  };
+export const toAssocArrayImpl = function (xs) {
+  var n = xs.length;
+  var as = new Array(n);
+  for (var i = 0; i < n; i++) as[i] = { value: xs[i], index: i };
+  return as;
 };
