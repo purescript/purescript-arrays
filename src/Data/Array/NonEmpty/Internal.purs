@@ -13,6 +13,7 @@ import Control.Alt (class Alt)
 import Data.Eq (class Eq1)
 import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (class FoldableWithIndex)
+import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
 import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Ord (class Ord1)
 import Data.Semigroup.Foldable (class Foldable1, foldMap1DefaultL)
@@ -49,15 +50,15 @@ derive newtype instance foldableWithIndexNonEmptyArray :: FoldableWithIndex Int 
 
 instance foldable1NonEmptyArray :: Foldable1 NonEmptyArray where
   foldMap1 = foldMap1DefaultL
-  foldr1 = foldr1Impl
-  foldl1 = foldl1Impl
+  foldr1 = runFn2 foldr1Impl
+  foldl1 = runFn2 foldl1Impl
 
 derive newtype instance unfoldable1NonEmptyArray :: Unfoldable1 NonEmptyArray
 derive newtype instance traversableNonEmptyArray :: Traversable NonEmptyArray
 derive newtype instance traversableWithIndexNonEmptyArray :: TraversableWithIndex Int NonEmptyArray
 
 instance traversable1NonEmptyArray :: Traversable1 NonEmptyArray where
-  traverse1 = traverse1Impl apply map
+  traverse1 f = runFn3 traverse1Impl apply map f
   sequence1 = sequence1Default
 
 derive newtype instance applyNonEmptyArray :: Apply NonEmptyArray
@@ -71,13 +72,13 @@ derive newtype instance monadNonEmptyArray :: Monad NonEmptyArray
 derive newtype instance altNonEmptyArray :: Alt NonEmptyArray
 
 -- we use FFI here to avoid the unncessary copy created by `tail`
-foreign import foldr1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
-foreign import foldl1Impl :: forall a. (a -> a -> a) -> NonEmptyArray a -> a
+foreign import foldr1Impl :: forall a. Fn2 (a -> a -> a) (NonEmptyArray a) a
+foreign import foldl1Impl :: forall a. Fn2 (a -> a -> a) (NonEmptyArray a) a
 
 foreign import traverse1Impl
   :: forall m a b
-   . (forall a' b'. (m (a' -> b') -> m a' -> m b'))
-  -> (forall a' b'. (a' -> b') -> m a' -> m b')
-  -> (a -> m b)
-  -> NonEmptyArray a
-  -> m (NonEmptyArray b)
+   . Fn3
+       (forall a' b'. (m (a' -> b') -> m a' -> m b'))
+       (forall a' b'. (a' -> b') -> m a' -> m b')
+       (a -> m b)
+       (NonEmptyArray a -> m (NonEmptyArray b))

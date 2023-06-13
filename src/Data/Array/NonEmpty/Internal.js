@@ -1,22 +1,18 @@
-export const foldr1Impl = function (f) {
-  return function (xs) {
-    var acc = xs[xs.length - 1];
-    for (var i = xs.length - 2; i >= 0; i--) {
-      acc = f(xs[i])(acc);
-    }
-    return acc;
-  };
+export const foldr1Impl = function (f, xs) {
+  var acc = xs[xs.length - 1];
+  for (var i = xs.length - 2; i >= 0; i--) {
+    acc = f(xs[i])(acc);
+  }
+  return acc;
 };
 
-export const foldl1Impl = function (f) {
-  return function (xs) {
-    var acc = xs[0];
-    var len = xs.length;
-    for (var i = 1; i < len; i++) {
-      acc = f(acc)(xs[i]);
-    }
-    return acc;
-  };
+export const foldl1Impl = function (f, xs) {
+  var acc = xs[0];
+  var len = xs.length;
+  for (var i = 1; i < len; i++) {
+    acc = f(acc)(xs[i]);
+  }
+  return acc;
 };
 
 export const traverse1Impl = function () {
@@ -51,35 +47,31 @@ export const traverse1Impl = function () {
     return arr;
   }
 
-  return function (apply) {
-    return function (map) {
-      return function (f) {
-        var buildFrom = function (x, ys) {
-          return apply(map(consList)(f(x)))(ys);
-        };
+  return function (apply, map, f) {
+    var buildFrom = function (x, ys) {
+      return apply(map(consList)(f(x)))(ys);
+    };
 
-        var go = function (acc, currentLen, xs) {
-          if (currentLen === 0) {
-            return acc;
-          } else {
-            var last = xs[currentLen - 1];
-            return new Cont(function () {
-              var built = go(buildFrom(last, acc), currentLen - 1, xs);
-              return built;
-            });
-          }
-        };
+    var go = function (acc, currentLen, xs) {
+      if (currentLen === 0) {
+        return acc;
+      } else {
+        var last = xs[currentLen - 1];
+        return new Cont(function () {
+          var built = go(buildFrom(last, acc), currentLen - 1, xs);
+          return built;
+        });
+      }
+    };
 
-        return function (array) {
-          var acc = map(finalCell)(f(array[array.length - 1]));
-          var result = go(acc, array.length - 1, array);
-          while (result instanceof Cont) {
-            result = result.fn();
-          }
+    return function (array) {
+      var acc = map(finalCell)(f(array[array.length - 1]));
+      var result = go(acc, array.length - 1, array);
+      while (result instanceof Cont) {
+        result = result.fn();
+      }
 
-          return map(listToArray)(result);
-        };
-      };
+      return map(listToArray)(result);
     };
   };
 }();

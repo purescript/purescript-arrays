@@ -15,22 +15,27 @@ Other improvements:
 ## [v7.2.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.0) - 2023-01-17
 
 New features:
+
 - Add `prependArray` (#224 by @JordanMartinez)
 - Add `Data.Array.ST.length` (#239 by @Blugatroff)
 
 Other improvements:
+
 - Use more efficient implementation for `mapWithIndex` (#233 by @JordanMartinez)
+- Updates non-`ST` FFI to use uncurried functions via `Fn` types (#235 by @JordanMartinez)
 - Updates `ST` FFI to use uncurried functions via `STFnX` types (#234 by @JordanMartinez)
 
 ## [v7.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.1.0) - 2022-08-06
 
 New features:
+
 - Added `transpose` to `Array` (#225 by @newlandsvalley and @JordanMartinez)
 - Added `transpose` and `transpose' `to `Array.NonEmpty` (#227 by @newlandsvalley and @JordanMartinez)
 
 ## [v7.0.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.0.0) - 2022-04-27
 
 Breaking changes:
+
 - Migrate FFI to ES modules (#218 by @kl0tl and @JordanMartinez)
 - Drop deprecated `group'` and `empty` (#219 by @JordanMartinez)
 
@@ -39,21 +44,25 @@ New features:
 Bugfixes:
 
 Other improvements:
+
 - Fixed minor documentation issue with `find` (#216 by @JamieBallingall)
 
 ## [v6.0.1](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.1) - 2021-04-19
 
 Other improvements:
+
 - Fixed warnings revealed by `v0.14.1` PS release (#213 by @JordanMartinez)
 
 ## [v6.0.0](https://github.com/purescript/purescript-arrays/releases/tag/v6.0.0) - 2021-02-26
 
 Breaking changes:
+
 - Added support for PureScript 0.14 and dropped support for all previous versions (#181)
 - Renamed `Data.Array.ST.empty` to `Data.Array.ST.new` (#191, #198)
 - Renamed `group'` to `groupAll` (#194, #200)
 
 New features:
+
 - Added specialized versions of the functions from `Data.Foldable` (#201):
   - Added `foldl`, `foldr`, `foldMap`, `fold`, `intercalate` to `Array`
   - Added `foldl1`, `foldr1`, `foldMap1`, `foldl1`, `intercalate` to `Array.NonEmpty`
@@ -62,9 +71,11 @@ New features:
 - Added `mapWithIndex`, `groupBy` to `Array.NonEmpty` (#201, #164)
 
 Bugfixes:
+
 - Fixed `sort`, so `undefined` is sorted by comparison function and not simply moved to the end of the array (#195, #197)
 
 Other improvements:
+
 - Generated changelog and added PR template (#208, #209)
 - Added benchmarking (#178)
 - Migrated to GitHub Actions for CI (#187, #169)
@@ -98,7 +109,7 @@ Fixed issue with `fill` polyfill not being included in the bundle by `purs bundl
 
 ## [v5.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v5.1.0) - 2018-09-25
 
-* Make `groupBy` stable https://github.com/purescript/purescript-arrays/pull/148 (@LiamGoodacre)
+- Make `groupBy` stable https://github.com/purescript/purescript-arrays/pull/148 (@LiamGoodacre)
 
 ## [v5.0.0](https://github.com/purescript/purescript-arrays/releases/tag/v5.0.0) - 2018-05-23
 
@@ -119,8 +130,8 @@ Fixed issue with `fill` polyfill not being included in the bundle by `purs bundl
 
 ## [v4.2.2](https://github.com/purescript/purescript-arrays/releases/tag/v4.2.2) - 2017-12-16
 
-* Add examples to the docs for most functions in `Data.Array` (@csicar)
-* Remove some redundant parentheses (@matthewleon)
+- Add examples to the docs for most functions in `Data.Array` (@csicar)
+- Remove some redundant parentheses (@matthewleon)
 
 ## [v4.2.1](https://github.com/purescript/purescript-arrays/releases/tag/v4.2.1) - 2017-10-01
 
@@ -136,8 +147,8 @@ Fix some bugs in `Data.Array.ST.Partial` (@mhuisi)
 
 ## [v4.1.1](https://github.com/purescript/purescript-arrays/releases/tag/v4.1.1) - 2017-06-20
 
-* Improve performance of `unzip`; this function is now O(n) instead of O(n^2)
-* Various documentation improvements
+- Improve performance of `unzip`; this function is now O(n) instead of O(n^2)
+- Various documentation improvements
 
 ## [v4.1.0](https://github.com/purescript/purescript-arrays/releases/tag/v4.1.0) - 2017-05-28
 
@@ -259,6 +270,7 @@ This release works with versions 0.7.\* of the PureScript compiler. It will not 
 ## [v0.4.0-rc.2](https://github.com/purescript/purescript-arrays/releases/tag/v0.4.0-rc.2) - 2015-06-07
 
 Updates for parity with `purescript-lists`:
+
 - Added `insert`, `insertBy`, `alterAt`, `union`, `unionBy`
 - The `insertAt`, `modifyAt`, `deleteAt`... functions now return `Nothing` when given an out of range index
 
@@ -288,8 +300,6 @@ Add `modifyAt`.
 
 ## [v0.3.2](https://github.com/purescript/purescript-arrays/releases/tag/v0.3.2) - 2015-02-18
 
-
-
 ## [v0.3.1](https://github.com/purescript/purescript-arrays/releases/tag/v0.3.1) - 2015-01-24
 
 Add `take` and `drop`.
@@ -308,11 +318,7 @@ Include `(..)` operator.
 
 ## [v0.1.8](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.8) - 2014-05-30
 
-
-
 ## [v0.1.7](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.7) - 2014-05-29
-
-
 
 ## [v0.1.6](https://github.com/purescript/purescript-arrays/releases/tag/v0.1.6) - 2014-05-22
 
