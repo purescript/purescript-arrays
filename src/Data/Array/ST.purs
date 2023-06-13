@@ -165,9 +165,9 @@ poke = runSTFn3 pokeImpl
 -- | Change the value at the specified index in a mutable array.
 foreign import pokeImpl :: forall h a. STFn3 Int a (STArray h a) h Boolean
 
--- | Get the number of elements in a mutable array.
 foreign import lengthImpl :: forall h a. STFn1 (STArray h a) h Int
 
+-- | Get the number of elements in a mutable array.
 length :: forall h a. STArray h a -> ST h Int
 length = runSTFn1 lengthImpl
 
