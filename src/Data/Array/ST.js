@@ -105,3 +105,11 @@ export const toAssocArrayImpl = function (xs) {
   for (var i = 0; i < n; i++) as[i] = { value: xs[i], index: i };
   return as;
 };
+
+export const push = function (a) {
+   return function (xs) {
+     return function () {
+       return xs.push(a);
+     };
+   };
+ };
