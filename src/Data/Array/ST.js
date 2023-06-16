@@ -106,10 +106,6 @@ export const toAssocArrayImpl = function (xs) {
   return as;
 };
 
-export const push = function (a) {
-   return function (xs) {
-     return function () {
-       return xs.push(a);
-     };
-   };
- };
+export const pushImpl = function (a, xs) {
+  return xs.push(a);
+};
