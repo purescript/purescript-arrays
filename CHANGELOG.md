@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+ - Implements `ST.push` via a call to JavaScript's native `push` instead of `pushAll` (#236 by @i-am-the-slime)
 
 ## [v7.2.1](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.1) - 2023-06-13
 

@@ -181,8 +181,10 @@ foreign import popImpl
 
 -- | Append an element to the end of a mutable array. Returns the new length of
 -- | the array.
-push :: forall h a. a -> STArray h a -> ST h Int
-push a = runSTFn2 pushAllImpl [ a ]
+push :: forall h a. a -> (STArray h a) -> ST h Int
+push = runSTFn2 pushImpl
+
+foreign import pushImpl :: forall h a. STFn2 a (STArray h a) h Int
 
 -- | Append the values in an immutable array to the end of a mutable array.
 -- | Returns the new length of the mutable array.
