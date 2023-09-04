@@ -289,6 +289,21 @@ export const allImpl = function (p, xs) {
   return true;
 };
 
+exports.zipWith3 = function (f) {
+  return function (xs) {
+    return function (ys) {
+      return function (zs) {
+        var l = Math.min(xs.length, ys.length, zs.length);
+        var result = new Array(l);
+        for (var i = 0; i < l; i++) {
+          result[i] = f(xs[i])(ys[i])(zs[i]);
+        }
+        return result;
+      };
+    };
+  };
+};
+
 //------------------------------------------------------------------------------
 // Partial ---------------------------------------------------------------------
 //------------------------------------------------------------------------------

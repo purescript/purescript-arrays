@@ -122,6 +122,7 @@ module Data.Array
   , intersectBy
 
   , zipWith
+  , zipWith3
   , zipWithA
   , zip
   , unzip
@@ -1257,6 +1258,24 @@ foreign import zipWithImpl
        (Array a)
        (Array b)
        (Array c)
+
+-- | Apply a function to pairs of elements at the same index in three arrays,
+-- | collecting the results in a new array.
+-- |
+-- | If one of the arrays is longer, elements will be discarded from the longer arrays.
+-- |
+-- | For example
+-- |
+-- | ```purescript
+-- | zipWith (\x y z -> (x + y) * z) [1, 2, 3] [4, 5, 6, 7] [1, 2, 3, 4] == [4, 14, 27]
+-- | ```
+foreign import zipWith3
+  :: forall a b c d
+   . (a -> b -> c -> d)
+  -> Array a
+  -> Array b
+  -> Array c
+  -> Array d
 
 -- | A generalization of `zipWith` which accumulates results in some
 -- | `Applicative` functor.

@@ -437,6 +437,9 @@ testArray = do
   log "zipWith should use the specified function to zip two lists together"
   assert $ A.zipWith (\x y -> [show x, y]) [1, 2, 3] ["a", "b", "c"] == [["1", "a"], ["2", "b"], ["3", "c"]]
 
+  log "zipWith3 should use the specified function to zip three lists together"
+  assert $ A.zipWith3 (\x y z -> [show x, y, show z]) [1, 2, 3] ["a", "b", "c"] [4, 5, 6] == [["1", "a", "4"], ["2", "b", "5"], ["3", "c", "6"]]
+
   log "zipWithA should use the specified function to zip two lists together"
   assert $ A.zipWithA (\x y -> Just $ Tuple x y) [1, 2, 3] ["a", "b", "c"] == Just [Tuple 1 "a", Tuple 2 "b", Tuple 3 "c"]
 
