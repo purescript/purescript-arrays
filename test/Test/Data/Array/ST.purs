@@ -45,6 +45,13 @@ testArrayST = do
     arr <- STA.thaw [1, 2, 3]
     STA.freeze arr) == [1, 2, 3]
 
+  log "copy should produce a shallow copy of an STArray"
+
+  assert $ ST.run (do
+    arr <- STA.thaw [1, 2, 3]
+    arr2 <- STA.copy arr
+    STA.freeze arr2) == [1, 2, 3]
+
   log "unsafeThaw should produce an STArray from a standard array"
 
   assert $ STA.run (STA.unsafeThaw [1, 2, 3]) == [1, 2, 3]

@@ -45,7 +45,7 @@ export const unsafeFreezeImpl = unsafeFreezeThawImpl;
 
 export const unsafeThawImpl = unsafeFreezeThawImpl;
 
-function copyImpl(xs) {
+export function copyImpl(xs) {
   return xs.slice();
 }
 
