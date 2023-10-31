@@ -45,13 +45,15 @@ export const unsafeFreezeImpl = unsafeFreezeThawImpl;
 
 export const unsafeThawImpl = unsafeFreezeThawImpl;
 
-export function copyImpl(xs) {
+function copyImpl(xs) {
   return xs.slice();
 }
 
 export const freezeImpl = copyImpl;
 
 export const thawImpl = copyImpl;
+
+export const cloneImpl = copyImpl;
 
 export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
