@@ -53,6 +53,8 @@ export const freezeImpl = copyImpl;
 
 export const thawImpl = copyImpl;
 
+export const cloneImpl = copyImpl;
+
 export const sortByImpl = (function () {
   function mergeFromTo(compare, fromOrdering, xs1, xs2, from, to) {
     var mid;

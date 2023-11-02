@@ -24,6 +24,7 @@ module Data.Array.ST
   , sortWith
   , freeze
   , thaw
+  , clone
   , unsafeFreeze
   , unsafeThaw
   , toAssocArray
@@ -94,6 +95,15 @@ thaw = runSTFn1 thawImpl
 
 -- | Create a mutable copy of an immutable array.
 foreign import thawImpl :: forall h a. STFn1 (Array a) h (STArray h a)
+
+-- | Make a mutable copy of a mutable array.
+clone
+  :: forall h a
+   . STArray h a
+  -> ST h (STArray h a)
+clone = runSTFn1 cloneImpl
+
+foreign import cloneImpl :: forall h a. STFn1 (STArray h a) h (STArray h a)
 
 -- | Sort a mutable array in place. Sorting is stable: the order of equal
 -- | elements is preserved.
