@@ -38,6 +38,7 @@ module Data.Array
   , many
 
   , null
+  , isEmpty
   , length
 
   , (:)
@@ -228,13 +229,21 @@ many v = some v <|> pure []
 -- Array size ------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
--- | Test whether an array is empty.
+-- | Test whether an array is empty. Alias for `isEmpty`.
 -- | ```purescript
 -- | null [] = true
 -- | null [1, 2] = false
 -- | ```
 null :: forall a. Array a -> Boolean
-null xs = length xs == 0
+null = isEmpty
+
+-- | Test whether an array is empty.
+-- | ```purescript
+-- | isEmpty [] = true
+-- | isEmpty [1, 2] = false
+-- | ```
+isEmpty :: forall a. Array a -> Boolean
+isEmpty xs = length xs == 0
 
 -- | Get the number of elements in an array.
 -- | ```purescript

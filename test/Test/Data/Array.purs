@@ -49,12 +49,12 @@ testArray = do
   -- some
   -- many
 
-  log "null should return false for non-empty arrays"
-  assert $ A.null [1] == false
-  assert $ A.null [1, 2, 3] == false
+  log "isEmpty should return false for non-empty arrays"
+  assert $ A.isEmpty [1] == false
+  assert $ A.isEmpty [1, 2, 3] == false
 
-  log "null should return true for an empty array"
-  assert $ A.null nil == true
+  log "isEmpty should return true for an empty array"
+  assert $ A.isEmpty nil == true
 
   log "length should return the number of items in an array"
   assert $ A.length nil == 0
