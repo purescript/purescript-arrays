@@ -380,7 +380,11 @@ testArray = do
   assert $ A.groupAll [1, 2, 2, 3, 3, 3, 1] == [nea [1, 1], nea [2, 2], nea [3, 3, 3]]
 
   log "groupBy should group consecutive equal elements into arrays based on an equivalence relation"
-  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], nea [2], nea [2], nea [3, 3]]
+  assert $ A.groupBy (\x y -> odd x && odd y) [1, 1, 2, 2, 3, 3] == [nea [1, 1], NEA.singleton 2, NEA.singleton 2, nea [3, 3]]
+
+  log "groupBy uses a pairwise function"
+  assert $ A.groupBy (\l r -> l + 1 == r) [1, 2, 3, 4] == [nea [1, 2, 3, 4]]
+  assert $ A.groupBy (\l r -> l + 1 == r) [1, 3, 4, 6] == [nea [1], nea [3, 4], nea [6]]
 
   log "groupBy should be stable"
   assert $ A.groupBy (\_ _ -> true) [1, 2, 3] == [nea [1, 2, 3]]

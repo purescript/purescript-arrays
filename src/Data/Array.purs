@@ -142,6 +142,7 @@ import Control.Alternative (class Alternative)
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Rec.Class (class MonadRec, Step(..), tailRecM2)
 import Control.Monad.ST as ST
+import Control.Monad.ST.Ref as STRef
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Array.ST as STA
 import Data.Array.ST.Iterator as STAI
@@ -1061,16 +1062,42 @@ groupAll = groupAllBy compare
 -- | ```
 -- |
 groupBy :: forall a. (a -> a -> Boolean) -> Array a -> Array (NonEmptyArray a)
-groupBy op xs =
-  ST.run do
+groupBy op xs = case xs !! 0 of
+  Nothing -> 
+    []
+  Just h -> ST.run do
+    firstGroup <- STA.new
+    void $ STA.push h firstGroup
+    currentGroupRef <- STRef.new firstGroup
+
     result <- STA.new
-    iter <- STAI.iterator (xs !! _)
-    STAI.iterate iter \x -> void do
-      sub <- STA.new
-      _ <- STA.push x sub
-      STAI.pushWhile (op x) iter sub
-      grp <- STA.unsafeFreeze sub
-      STA.push (NonEmptyArray grp) result
+    prevRef <- STRef.new h
+    currentIdxRef <- STRef.new 1
+    ST.while (notEq 0 <$> STRef.read currentIdxRef) do
+      currentIdx <- STRef.read currentIdxRef
+      case xs !! currentIdx of
+        Just nextEl -> do
+          _ <- STRef.write (currentIdx + 1) currentIdxRef
+          prevEl <- STRef.read prevRef
+          currentGroup <- STRef.read currentGroupRef
+          if op prevEl nextEl then do
+            void $ STA.push nextEl currentGroup
+          else do
+            grp <- STA.unsafeFreeze currentGroup
+            _ <- STA.push (NonEmptyArray grp) result
+            nextGroup <- STA.new
+            _ <- STA.push nextEl nextGroup
+            void $ STRef.write nextGroup currentGroupRef
+          -- I would put this line immediately below 
+          --    `prevEl <- STRef.read prefRef`
+          -- but doing so causes the first `groupBy` test to fail,
+          -- likely due to a bug in how the compiler handles STRef.
+          void $ STRef.write nextEl prevRef
+        Nothing -> do
+          _ <- STRef.write 0 currentIdxRef
+          currentGroup <- STRef.read currentGroupRef
+          grp <- STA.unsafeFreeze currentGroup
+          void $ STA.push (NonEmptyArray grp) result
     STA.unsafeFreeze result
 
 -- | Group equal elements of an array into arrays, using the specified
