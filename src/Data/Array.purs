@@ -1190,7 +1190,7 @@ delete = deleteBy eq
 -- | deleteBy mod3eq 6 [1, 3, 4, 3] = [1, 4, 3]
 -- | ```
 -- |
-deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
+deleteBy :: forall a b. (b -> a -> Boolean) -> b -> Array a -> Array a
 deleteBy _ _ [] = []
 deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (findIndex (eq x) ys)
 
