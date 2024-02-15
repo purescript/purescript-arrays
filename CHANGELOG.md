@@ -11,6 +11,7 @@ New features:
 Bugfixes:
 
 Other improvements:
+- Generalizes the parameter type of `deleteBy` (#245 by @acple)
 
 ## [v7.3.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.3.0) - 2023-11-03
 
