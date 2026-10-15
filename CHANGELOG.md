@@ -6,7 +6,7 @@ Notable changes to this project are documented in this file. The format is based
 
 Other improvements:
 
-- Migrate from Bower/Pulp to Spago and update CI, linting and formatting.
+- Migrate from Bower/Pulp to Spago and update CI, linting and formatting (#247 by @thomashoneyman).
 
 ## [v7.3.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.3.0) - 2023-11-03
 
