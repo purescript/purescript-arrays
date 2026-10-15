@@ -11,10 +11,12 @@ Other improvements:
 ## [v7.3.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.3.0) - 2023-11-03
 
 New features:
+
 - Add `ST.clone` (#243 by @Bgbagan)
 
 Other improvements:
- - Implements `ST.push` via a call to JavaScript's native `push` instead of `pushAll` (#236 by @i-am-the-slime)
+
+- Implements `ST.push` via a call to JavaScript's native `push` instead of `pushAll` (#236 by @i-am-the-slime)
 
 ## [v7.2.1](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.1) - 2023-06-13
 

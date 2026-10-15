@@ -15,11 +15,11 @@ testArraySTPartial = do
 
   log "peekSTArray should return the value at the specified index"
   assert $ 2 == ST.run do
-    a <- thaw [1, 2, 3]
+    a <- thaw [ 1, 2, 3 ]
     unsafePartial $ STAP.peek 1 a
 
   log "pokeSTArray should modify the value at the specified index"
-  assert $ [1, 4, 3] == ST.run do
-    a <- thaw [1, 2, 3]
+  assert $ [ 1, 4, 3 ] == ST.run do
+    a <- thaw [ 1, 2, 3 ]
     unsafePartial $ STAP.poke 1 4 a
     unsafeFreeze a

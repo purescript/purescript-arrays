@@ -149,7 +149,7 @@ import Data.Foldable (class Foldable, traverse_)
 import Data.Foldable as F
 import Data.Function.Uncurried (Fn2, Fn3, Fn4, Fn5, runFn2, runFn3, runFn4, runFn5)
 import Data.FunctorWithIndex as FWI
-import Data.Maybe (Maybe(..), maybe, isJust, fromJust, isNothing)
+import Data.Maybe (Maybe(..), fromJust, isJust, isNothing, maybe)
 import Data.Traversable (sequence, traverse)
 import Data.Tuple (Tuple(..), fst, snd)
 import Data.Unfoldable (class Unfoldable, unfoldr)
