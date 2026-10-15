@@ -4,7 +4,7 @@ package:
     strict: true
     pedanticPackages: true
   dependencies:
-    - arrays: ">=7.3.0 <8.0.0"
+    - arrays: "*"
     - console: ">=6.0.0 <7.0.0"
     - effect: ">=4.0.0 <5.0.0"
     - maybe: ">=6.0.0 <7.0.0"
