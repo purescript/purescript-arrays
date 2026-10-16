@@ -1,10 +1,12 @@
+// Arrays with a known size are allocated upfront and filled below.
+// Initializing those slots first would do the work twice.
+
 //------------------------------------------------------------------------------
 // Array creation --------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 export const rangeImpl = function (start, end) {
   var step = start > end ? -1 : 1;
-  // Allocate the final size; the loop fills every slot without a second initialization.
   // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(step * (end - start) + 1);
   var i = start,
@@ -21,7 +23,6 @@ var replicateFill = function (count, value) {
   if (count < 1) {
     return [];
   }
-  // Allocate the final size for fill; initializing slots first would duplicate its work.
   // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(count);
   return result.fill(value);
@@ -179,7 +180,6 @@ export const partitionImpl = function (f, xs) {
 export const scanlImpl = function (f, b, xs) {
   var len = xs.length;
   var acc = b;
-  // The scan fills every slot; preinitializing them would do the work twice.
   // oxlint-disable-next-line unicorn/no-new-array
   var out = new Array(len);
   for (var i = 0; i < len; i++) {
@@ -192,7 +192,6 @@ export const scanlImpl = function (f, b, xs) {
 export const scanrImpl = function (f, b, xs) {
   var len = xs.length;
   var acc = b;
-  // The reverse scan fills every slot; preinitializing them would do the work twice.
   // oxlint-disable-next-line unicorn/no-new-array
   var out = new Array(len);
   for (var i = len - 1; i >= 0; i--) {
@@ -269,7 +268,6 @@ export const sliceImpl = function (s, e, l) {
 
 export const zipWithImpl = function (f, xs, ys) {
   var l = xs.length < ys.length ? xs.length : ys.length;
-  // Allocate exactly the shorter length; the loop fills every slot once.
   // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(l);
   for (var i = 0; i < l; i++) {
