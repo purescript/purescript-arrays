@@ -2,7 +2,7 @@
 
 Notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Unreleased](https://github.com/purescript/purescript-arrays/compare/v7.3.1...HEAD)
 
 Breaking changes:
 
@@ -12,13 +12,21 @@ Bugfixes:
 
 Other improvements:
 
+## [v7.3.1](https://github.com/purescript/purescript-arrays/releases/tag/v7.3.1) - 2026-10-17
+
+Other improvements:
+
+- Migrate from Bower/Pulp to Spago and update CI, linting and formatting (#247 by @thomashoneyman).
+
 ## [v7.3.0](https://github.com/purescript/purescript-arrays/releases/tag/v7.3.0) - 2023-11-03
 
 New features:
+
 - Add `ST.clone` (#243 by @Bgbagan)
 
 Other improvements:
- - Implements `ST.push` via a call to JavaScript's native `push` instead of `pushAll` (#236 by @i-am-the-slime)
+
+- Implements `ST.push` via a call to JavaScript's native `push` instead of `pushAll` (#236 by @i-am-the-slime)
 
 ## [v7.2.1](https://github.com/purescript/purescript-arrays/releases/tag/v7.2.1) - 2023-06-13
 

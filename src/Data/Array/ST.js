@@ -103,6 +103,8 @@ export const sortByImpl = (function () {
 
 export const toAssocArrayImpl = function (xs) {
   var n = xs.length;
+  // Each slot receives its indexed value below; preinitializing would duplicate work.
+  // oxlint-disable-next-line unicorn/no-new-array
   var as = new Array(n);
   for (var i = 0; i < n; i++) as[i] = { value: xs[i], index: i };
   return as;

@@ -1,0 +1,12 @@
+package:
+  name: arrays-bench
+  build:
+    strict: true
+    pedanticPackages: true
+  dependencies:
+    - arrays: "*"
+    - console: ">=6.0.0 <7.0.0"
+    - effect: ">=4.0.0 <5.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - minibench: ">=4.0.0 <5.0.0"
+    - prelude: ">=6.0.0 <7.0.0"

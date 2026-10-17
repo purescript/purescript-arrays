@@ -1,11 +1,16 @@
+// Arrays with a known size are allocated upfront and filled below.
+// Initializing those slots first would do the work twice.
+
 //------------------------------------------------------------------------------
 // Array creation --------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 export const rangeImpl = function (start, end) {
   var step = start > end ? -1 : 1;
+  // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(step * (end - start) + 1);
-  var i = start, n = 0;
+  var i = start,
+    n = 0;
   while (i !== end) {
     result[n++] = i;
     i += step;
@@ -18,6 +23,7 @@ var replicateFill = function (count, value) {
   if (count < 1) {
     return [];
   }
+  // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(count);
   return result.fill(value);
 };
@@ -32,7 +38,8 @@ var replicatePolyfill = function (count, value) {
 };
 
 // In browsers that have Array.prototype.fill we use it, as it's faster.
-export const replicateImpl = typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
+export const replicateImpl =
+  typeof Array.prototype.fill === "function" ? replicateFill : replicatePolyfill;
 
 export const fromFoldableImpl = (function () {
   function Cons(head, tail) {
@@ -84,7 +91,7 @@ export const unconsImpl = function (empty, next, xs) {
 //------------------------------------------------------------------------------
 
 export const indexImpl = function (just, nothing, xs, i) {
-  return i < 0 || i >= xs.length ? nothing :  just(xs[i]);
+  return i < 0 || i >= xs.length ? nothing : just(xs[i]);
 };
 
 export const findMapImpl = function (nothing, isJust, f, xs) {
@@ -161,13 +168,11 @@ export const filterImpl = function (f, xs) {
 
 export const partitionImpl = function (f, xs) {
   var yes = [];
-  var no  = [];
+  var no = [];
   for (var i = 0; i < xs.length; i++) {
     var x = xs[i];
-    if (f(x))
-      yes.push(x);
-    else
-      no.push(x);
+    if (f(x)) yes.push(x);
+    else no.push(x);
   }
   return { yes: yes, no: no };
 };
@@ -175,6 +180,7 @@ export const partitionImpl = function (f, xs) {
 export const scanlImpl = function (f, b, xs) {
   var len = xs.length;
   var acc = b;
+  // oxlint-disable-next-line unicorn/no-new-array
   var out = new Array(len);
   for (var i = 0; i < len; i++) {
     acc = f(acc)(xs[i]);
@@ -186,6 +192,7 @@ export const scanlImpl = function (f, b, xs) {
 export const scanrImpl = function (f, b, xs) {
   var len = xs.length;
   var acc = b;
+  // oxlint-disable-next-line unicorn/no-new-array
   var out = new Array(len);
   for (var i = len - 1; i >= 0; i--) {
     acc = f(xs[i])(acc);
@@ -222,8 +229,7 @@ export const sortByImpl = (function () {
       if (c > 0) {
         xs1[k++] = y;
         ++j;
-      }
-      else {
+      } else {
         xs1[k++] = x;
         ++i;
       }
@@ -262,6 +268,7 @@ export const sliceImpl = function (s, e, l) {
 
 export const zipWithImpl = function (f, xs, ys) {
   var l = xs.length < ys.length ? xs.length : ys.length;
+  // oxlint-disable-next-line unicorn/no-new-array
   var result = new Array(l);
   for (var i = 0; i < l; i++) {
     result[i] = f(xs[i])(ys[i]);

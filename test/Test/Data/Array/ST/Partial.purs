@@ -14,12 +14,16 @@ testArraySTPartial :: Effect Unit
 testArraySTPartial = do
 
   log "peekSTArray should return the value at the specified index"
-  assert $ 2 == ST.run do
-    a <- thaw [1, 2, 3]
-    unsafePartial $ STAP.peek 1 a
+  let
+    peeked = ST.run do
+      a <- thaw [ 1, 2, 3 ]
+      unsafePartial $ STAP.peek 1 a
+  assert $ 2 == peeked
 
   log "pokeSTArray should modify the value at the specified index"
-  assert $ [1, 4, 3] == ST.run do
-    a <- thaw [1, 2, 3]
-    unsafePartial $ STAP.poke 1 4 a
-    unsafeFreeze a
+  let
+    poked = ST.run do
+      a <- thaw [ 1, 2, 3 ]
+      unsafePartial $ STAP.poke 1 4 a
+      unsafeFreeze a
+  assert $ [ 1, 4, 3 ] == poked
