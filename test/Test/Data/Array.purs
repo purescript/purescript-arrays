@@ -256,23 +256,23 @@ testArray = do
   assert $ A.mapWithIndex (\i x -> x - i) [ 9, 8, 7, 6, 5 ] == [ 9, 7, 5, 3, 1 ]
 
   log "updateAtIndices changes the elements at specified indices"
-  assert $
-    A.updateAtIndices
+  let
+    updated = A.updateAtIndices
       [ Tuple 0 false, Tuple 2 false, Tuple 8 false ]
-      [ true, true, true, true ] ==
-      [ false, true, false, true ]
+      [ true, true, true, true ]
+  assert $ updated == [ false, true, false, true ]
 
   log "modifyAtIndices modifies the elements at specified indices"
-  assert $ A.modifyAtIndices [ 0, 2, 8 ] not [ true, true, true, true ] ==
-    [ false, true, false, true ]
+  let modified = A.modifyAtIndices [ 0, 2, 8 ] not [ true, true, true, true ]
+  assert $ modified == [ false, true, false, true ]
 
   log "transpose swaps rows and columns for a regular two-dimension array"
-  assert $ A.transpose [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ] ==
-    [ [ 1, 4, 7 ], [ 2, 5, 8 ], [ 3, 6, 9 ] ]
+  let transposed = A.transpose [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+  assert $ transposed == [ [ 1, 4, 7 ], [ 2, 5, 8 ], [ 3, 6, 9 ] ]
 
   log "transpose skips elements when rows don't match"
-  assert $ A.transpose [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ] ==
-    [ [ 10, 20, 30 ], [ 11, 31 ], [ 32 ] ]
+  let transposedUneven = A.transpose [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ]
+  assert $ transposedUneven == [ [ 10, 20, 30 ], [ 11, 31 ], [ 32 ] ]
 
   log "transpose [] == []"
   assert $ A.transpose [] == ([] :: Array (Array Int))

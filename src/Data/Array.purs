@@ -293,11 +293,9 @@ insert = insertBy compare
 -- | ```
 -- |
 insertBy :: forall a. (a -> a -> Ordering) -> a -> Array a -> Array a
-insertBy cmp x ys =
-  let
-    i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
-  in
-    unsafePartial (fromJust (insertAt i x ys))
+insertBy cmp x ys = do
+  let i = maybe 0 (_ + 1) (findLastIndex (\y -> cmp x y == GT) ys)
+  unsafePartial (fromJust (insertAt i x ys))
 
 --------------------------------------------------------------------------------
 -- Non-indexed reads -----------------------------------------------------------
@@ -1191,8 +1189,9 @@ delete = deleteBy eq
 -- | ```
 -- |
 deleteBy :: forall a. (a -> a -> Boolean) -> a -> Array a -> Array a
-deleteBy _ _ [] = []
-deleteBy eq x ys = maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (findIndex (eq x) ys)
+deleteBy eq x ys = case ys of
+  [] -> []
+  _ -> maybe ys (\i -> unsafePartial $ fromJust (deleteAt i ys)) (findIndex (eq x) ys)
 
 -- | Delete the first occurrence of each element in the second array from the
 -- | first array, creating a new array.

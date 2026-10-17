@@ -58,13 +58,11 @@ testNonEmptyArray = do
   assert $ [ 1, 2, 3 ] `NEA.snoc'` 4 == fromArray [ 1, 2, 3, 4 ]
 
   log "insert should add an item at the appropriate place in a sorted array"
-  assert $ NEA.insert 1.5 (fromArray [ 1.0, 2.0, 3.0 ])
-    == fromArray [ 1.0, 1.5, 2.0, 3.0 ]
+  assert $ NEA.insert 1.5 (fromArray [ 1.0, 2.0, 3.0 ]) == fromArray [ 1.0, 1.5, 2.0, 3.0 ]
   assert $ NEA.insert 4 (fromArray [ 1, 2, 3 ]) == fromArray [ 1, 2, 3, 4 ]
 
   log "insertBy should add an item at the appropriate place in a sorted array using the specified comparison"
-  assert $ NEA.insertBy (flip compare) 1.5 (fromArray [ 1.0, 2.0, 3.0 ])
-    == fromArray [ 1.0, 2.0, 3.0, 1.5 ]
+  assert $ NEA.insertBy (flip compare) 1.5 (fromArray [ 1.0, 2.0, 3.0 ]) == fromArray [ 1.0, 2.0, 3.0, 1.5 ]
 
   log "head should return the first value of a non-empty array"
   assert $ NEA.head (fromArray [ "foo", "bar" ]) == "foo"
@@ -237,15 +235,15 @@ testNonEmptyArray = do
   assert $ NEA.scanr (flip (-)) 10 (fromArray [ 1, 2, 3 ]) == scanr (flip (-)) 10 (fromArray [ 1, 2, 3 ])
 
   log "updateAtIndices changes the elements at specified indices"
-  assert $
-    NEA.updateAtIndices
+  let
+    updated = NEA.updateAtIndices
       [ Tuple 0 false, Tuple 2 false, Tuple 8 false ]
-      (fromArray [ true, true, true, true ]) ==
-      fromArray [ false, true, false, true ]
+      (fromArray [ true, true, true, true ])
+  assert $ updated == fromArray [ false, true, false, true ]
 
   log "modifyAtIndices modifies the elements at specified indices"
-  assert $ NEA.modifyAtIndices [ 0, 2, 8 ] not (fromArray [ true, true, true, true ]) ==
-    (fromArray [ false, true, false, true ])
+  let modified = NEA.modifyAtIndices [ 0, 2, 8 ] not (fromArray [ true, true, true, true ])
+  assert $ modified == fromArray [ false, true, false, true ]
 
   log "sort should reorder a list into ascending order based on the result of compare"
   assert $ NEA.sort (fromArray [ 1, 3, 2, 5, 6, 4 ]) == fromArray [ 1, 2, 3, 4, 5, 6 ]
@@ -366,14 +364,12 @@ testNonEmptyArray = do
 
   log "toUnfoldable"
   let toUnfoldableId xs = NEA.toUnfoldable xs == NEA.toArray xs
-  traverse_ (assert <<< toUnfoldableId) $
-    fromArray
-      ( [ fromArray [ 1 ]
-        , fromArray [ 1, 2, 3 ]
-        , fromArray [ 2, 3, 1 ]
-        , fromArray [ 4, 0, 0, 1, 25, 36, 458, 5842, 23757 ]
-        ]
-      )
+  traverse_ (assert <<< toUnfoldableId) $ fromArray
+    [ fromArray [ 1 ]
+    , fromArray [ 1, 2, 3 ]
+    , fromArray [ 2, 3, 1 ]
+    , fromArray [ 4, 0, 0, 1, 25, 36, 458, 5842, 23757 ]
+    ]
 
   log "toUnfoldable1"
   assert $ NEA.toUnfoldable1 (NEA.range 0 9) == 0 :| A.range 1 9
@@ -402,23 +398,23 @@ testNonEmptyArray = do
   assert $ traverse1 Just (fromArray [ 1, 2, 3, 4 ]) == NEA.fromArray [ 1, 2, 3, 4 ]
 
   log "transpose swaps rows and columns for a regular two-dimension array"
-  assert $ NEA.transpose (fromArray [ (fromArray [ 1, 2, 3 ]), (fromArray [ 4, 5, 6 ]), (fromArray [ 7, 8, 9 ]) ]) ==
-    (fromArray [ (fromArray [ 1, 4, 7 ]), (fromArray [ 2, 5, 8 ]), (fromArray [ 3, 6, 9 ]) ])
+  let transposed = NEA.transpose (fromArray [ (fromArray [ 1, 2, 3 ]), (fromArray [ 4, 5, 6 ]), (fromArray [ 7, 8, 9 ]) ])
+  assert $ transposed == fromArray [ (fromArray [ 1, 4, 7 ]), (fromArray [ 2, 5, 8 ]), (fromArray [ 3, 6, 9 ]) ]
 
   log "transpose skips elements when rows don't match"
-  assert $ NEA.transpose (fromArray [ (fromArray [ 10, 11 ]), (fromArray [ 20 ]), (fromArray [ 30, 31, 32 ]) ]) ==
-    (fromArray [ (fromArray [ 10, 20, 30 ]), (fromArray [ 11, 31 ]), (fromArray [ 32 ]) ])
+  let transposedUneven = NEA.transpose (fromArray [ (fromArray [ 10, 11 ]), (fromArray [ 20 ]), (fromArray [ 30, 31, 32 ]) ])
+  assert $ transposedUneven == fromArray [ (fromArray [ 10, 20, 30 ]), (fromArray [ 11, 31 ]), (fromArray [ 32 ]) ]
 
   log "transpose' handles the singleton empty array"
   assert $ NEA.transpose' (fromArray [ [] ]) == (Nothing :: Maybe (NEA.NonEmptyArray (Array Int)))
 
   log "transpose' swaps rows and columns for a regular two-dimension array"
-  assert $ NEA.transpose' (fromArray [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]) ==
-    (Just $ fromArray [ [ 1, 4, 7 ], [ 2, 5, 8 ], [ 3, 6, 9 ] ])
+  let transposed' = NEA.transpose' (fromArray [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ])
+  assert $ transposed' == (Just $ fromArray [ [ 1, 4, 7 ], [ 2, 5, 8 ], [ 3, 6, 9 ] ])
 
   log "transpose' skips elements when rows don't match"
-  assert $ NEA.transpose' (fromArray [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ]) ==
-    (Just $ fromArray [ [ 10, 20, 30 ], [ 11, 31 ], [ 32 ] ])
+  let transposedUneven' = NEA.transpose' (fromArray [ [ 10, 11 ], [ 20 ], [ 30, 31, 32 ] ])
+  assert $ transposedUneven' == (Just $ fromArray [ [ 10, 20, 30 ], [ 11, 31 ], [ 32 ] ])
 
 odd :: Int -> Boolean
 odd n = n `mod` 2 /= zero
