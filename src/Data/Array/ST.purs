@@ -32,7 +32,7 @@ module Data.Array.ST
 
 import Prelude
 
-import Control.Monad.ST (ST, Region)
+import Control.Monad.ST (Region, ST)
 import Control.Monad.ST as ST
 import Control.Monad.ST.Uncurried (STFn1, STFn2, STFn3, STFn4, runSTFn1, runSTFn2, runSTFn3, runSTFn4)
 import Data.Maybe (Maybe(..))

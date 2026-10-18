@@ -1,17 +1,20 @@
 {
   "private": true,
   "scripts": {
-    "clean": "rimraf output && rimraf .pulp-cache",
-    "build": "eslint src && pulp build -- --censor-lib --strict",
-    "test": "pulp test",
-    "bench:build": "pulp build --include bench -- --censor-lib --strict",
-    "bench:run": "node --expose-gc -e \"require('./output/Bench.Main/index.js').main()\"",
-    "bench": "npm run bench:build && npm run bench:run"
+    "build": "spago build -p arrays",
+    "test": "spago test -p arrays",
+    "bench:build": "spago build -p arrays-bench",
+    "bench:run": "node --expose-gc -e \"import('./output/Bench.Main/index.js').then(m => m.main())\"",
+    "bench": "npm run bench:build && npm run bench:run",
+    "lint": "oxlint --deny-warnings src test",
+    "format": "purs-tidy format-in-place src test bench/src && oxfmt --write .",
+    "format:check": "purs-tidy check src test bench/src && oxfmt --check ."
   },
   "devDependencies": {
-    "eslint": "^7.15.0",
-    "pulp": "16.0.0-0",
-    "purescript-psa": "^0.8.2",
-    "rimraf": "^3.0.2"
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
+    "purescript": "^0.15.16",
+    "purs-tidy": "^0.11.1",
+    "spago": "^1.0.5"
   }
 }

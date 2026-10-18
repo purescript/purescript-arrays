@@ -10,13 +10,13 @@ module Data.Array.ST.Iterator
   ) where
 
 import Prelude
+
 import Control.Monad.ST (ST)
 import Control.Monad.ST as ST
 import Control.Monad.ST.Ref (STRef)
 import Control.Monad.ST.Ref as STRef
 import Data.Array.ST (STArray)
 import Data.Array.ST as STA
-
 import Data.Maybe (Maybe(..), isNothing)
 
 -- | This type provides a slightly easier way of iterating over an array's

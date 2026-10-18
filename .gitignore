@@ -1,9 +1,10 @@
 /.*
 !/.gitignore
 !/.github
-!/.eslintrc.json
-!/.travis.yml
-package-lock.json
+!/.tidyrc.json
+!/.oxfmtrc.json
+/package-lock.json
+/spago.lock
 /bower_components/
 /node_modules/
 /output/

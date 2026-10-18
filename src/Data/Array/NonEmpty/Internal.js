@@ -15,7 +15,7 @@ export const foldl1Impl = function (f, xs) {
   return acc;
 };
 
-export const traverse1Impl = function () {
+export const traverse1Impl = (function () {
   function Cont(fn) {
     this.fn = fn;
   }
@@ -74,4 +74,4 @@ export const traverse1Impl = function () {
       return map(listToArray)(result);
     };
   };
-}();
+})();
